@@ -44,6 +44,21 @@ Install dependencies
 pip install .
 ```
 
+### Alternative Setup (Later in Project)
+
+When we get to deploying the stack we may want to use docker.
+
+To build and stand up the stack following the steps. (Must have docker and docker compose installed).
+
+```bash
+docker compose build
+```
+
+Standup
+```bash
+docker compose up
+```
+
 ## Playing the game
 
 ### Terminal
@@ -56,4 +71,10 @@ clue play
 
 ```bash
 clue serve
+```
+
+Alternatively, you can use docker
+
+```bash
+docker compose up --build
 ```
