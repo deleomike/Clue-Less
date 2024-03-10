@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "clueless"
+version = "0.1.0"
+description = ""
+requires-python = ">=3.9"
+authors = [
+  {name = "Michael DeLeo", email = "mdeleo2@jhu.edu"},
+  {name = "Katherine Banks", email = "kbrook64@jh.edu"},
+  {name = "Luke Reissmueller", email= "lreissm1@jh.edu"},
+]
+readme = "README.md"
+license = {file = "LICENSE"}
+
+
+dependencies = [
+  "click",
+  "fastapi",
+  "uvicorn[standard]",
+  "rich"
+]
+
+[project.scripts]
+clue = "clueless.main:clue"
+
+#[project.gui-scripts]
+#spam-gui = "spam:main_gui"
+#
+#[project.entry-points."spam.magical"]
+#tomatoes = "spam:main_tomatoes"
