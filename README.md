@@ -1,5 +1,13 @@
 # Clue-Less
 
+```text
+   ______ __                     __                    
+  / ____// /__  __ ___          / /   ___   _____ _____
+ / /    / // / / // _ \ ______ / /   / _ \ / ___// ___/
+/ /___ / // /_/ //  __//_____// /___/  __/(__  )(__  ) 
+\____//_/ \__,_/ \___/       /_____/\___//____//____/  
+```
+
 This project is using the fastapi framework in addition to click for providing an clue-less game that can be played
 in the terminal and on your browser.
 
