@@ -1,17 +1,30 @@
 import click
-import rich
+from rich.console import Console
 
 
 @click.group()
 def clue():
-    print("Clue-Less")
+    """
+    Clue-Less Root CLI Group
+    :return:
+    """
+
+    from clueless.cli_utils import CLUE_LESS_ASCII, CONSOLE
+
+    CONSOLE.print(CLUE_LESS_ASCII)
 
 
 @clue.command(help="Play the game in your browser.")
 @click.option("--port", "-p", default=8080, help="Port for webserver")
 @click.option("--host", default="127.0.0.1", help="IP Address for serving")
-# @click.option("--debug", "-d")
 def serve(port, host):
+    """
+    Play the game in your browser.
+
+    :param port: Port number for the app
+    :param host: Host for the app
+    :return:
+    """
     from clueless.app.webapp import app
     import uvicorn
 
@@ -21,6 +34,12 @@ def serve(port, host):
 @clue.command(help="Play the game locally in a terminal")
 @click.option("--players", default=2, type=int, help="Number of Players")
 def play(players: int):
+    """
+
+    :param players:
+    :return:
+    """
+
     from clueless.app.core.GameLoop import GameLoop
 
     GameLoop()
