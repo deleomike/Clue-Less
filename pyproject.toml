@@ -25,9 +25,3 @@ dependencies = [
 
 [project.scripts]
 clue = "clueless.main:clue"
-
-#[project.gui-scripts]
-#spam-gui = "spam:main_gui"
-#
-#[project.entry-points."spam.magical"]
-#tomatoes = "spam:main_tomatoes"

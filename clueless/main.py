@@ -18,14 +18,18 @@ def serve(port, host):
     uvicorn.run(app=app, host=host, port=port)
 
 
-
 @clue.command(help="Play the game locally in a terminal")
 @click.option("--players", default=2, type=int, help="Number of Players")
 def play(players: int):
+    from clueless.app.core.GameLoop import GameLoop
+
+    GameLoop()
+
     if players <= 1:
         print("Can't start a game with fewer than 2 players.")
         exit(1)
-    pass
+
+    # TODO
 
 
 if __name__ == '__main__':
