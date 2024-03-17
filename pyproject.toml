@@ -21,7 +21,8 @@ dependencies = [
   "fastapi",
   "uvicorn[standard]",
   "rich",
-  "jinja2"
+  "jinja2",
+  "fastapi-sessions"
 ]
 
 [project.scripts]

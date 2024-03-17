@@ -1,5 +1,4 @@
 import click
-from rich.console import Console
 
 
 @click.group()
@@ -40,7 +39,7 @@ def play(players: int):
     :return:
     """
 
-    from clueless.app.core.GameLoop import GameLoop
+    from clueless.app.core.game.GameLoop import GameLoop
 
     GameLoop()
 

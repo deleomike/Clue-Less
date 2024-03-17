@@ -16,12 +16,15 @@ from fastapi import (
 
 from clueless.app.core.ConnectionManager import ConnectionManager
 from clueless import STATIC_PATH, TEMLPATES_PATH
+from clueless.app.api import main_router
 
 app = FastAPI()
 manager = ConnectionManager()
 
 app.mount("/static", StaticFiles(directory=STATIC_PATH), name="static")
 templates = Jinja2Templates(directory=TEMLPATES_PATH)
+
+app.include_router(main_router)
 
 
 # @app.get('/')
