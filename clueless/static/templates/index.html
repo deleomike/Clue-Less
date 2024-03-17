@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket - client</title>
+    <style>
+    #messages .clientID {
+        font-weight: bold;
+    }
+    </style>
+</head>
+<body >
+    <main>
+        <div>
+            <h1>Chat App</h1>
+            <form id="room-form" class="mb-2">
+                <label for="room_id" class="text-slate-8000">Room id:</label>
+                <input type="text" id='room-id' class="border p-1" required>
+                <button type="submit" id="room-submit">Enter</button>
+            </form>
+            <div id="message-box">
+                <!-- Messages will be added here -->
+            </div>
+            <form id="message-form">
+                <div>
+                    <input type="text" id="message" placeholder="Enter your message">
+                    <button type="submit" text-slate-300 border-0 w-1/12 outline-0">Send</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        const roomIDInput = document.getElementById("room-id");
+        const roomForm = document.getElementById('room-form')
+        const messageForm = document.getElementById("message-form");
+        const messageInput = document.getElementById("message");
+        const messageBox = document.getElementById("message-box");
+
+        const clientID = Date.now();
+        const ws;
+
+        function processMessage(event) {
+            const d = JSON.parse(event.data);
+            const messageEl = document.createElement("div");
+            messageEl.className = "w-full flex justify-start";
+            messageEl.innerHTML = `
+                <div>
+                    <p>${d.userID}: ${d.msg}</p>
+                </div>`;
+            messageBox.appendChild(messageEl);
+            messageBox.scrollTop = messageBox.scrollHeight;
+        }
+
+        roomForm.addEventListener("submit", (e) => {
+            console.log("here")
+            e.preventDefault()
+            if (ws) {
+                ws.onmessage = processMessage
+            }
+            else{
+                roomID = roomIDInput.value;
+                ws = new WebSocket(`ws://localhost:8000/ws/${roomID}/${clientID}`)
+                console.log(`ws://localhost:8000/ws/${roomID}/${clientID}`)
+                ws.onmessage = processMessage
+            }
+        });
+
+        messageForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const message = messageInput.value;
+
+            ws.send(JSON.stringify({ msg: message, userID: clientID }));
+            messageInput.value = "";
+        });
+
+        window.addEventListener("beforeunload", () => {
+            if (ws) {
+                ws.close();
+            }
+        });
+
+    </script>
+</body>

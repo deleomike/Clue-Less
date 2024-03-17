@@ -20,7 +20,8 @@ dependencies = [
   "click",
   "fastapi",
   "uvicorn[standard]",
-  "rich"
+  "rich",
+  "jinja2"
 ]
 
 [project.scripts]
