@@ -31,6 +31,10 @@ app.include_router(main_router)
 # def home(request: Request):
 #   return templates.TemplateResponse("index.html", {"request": request})
 
+@app.on_event("startup")
+def on_startup():
+    from clueless.app.db import create_db_and_tables
+    create_db_and_tables()
 
 @app.get('/')
 def home(request: Request):
