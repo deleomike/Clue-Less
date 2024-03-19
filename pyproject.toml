@@ -22,7 +22,8 @@ dependencies = [
   "uvicorn[standard]",
   "rich",
   "jinja2",
-  "fastapi-sessions"
+  "fastapi-sessions",
+  "watchfiles"
 ]
 
 [project.scripts]

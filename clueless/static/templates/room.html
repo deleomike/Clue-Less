@@ -1,0 +1,17 @@
+{% include "base_layout.html" %}
+  <div>
+    <h1> {{ room.name }} - {{room.room_key}} </h1>
+
+    <h2>Players</h2>
+    <!-- <ul>
+        {% for room in rooms %}
+          <li>
+            <em>{{ room.name }}:</em> 0/{{ room.player_limit }}, {{ room.room_key }}
+          </li>
+        {% endfor %}
+    </ul> -->
+    <button>Start Game</button>
+    <button>Join Game</button>
+    <button>Leave Lobby</button>
+  </div>
+{% block body %}{% endblock %}
