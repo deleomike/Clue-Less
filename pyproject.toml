@@ -23,7 +23,8 @@ dependencies = [
   "rich",
   "jinja2",
   "fastapi-sessions",
-  "watchfiles"
+  "watchfiles",
+  "sqlmodel"
 ]
 
 [project.scripts]

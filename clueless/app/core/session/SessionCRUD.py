@@ -37,6 +37,7 @@ class SessionCRUD(Singleton):
                 secret_key="DONOTUSE",
                 cookie_params=self.cookie_params,
             )
+
         self.backend = InMemoryBackend[UUID, SessionData]() if backend is None else backend
 
         self.verifier = BasicVerifier(
