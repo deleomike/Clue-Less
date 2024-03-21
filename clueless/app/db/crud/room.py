@@ -47,11 +47,13 @@ class RoomCRUD(BaseCRUD):
         return rooms
 
     def create(self, room: RoomCreate) -> RoomRead:
+        print("CREATE")
         db_room = Room.model_validate(room)
         self.session.add(db_room)
         self.session.commit()
         self.session.refresh(db_room)
-        return db_room
+
+        return self.add_player(_id=db_room.id, player_id=room.host)
 
     def delete(self, _id: UUID) -> RoomRead:
         room = self.session.get(Room, _id)
@@ -64,7 +66,7 @@ class RoomCRUD(BaseCRUD):
     def update(self, _id: UUID, room: RoomUpdate) -> RoomRead:
         db_room = self.session.get(Room, _id)
         if not db_room:
-            raise HTTPException(status_code=404, detail="Hero not found")
+            raise HTTPException(status_code=404, detail="Room not found")
         room_data = room.model_dump(exclude_unset=True)
         db_room.sqlmodel_update(room_data)
         self.session.add(db_room)
@@ -72,3 +74,19 @@ class RoomCRUD(BaseCRUD):
         self.session.refresh(db_room)
         return db_room
 
+
+    def add_player(self, _id: UUID, player_id: UUID) -> RoomRead:
+        print("ADDPlayer")
+        room = self.get(_id=_id)
+
+        if room.users is None:
+            room.users = []
+
+        if player_id in room.users:
+            raise HTTPException(500, detail="User already added")
+        users = room.users
+        users.append(str(player_id))
+        room.users = users
+        self.session.add(room)
+        self.session.commit()
+        return room
