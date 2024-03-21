@@ -1,0 +1,14 @@
+{% include "base_layout.html" %}
+  <div>
+    <ul>
+        {% for room in rooms %}
+          <li>
+            <a href='http://127.0.0.1:8000/rooms/{{room.room_key}}'>
+                <button>Click Me</button>
+            </a>
+            <em>{{ room.name }}:</em> 0/{{ room.player_limit }}, {{ room.room_key }}
+          </li>
+        {% endfor %}
+        </ul>
+  </div>
+{% block body %}{% endblock %}
