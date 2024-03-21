@@ -24,7 +24,9 @@ dependencies = [
   "jinja2",
   "fastapi-sessions",
   "watchfiles",
-  "sqlmodel"
+  "sqlmodel",
+  "fastapi-users[sqlalchemy]",
+  "aiosqlite"
 ]
 
 [project.scripts]

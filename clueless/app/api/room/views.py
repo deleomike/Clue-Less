@@ -4,15 +4,17 @@ from typing import List
 
 from clueless.app.db.crud.room import RoomCRUD, RoomRead, RoomCreate, RoomUpdate
 from clueless.app.db import get_session
+from clueless.app.core.users import fastapi_users
 from clueless.app.core.session import SessionData, SessionCreate, SessionCRUD, BasicVerifier, session
+
 
 router = APIRouter()
 
 
-@router.post("/", response_model=RoomRead, dependencies=[Depends(session.cookie)])
+@router.post("/", response_model=RoomRead)
 def create_room(room: RoomCreate,
                 crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
-                session_data: SessionData = Depends(session.verifier)):
+                current_active_user = fastapi_users.current_user(active=True)):
     return crud.create(room=room)
 
 
@@ -22,7 +24,8 @@ def get_all(crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
 
 
 @router.get("/{_id}/", response_model=RoomRead)
-def get_room_info(_id: str, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
+def get_room_info(_id: str,
+                  crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
     """
     Gets the room by either the alphanumeric room key or by the ID
     :param _id:
@@ -33,9 +36,9 @@ def get_room_info(_id: str, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
 
 
 @router.post("/{_id}/join/", dependencies=[Depends(session.cookie)])
-def start_game(_id: str,
+def join_game(_id: str,
                crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
-               session_data: SessionData = Depends(session.verifier)):
+               current_active_user = fastapi_users.current_user(active=True)):
     """
     Gets the room by either the alphanumeric room key or by the ID
     :param _id:
@@ -48,7 +51,9 @@ def start_game(_id: str,
 
 
 @router.post("/{_id}/start/", dependencies=[Depends(session.cookie)], response_model=RoomRead)
-def start_game(_id: str, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
+def start_game(_id: str,
+               crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
+               current_active_user = fastapi_users.current_user(active=True)):
     """
     Gets the room by either the alphanumeric room key or by the ID
     :param _id:
@@ -61,7 +66,9 @@ def start_game(_id: str, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
 
 
 @router.delete("/{_id}/", response_model=RoomRead)
-def delete_room(_id: str, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
+def delete_room(_id: str,
+                crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
+                current_active_user = fastapi_users.current_user(active=True)):
     """
     Gets the room by either the alphanumeric room key or by the ID
     :param _id:

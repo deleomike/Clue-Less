@@ -1,6 +1,13 @@
-from sqlmodel import SQLModel, Field, Column, String
-from typing import Optional
-from uuid import UUID, uuid4
+from sqlmodel import SQLModel, Field, Column, String, Relationship
+from sqlalchemy import ForeignKey, MetaData, JSON
+from sqlalchemy.orm import Mapped, relationship
+# from sqlalchemy import re
+from typing import Optional, List
+from uuid import uuid4, UUID
+
+from clueless.app.db.models import mapper_registry
+from clueless.app.db.models.base import BaseTable
+from clueless.app.db.models.user import User
 
 
 def generate_alphanumeric(length: int = 4) -> str:
@@ -15,12 +22,14 @@ class RoomBase(SQLModel):
     name: Optional[str] = Field(index=True)
     player_limit: int = Field(default=6, const=True, index=False)
     is_started: bool = Field(default=False, index=False)
+    host: Optional[UUID] = Field(default=None, index=False)
 
 
-class Room(RoomBase, table=True):
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
+class Room(RoomBase, BaseTable, table=True):
     # WARNING: This does nothing to verify uniqueness other than an error
     room_key: str = Field(unique=True, default_factory=generate_alphanumeric, index=True)
+
+    users: List[UUID] = Field(default=[], sa_column=Column(JSON))
 
 
 class RoomCreate(RoomBase):

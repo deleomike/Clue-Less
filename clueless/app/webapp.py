@@ -13,11 +13,13 @@ from fastapi import (
     status,
 )
 
-
 from clueless.app.core.ConnectionManager import ConnectionManager
 from clueless import STATIC_PATH, TEMLPATES_PATH
 from clueless.app.api import main_router
 from clueless.app.ui.views import router as ui_router
+from clueless.app.core.users import current_active_user
+from clueless.app.db.models.user import User
+
 
 app = FastAPI()
 manager = ConnectionManager()
@@ -34,9 +36,10 @@ app.include_router(ui_router)
 #   return templates.TemplateResponse("index.html", {"request": request})
 
 @app.on_event("startup")
-def on_startup():
-    from clueless.app.db import create_db_and_tables
+async def on_startup():
+    from clueless.app.db import create_db_and_tables, alchemy_create_db_and_tables
     create_db_and_tables()
+    await alchemy_create_db_and_tables()
 
 
 async def get_cookie_or_token(
@@ -48,6 +51,11 @@ async def get_cookie_or_token(
         raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
     return session or token
 
+
+
+@app.get("/authenticated-route")
+async def authenticated_route(user: User = Depends(current_active_user)):
+    return {"message": f"Hello {user.email}!"}
 
 @app.websocket("/items/{item_id}/ws")
 async def websocket_endpoint(
