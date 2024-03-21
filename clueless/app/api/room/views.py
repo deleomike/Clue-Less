@@ -18,7 +18,6 @@ def create_room(room: RoomCreate,
     room.host = user.id
     room = crud.create(room=room)
     print("ROOM", room)
-    return crud.add_player(_id=room.id, player_id=user.id)
     return room
 
 
@@ -39,7 +38,7 @@ def get_room_info(_id: str,
     return crud.get_by_id_or_key(_id=_id)
 
 
-@router.post("/{_id}/join/", dependencies=[Depends(session.cookie)])
+@router.post("/{_id}/join/", response_model=RoomRead)
 def join_game(_id: str,
                crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
                user = Depends(current_active_user)):
@@ -51,10 +50,10 @@ def join_game(_id: str,
     """
     _id = crud.get_by_id_or_key(_id=_id).id
 
-    return crud.update(_id=_id, room=RoomUpdate(is_started=True))
+    return crud.add_player(_id=_id, player_id=user.id)
 
 
-@router.post("/{_id}/start/", dependencies=[Depends(session.cookie)], response_model=RoomRead)
+@router.post("/{_id}/start/", response_model=RoomRead)
 def start_game(_id: str,
                crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
                user = Depends(current_active_user)):

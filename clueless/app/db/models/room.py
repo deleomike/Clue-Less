@@ -29,7 +29,7 @@ class Room(RoomBase, BaseTable, table=True):
     # WARNING: This does nothing to verify uniqueness other than an error
     room_key: str = Field(unique=True, default_factory=generate_alphanumeric, index=True)
 
-    users: Optional[List[UUID]] = Field(default=None, sa_column=Column(JSON))
+    users: Optional[List[str]] = Field(default=None, sa_column=Column(JSON))
 
 
 class RoomCreate(RoomBase):
@@ -39,10 +39,10 @@ class RoomCreate(RoomBase):
 class RoomRead(RoomBase):
     id: UUID
     room_key: str
-    users: List[UUID]
+    users: List[str]
 
 
 class RoomUpdate(SQLModel):
     name: Optional[str] = None
     is_started: Optional[bool] = None
-    users: Optional[List[UUID]] = None
+    users: Optional[List[str]] = None

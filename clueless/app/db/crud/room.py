@@ -1,3 +1,5 @@
+import uuid
+
 from sqlmodel import select
 from typing import List, Union
 from uuid import UUID
@@ -48,10 +50,13 @@ class RoomCRUD(BaseCRUD):
 
     def create(self, room: RoomCreate) -> RoomRead:
         print("CREATE")
+        # room.users = [str(room.host)]
         db_room = Room.model_validate(room)
         self.session.add(db_room)
         self.session.commit()
         self.session.refresh(db_room)
+
+        self.add_player(_id=db_room.id, player_id=uuid.uuid4())
 
         return self.add_player(_id=db_room.id, player_id=room.host)
 
@@ -77,16 +82,33 @@ class RoomCRUD(BaseCRUD):
 
     def add_player(self, _id: UUID, player_id: UUID) -> RoomRead:
         print("ADDPlayer")
+        player_string = str(player_id.__str__())
+        print("PLAYER ID ", player_string)
+        print(type(player_string))
+        print(type(player_id))
         room = self.get(_id=_id)
 
         if room.users is None:
             room.users = []
 
-        if player_id in room.users:
-            raise HTTPException(500, detail="User already added")
-        users = room.users
-        users.append(str(player_id))
-        room.users = users
+        # if player_id in room.users:
+        #     raise HTTPException(500, detail="User already added")
+        room.users.append(str(player_string))
+        print(room.users)
+
+        # update = RoomUpdate.model_validate(room)
+
+        # print("UPDATE ", update)
+
+        # return self.update(_id=_id, room=update)
+        #
+        # print(room)
+
         self.session.add(room)
         self.session.commit()
-        return room
+
+        room = self.get(_id=_id)
+
+        print(room)
+
+        return self.get(_id)
