@@ -153,3 +153,14 @@ graph TD;
     Login-->Create_Room;
     Login-->Join_Room;
 ```
+
+### Joining a room
+
+1. Stand up the stack with the prior instructions.
+2. Visit the docs page at http://0.0.0.0:80/docs
+3. Log in to the docs by clicking on the authorization button at the top of the page.
+   1. Provide your username and password. You don't need to provide anything else.
+4. Visit the join room doc. http://0.0.0.0/docs#/room/join_game_api_room___id__join__post
+   1. Click Try it out
+   2. Provide the room key or ID
+5. You will have joined the room
