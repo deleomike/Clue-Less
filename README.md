@@ -86,3 +86,27 @@ Alternatively, you can use docker
 ```bash
 docker compose up --build
 ```
+
+## Instructions
+
+### Authentication
+
+The Clue-less stack now uses a user authentication system via `fastapi-users`.
+Generally users will need to register and login. The frontend will need to keep
+ the session information when logged in. The general process for testing this is:
+
+1. Stand up the stack with the prior instructions.
+2. Visit the docs page at http://0.0.0.0:80/docs
+3. Register for a new account at http://0.0.0.0/docs#/auth/register_register_api_auth_register_post
+   1. Provide a username (email) and password)
+4. Log in to the docs by clicking on the authorization button at the top of the page.
+   1. Provide your username and password. You don't need to provide anything else.
+5. You are now authenticated and logged in to the docs, you can test the endpoints now.
+
+```mermaid
+graph TD;
+    -->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
