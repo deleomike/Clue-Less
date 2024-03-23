@@ -1,0 +1,20 @@
+
+
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Clue-Less</h1>
+
+    <b>Welcome, {{ curr_player }}!</b>
+    <br>
+    <br>
+
+    <b>Current Player List:</b>
+    <ul id="player-list">
+        {% for player in players %}
+        <li>{{ player }}</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

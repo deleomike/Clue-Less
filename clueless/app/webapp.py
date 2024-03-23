@@ -1,3 +1,35 @@
+from fastapi import FastAPI, Request, Form, WebSocket
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+# Import Classes
+from clueless.PlayerManager import PlayerManager
+from clueless import STATIC_PATH, TEMLPATES_PATH
+
+# Create FastAPI application
+app = FastAPI()
+app.mount("/static", StaticFiles(directory=STATIC_PATH), name="static")
+templates = Jinja2Templates(directory=TEMLPATES_PATH)
+
+# Instances
+player_manager = PlayerManager()
+
+# HTML interaction functions
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    print("home")
+    return templates.TemplateResponse("index.html", {"request": request, "players": player_manager.get_players()})
+
+@app.post("/add_player")
+async def add_player(request: Request, player_name: str = Form(...)):
+    print("add_player")
+    player_manager.add_player(player_name)
+    return templates.TemplateResponse("waitingRoom.html", {"request": request, "curr_player": player_name, "players": player_manager.get_players()})
+
+
+
+'''
 from typing import Union, Annotated
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -95,3 +127,4 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app="webapp:app", reload=True, host="127.0.0.1", port=8000)
+'''
