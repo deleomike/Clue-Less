@@ -6,7 +6,7 @@ from uuid import UUID
 from fastapi import HTTPException
 
 from clueless.app.db.crud.base import BaseCRUD
-from clueless.app.db.models.room import RoomBase, Room, RoomRead, RoomCreate, RoomUpdate
+from clueless.app.db.models.room import RoomBase, Room, RoomRead, RoomCreate, RoomUpdate, RoomCreateUI
 
 
 class RoomCRUD(BaseCRUD):

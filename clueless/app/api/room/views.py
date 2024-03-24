@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from uuid import UUID
 from typing import List
 
-from clueless.app.db.crud.room import RoomCRUD, RoomRead, RoomCreate, RoomUpdate
+from clueless.app.db.crud.room import RoomCRUD, RoomRead, RoomCreate, RoomUpdate, RoomCreateUI
 from clueless.app.db import get_session
 from clueless.app.core.users import current_active_user
 from clueless.app.core.session import SessionData, SessionCreate, SessionCRUD, BasicVerifier, session
@@ -12,10 +12,10 @@ router = APIRouter()
 
 
 @router.post("/", response_model=RoomRead)
-def create_room(room: RoomCreate,
+def create_room(room: RoomCreateUI,
                 crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
                 user = Depends(current_active_user)):
-    room.host = user.id
+    room = RoomCreate(name=room.name, host=user.id)
     print("CRUD ROOM: ", room)
     room = crud.create(room=room)
     print("ROOM", room)

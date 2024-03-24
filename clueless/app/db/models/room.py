@@ -41,6 +41,10 @@ class RoomCreate(RoomBase):
     host: UUID = Field(default=None, index=False)
 
 
+class RoomCreateUI(SQLModel):
+    name: Optional[str] = Field(index=True)
+
+
 class RoomRead(RoomBase):
     id: UUID
     host: UUID
