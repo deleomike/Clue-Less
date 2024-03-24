@@ -34,7 +34,7 @@ class Room(RoomBase, BaseTable, table=True):
 
     host: UUID = Field(default=None, index=False)
 
-    users: Optional[List[str]] = Field(default=None, sa_column=Column(JSON))
+    users: List[str] = Field(default=None, sa_column=Column(JSON))
 
 
 class RoomCreate(RoomBase):

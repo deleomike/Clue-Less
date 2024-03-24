@@ -63,11 +63,14 @@ def user_a_room(test_client, test_user_a, test_user_a_header):
 
     delete_room(app=test_client, _id=room["id"], headers=test_user_a_header)
 
-def test_join(test_client, user_a_room, test_user_b, test_user_b_header):
+def test_join(test_client, user_a_room, test_user_a, test_user_b, test_user_b_header):
 
     response = test_client.post(
         f"/api/room/{user_a_room['id']}/join",
         headers=test_user_b_header
     )
 
-    assert test_user_b.id in response.json()["users"]
+    room = response.json()
+
+    assert test_user_b.id in room["users"]
+    assert test_user_a.id in room["users"]
