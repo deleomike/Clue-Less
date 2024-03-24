@@ -16,6 +16,7 @@ def create_room(room: RoomCreate,
                 crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
                 user = Depends(current_active_user)):
     room.host = user.id
+    print("CRUD ROOM: ", room)
     room = crud.create(room=room)
     print("ROOM", room)
     return room
@@ -68,7 +69,7 @@ def start_game(_id: str,
     return crud.update(_id=room.id, room=RoomUpdate(is_started=True))
 
 
-@router.delete("/{_id}/", response_model=RoomRead)
+@router.delete("/{_id}/")
 def delete_room(_id: str,
                 crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
                 user = Depends(current_active_user)):

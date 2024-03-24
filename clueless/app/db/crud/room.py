@@ -56,8 +56,6 @@ class RoomCRUD(BaseCRUD):
         self.session.commit()
         self.session.refresh(db_room)
 
-        self.add_player(_id=db_room.id, player_id=uuid.uuid4())
-
         return self.add_player(_id=db_room.id, player_id=room.host)
 
     def delete(self, _id: UUID) -> RoomRead:
