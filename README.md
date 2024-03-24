@@ -109,6 +109,36 @@ graph TD;
     Login-->ClueLess_Code;
 ```
 
+#### Authenticating with a request
+
+When the user logs in, the following payload
+
+```json
+{
+   "username": "my_email@email.com",
+   "password": "password"
+}
+```
+
+is sent to `/api/auth/login/jwt/login` as a POST REQUEST
+
+You will receive a response
+
+```json
+{
+  "access_token": "<TOKEN>",
+  "token_type": "bearer"
+}
+```
+
+Use this token to authenticate when sending requests to the backend
+
+```json
+headers = {
+    'Authorization': 'Bearer <TOKEN>',
+}
+```
+
 ### Rooms
 
 Games are centered around game rooms. They're basically a lobby for you to wait in before your game starts.
