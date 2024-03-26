@@ -34,6 +34,10 @@ class Room(RoomBase, BaseTable, table=True):
 
     host: UUID = Field(default=None, index=False)
 
+    game: Optional["Game"] = Relationship(
+        back_populates="room"
+    )
+
     users: List[str] = Field(default=None, sa_column=Column(JSON))
 
 
