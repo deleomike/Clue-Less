@@ -6,7 +6,7 @@ from uuid import UUID
 from fastapi import HTTPException
 
 from clueless.app.db.crud.base import BaseCRUD
-from clueless.app.db.models.room import RoomBase, Room, RoomRead, RoomCreate, RoomUpdate
+from clueless.app.db.models.room import RoomBase, Room, RoomRead, RoomCreate, RoomUpdate, RoomCreateUI
 
 
 class RoomCRUD(BaseCRUD):
@@ -52,13 +52,12 @@ class RoomCRUD(BaseCRUD):
         print("CREATE")
         # room.users = [str(room.host)]
         db_room = Room.model_validate(room)
+        db_room.users = [str(room.host)]
         self.session.add(db_room)
         self.session.commit()
         self.session.refresh(db_room)
 
-        self.add_player(_id=db_room.id, player_id=uuid.uuid4())
-
-        return self.add_player(_id=db_room.id, player_id=room.host)
+        return db_room
 
     def delete(self, _id: UUID) -> RoomRead:
         room = self.session.get(Room, _id)
@@ -81,34 +80,9 @@ class RoomCRUD(BaseCRUD):
 
 
     def add_player(self, _id: UUID, player_id: UUID) -> RoomRead:
-        print("ADDPlayer")
-        player_string = str(player_id.__str__())
-        print("PLAYER ID ", player_string)
-        print(type(player_string))
-        print(type(player_id))
         room = self.get(_id=_id)
 
-        if room.users is None:
-            room.users = []
+        new_room = RoomUpdate(users=room.users)
+        new_room.users.append(str(player_id))
 
-        # if player_id in room.users:
-        #     raise HTTPException(500, detail="User already added")
-        room.users.append(str(player_string))
-        print(room.users)
-
-        # update = RoomUpdate.model_validate(room)
-
-        # print("UPDATE ", update)
-
-        # return self.update(_id=_id, room=update)
-        #
-        # print(room)
-
-        self.session.add(room)
-        self.session.commit()
-
-        room = self.get(_id=_id)
-
-        print(room)
-
-        return self.get(_id)
+        return self.update(_id=_id, room=new_room)

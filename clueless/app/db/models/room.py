@@ -22,22 +22,32 @@ class RoomBase(SQLModel):
     name: Optional[str] = Field(index=True)
     player_limit: int = Field(default=6, const=True, index=False)
     is_started: bool = Field(default=False, index=False)
-    host: Optional[UUID] = Field(default=None, index=False)
+    # host: UUID = Field(default=None, index=False)
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class Room(RoomBase, BaseTable, table=True):
     # WARNING: This does nothing to verify uniqueness other than an error
     room_key: str = Field(unique=True, default_factory=generate_alphanumeric, index=True)
 
-    users: Optional[List[str]] = Field(default=None, sa_column=Column(JSON))
+    host: UUID = Field(default=None, index=False)
+
+    users: List[str] = Field(default=None, sa_column=Column(JSON))
 
 
 class RoomCreate(RoomBase):
-    pass
+    host: UUID = Field(default=None, index=False)
+
+
+class RoomCreateUI(SQLModel):
+    name: Optional[str] = Field(index=True)
 
 
 class RoomRead(RoomBase):
     id: UUID
+    host: UUID
     room_key: str
     users: List[str]
 
