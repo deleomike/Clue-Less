@@ -6,7 +6,6 @@ from clueless.app.db.crud.room import RoomCRUD, RoomRead, RoomCreate, RoomUpdate
 from clueless.app.db.crud.game import GameCRUD, GameRead, GameCreate
 from clueless.app.db import get_session
 from clueless.app.core.users import current_active_user
-from clueless.app.core.session import SessionData, SessionCreate, SessionCRUD, BasicVerifier, session
 
 
 router = APIRouter()

@@ -5,7 +5,6 @@ from sqlalchemy.orm import Mapped, relationship
 from typing import Optional, List
 from uuid import uuid4, UUID
 
-from clueless.app.db.models import mapper_registry
 from clueless.app.db.models.base import BaseTable
 from clueless.app.db.models.room import Room, RoomRead
 from clueless.app.db.models.user import User
@@ -23,6 +22,8 @@ class Game(GameBase, BaseTable, table=True):
     room: Room = Relationship(
         back_populates="game"
     )
+
+    # TODO: Core game data goes here
 
 
 class GameCreate(GameBase):
