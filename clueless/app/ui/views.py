@@ -20,11 +20,35 @@ templates = Jinja2Templates(directory=TEMLPATES_PATH)
 # async def requires_login(request: Request, _: Exception):
 #     return RedirectResponse(f"/login?next={quote(request.url._url)}")
 
+  
 
 @router.get('/')
 def index(request: Request):
   return templates.TemplateResponse("index.html", {"request": request})
 
+@router.get('/login_page')
+def login_page(request: Request):
+  print("ther use has navigated to the login page")
+  return templates.TemplateResponse("login_page.html", {"request": request})
+
+@router.get("/waiting_room/{name}")
+def get_waiting_room(request: Request, name: str):
+  if name is None:
+    return "name not found in URL"
+  print(name)
+  return templates.TemplateResponses("waiting_room.html", {"request": request, "curr_player":name})
+
+@router.post("/waiting_room/{name}")
+def get_waiting_room(request: Request, name: str):
+  if name is None:
+    return "name not found in URL"
+  print(name)
+  return templates.TemplateResponses("waiting_room.html", {"request": request, "curr_player":name})
+
+@router.get("/generate_room_code")
+async def generate_room_code():
+  room_code = "vasldfjk"
+  return room_code
 
 @router.get('/login', dependencies=[Depends(session.cookie)])
 async def login(request: Request, session_data: SessionData = Depends(session.verifier)):

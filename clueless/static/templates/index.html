@@ -1,104 +1,105 @@
 <!DOCTYPE html>
 <html>
 <body>
-    <h1>Clue-Less</h1>
+    <h1>Welcome to Clue-Less!</h1>
+    
+    <div>
+        <h2>Please create a new user:</h2>
+        <form>
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email"><br>
+            <label for="password">Password:</label>
+            <input type="text" id="password" name="password"><br>
+            <button type="submit" onclick="postCreateUser()">Create</button>
+        </form>
+        <p id="create-user-response"></p>
+        <br>
 
-    <form action="/add_player" method="post">
-        <label for="player_name">Add Player:</label>
-        <input type="text" id="player_name" name="player_name">
-        <button type="submit">Add</button>
-    </form>
+        <h2>Or login:</h2>
+        <form>
+            <label for="login-email">Email:</label>
+            <input type="text" id="login-email" name="login-email"><br>
+            <label for="login-password">Password:</label>
+            <input type="text" id="login-password" name="login-password"><br>
+            <button type="submit" onclick="postLogin()">Login</button>
+        </form>
+        <p id="login-response"></p>
+        <br>
+
+    </div>
+
+    <script>
+
+        async function postCreateUser(){
+            console.log("postCreateUser()");
+            const url = "/api/auth/register";
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const data = {
+                "email": email,
+                "password": password,
+                "is_active": true,
+                "is_superuser": false,
+                "is_verified": false
+            };
+
+            const repsonse = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            console.log(response);
+
+            if(response.ok){
+                result_string = "Successfully created a new user! Please log in below.";
+                document.getElementById('create-user-response').innerText = result_string;
+            } else {
+                result_string = "Failed to create a new user, please try again.";
+                document.getElementById('create-user-response').innerText = result_string;
+            }
+
+            return response;
+        }
+
+        async function postLogin(){
+            console.log("postLogin()")
+            const url = '/api/auth/jwt/login';
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const data = 'grant_type=&username=' + email + '&password=' + password + '&scope=&client_id=&client_secrete=';
+
+            let response = fetch(url, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: data
+            });
+
+            console.log(response);
+
+            if(response.ok){
+                result_string = "Successfully created a new user! Please log in below.";
+                document.getElementById('login-response').innerText = result_string;
+            } else {
+                result_string = "Failed to create a new user, please try again.";
+                document.getElementById('login-response').innerText = result_string;
+            }
+
+            return response;
+        }
+    </script>
+
+
 
 </body>
 </html>
 
 
-
-<!--
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket - client</title>
-    <style>
-    #messages .clientID {
-        font-weight: bold;
-    }
-    </style>
-</head>
-<body >
-    <main>
-        <div>
-            <h1>Chat App</h1>
-            <form id="room-form" class="mb-2">
-                <label for="room_id" class="text-slate-8000">Room id:</label>
-                <input type="text" id='room-id' class="border p-1" required>
-                <button type="submit" id="room-submit">Enter</button>
-            </form>
-            <div id="message-box">
-                
-            </div>
-            <form id="message-form">
-                <div>
-                    <input type="text" id="message" placeholder="Enter your message">
-                    <button type="submit" text-slate-300 border-0 w-1/12 outline-0">Send</button>
-                </div>
-            </form>
-        </div>
-    </main>
-
-    <script>
-        const roomIDInput = document.getElementById("room-id");
-        const roomForm = document.getElementById('room-form')
-        const messageForm = document.getElementById("message-form");
-        const messageInput = document.getElementById("message");
-        const messageBox = document.getElementById("message-box");
-
-        const clientID = Date.now();
-        const ws;
-
-        function processMessage(event) {
-            const d = JSON.parse(event.data);
-            const messageEl = document.createElement("div");
-            messageEl.className = "w-full flex justify-start";
-            messageEl.innerHTML = `
-                <div>
-                    <p>${d.userID}: ${d.msg}</p>
-                </div>`;
-            messageBox.appendChild(messageEl);
-            messageBox.scrollTop = messageBox.scrollHeight;
-        }
-
-        roomForm.addEventListener("submit", (e) => {
-            console.log("here")
-            e.preventDefault()
-            if (ws) {
-                ws.onmessage = processMessage
-            }
-            else{
-                roomID = roomIDInput.value;
-                ws = new WebSocket(`ws://localhost:8000/ws/${roomID}/${clientID}`)
-                console.log(`ws://localhost:8000/ws/${roomID}/${clientID}`)
-                ws.onmessage = processMessage
-            }
-        });
-
-        messageForm.addEventListener("submit", (event) => {
-            event.preventDefault();
-            const message = messageInput.value;
-
-            ws.send(JSON.stringify({ msg: message, userID: clientID }));
-            messageInput.value = "";
-        });
-
-        window.addEventListener("beforeunload", () => {
-            if (ws) {
-                ws.close();
-            }
-        });
-
-    </script>
-</body>
--->
