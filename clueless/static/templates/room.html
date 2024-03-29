@@ -3,15 +3,71 @@
     <h1> {{ room.name }} - {{room.room_key}} </h1>
 
     <h2>Players</h2>
-    <!-- <ul>
+    <ul>
         {% for room in rooms %}
           <li>
             <em>{{ room.name }}:</em> 0/{{ room.player_limit }}, {{ room.room_key }}
           </li>
         {% endfor %}
-    </ul> -->
+    </ul>
+
+    <p id="user">Welcome!</p>
     <button>Start Game</button>
     <button>Join Game</button>
     <button>Leave Lobby</button>
   </div>
+  <script>
+    function getCookie(c_name)
+    {
+        var i,x,y,ARRcookies=document.cookie.split(";");
+    
+        for (i=0;i<ARRcookies.length;i++)
+        {
+            x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
+            y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
+            x=x.replace(/^\s+|\s+$/g,"");
+            if (x==c_name)
+            {
+                return unescape(y);
+            }
+         }
+    }
+
+    function verify(token){
+      console.log("verify()");
+      const url = "/api/auth/whoami";
+
+      //token = getCookie("token")
+
+      console.log(token)
+
+      axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      })
+        .then((response) => {
+          console.log(response.data);
+          console.log("Verified")
+
+          document.getElementById("user").innerHTML = `Welcome ${response.data['email']}`;
+
+          return response.data
+          
+        })
+        .catch(function(error) {
+          console.log(error)
+          console.log("Not logged in")
+          window.location.href = "/login";
+        });
+    }
+
+    console.log(`Cookie: ${document.cookie}`)
+    console.log(getCookie("token"))
+    token = getCookie("token")
+
+    const data = verify(token)
+
+
+  </script>
 {% block body %}{% endblock %}
