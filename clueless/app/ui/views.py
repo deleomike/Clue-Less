@@ -4,7 +4,6 @@ from fastapi.templating import Jinja2Templates
 from uuid import UUID
 
 from clueless.app.db.crud.room import RoomCRUD
-from clueless.app.core.session import SessionData, SessionCreate, SessionCRUD, BasicVerifier, session
 from clueless import TEMLPATES_PATH
 
 router = APIRouter()
@@ -26,11 +25,8 @@ def index(request: Request):
   return templates.TemplateResponse("index.html", {"request": request})
 
 
-@router.get('/login', dependencies=[Depends(session.cookie)])
-async def login(request: Request, session_data: SessionData = Depends(session.verifier)):
-  print("HELLO")
-  data = await session.whoami(reqeust=request)
-  print(data)
+@router.get('/login')
+async def login(request: Request):
   return templates.TemplateResponse("login.html", {"request": request})
 
 

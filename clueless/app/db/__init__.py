@@ -22,6 +22,7 @@ def create_db_and_tables():
     from clueless.app.db.models.room import Room
     # from clueless.app.db.models.user import User, UserDB
     from clueless.app.db.models.user import User, Base
+    from clueless.app.db.models.game import Game
     #
     # SQLModel.metadata = Base.metadata
     #

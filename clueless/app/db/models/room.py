@@ -5,7 +5,6 @@ from sqlalchemy.orm import Mapped, relationship
 from typing import Optional, List
 from uuid import uuid4, UUID
 
-from clueless.app.db.models import mapper_registry
 from clueless.app.db.models.base import BaseTable
 from clueless.app.db.models.user import User
 
@@ -33,6 +32,10 @@ class Room(RoomBase, BaseTable, table=True):
     room_key: str = Field(unique=True, default_factory=generate_alphanumeric, index=True)
 
     host: UUID = Field(default=None, index=False)
+
+    game: Optional["Game"] = Relationship(
+        back_populates="room"
+    )
 
     users: List[str] = Field(default=None, sa_column=Column(JSON))
 
