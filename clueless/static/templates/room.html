@@ -17,21 +17,14 @@
     <button>Leave Lobby</button>
   </div>
   <script>
-    function getCookie(c_name)
-    {
-        var i,x,y,ARRcookies=document.cookie.split(";");
-    
-        for (i=0;i<ARRcookies.length;i++)
-        {
-            x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
-            y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
-            x=x.replace(/^\s+|\s+$/g,"");
-            if (x==c_name)
-            {
-                return unescape(y);
-            }
-         }
-    }
+    const parseCookie = str =>
+    str
+      .split(';')
+      .map(v => v.split('='))
+      .reduce((acc, v) => {
+        acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+        return acc;
+      }, {});
 
     function verify(token){
       console.log("verify()");
@@ -58,13 +51,13 @@
         .catch(function(error) {
           console.log(error)
           console.log("Not logged in")
-          window.location.href = "/login";
+          //window.location.href = "/login";
         });
     }
 
     console.log(`Cookie: ${document.cookie}`)
-    console.log(getCookie("token"))
-    token = getCookie("token")
+    token = parseCookie(document.cookie)
+    console.log(token)
 
     const data = verify(token)
 
