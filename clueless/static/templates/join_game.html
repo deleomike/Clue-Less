@@ -1,0 +1,80 @@
+
+{% include "base_layout.html" %}
+
+
+    <body>
+        <h1>Clue-Less</h1>
+
+        <b>Welcome, {{ name }}!</b>
+        <br>
+        <br>
+
+        <button type="new_game" onclick="startNewGame()">Start a New Game</button>
+
+        <!-- 
+        <h2>
+          <a href="/new_game/{{name}}-room">Start a New Game</a> 
+        </h2>
+        -->
+
+        <h2>
+            <a href="/join_game">Join a Game</a>
+        </h2>
+
+    </body>
+    <script>
+
+      function getCookie(c_name)
+      {
+          var i,x,y,ARRcookies=document.cookie.split(";");
+      
+          for (i=0;i<ARRcookies.length;i++)
+          {
+              x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
+              y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
+              x=x.replace(/^\s+|\s+$/g,"");
+              if (x==c_name)
+              {
+                  return unescape(y);
+              }
+           }
+      }
+
+      async function startNewGame()
+      {
+        console.log("startNewGame()");
+        const url = "/api/room";
+      
+        const params = new URLSearchParams();
+        params.append('name', name);
+
+        //token = getCookie("token");
+        //document.cookie = `token=${token}`;
+        console.log(`yoyoyo = ${document.cookie}`);
+        console.log(`hehehe = ${document.cookie}`);
+      
+        axios.post(url, {
+          headers: {
+            'accept': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          params: params
+        })
+          .then((response) => {
+            console.log(response.data);
+            const room_key = response.data["room_key"]
+            console.log('Created a new room: room_key = ',room_key)
+
+            window.location.href = "/join_room/" + room_key
+          })
+          .catch( function(error) {
+            console.log(error)
+          });
+      }
+
+
+    </script>
+
+
+{% block body %}{% endblock %}

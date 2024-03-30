@@ -23,34 +23,35 @@ templates = Jinja2Templates(directory=TEMLPATES_PATH)
   
 
 @router.get('/')
-def index(request: Request):
+def display_index(request: Request):
   return templates.TemplateResponse("index.html", {"request": request})
 
 
 @router.get('/register')
-def login_page(request: Request):
+def display_register(request: Request):
   return templates.TemplateResponse("register.html", {"request": request})
 
 
 @router.get('/login')
-async def login(request: Request):
+async def display_login(request: Request):
   return templates.TemplateResponse("login.html", {"request": request})
 
-@router.get("/waiting_room/{name}")
-def get_waiting_room(request: Request, name: str):
-  if name is None:
-    return "name not found in URL"
-  print(name)
-  return templates.TemplateResponses("waiting_room.html", {"request": request, "curr_player":name})
+
+@router.get("/join_game/{name}")
+def display_new_room(request: Request, name: str):
+  return templates.TemplateResponse("join_game.html", {"request": request, "name": name})
 
 
-@router.get('/rooms')
+@router.get('/join_room/{_id}')
+def room(_id: str, request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
+  room = crud.get_by_id_or_key(_id=_id)
+  return templates.TemplateResponse("room.html", {"request": request, "room": room})
+
+
+@router.get('/select_room')
 def rooms(request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
   rooms = crud.get_all()
   return templates.TemplateResponse("rooms.html", {"request": request, "rooms":rooms})
 
 
-@router.get('/rooms/{_id}')
-def room(_id: str, request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
-  room = crud.get_by_id_or_key(_id=_id)
-  return templates.TemplateResponse("room.html", {"request": request, "room": room})
+

@@ -1,6 +1,6 @@
 {% include "base_layout.html" %}
     <div>
-        <form id="loginForm", onsubmit="return false;">
+        <form id="loginForm", onsubmit="postLogin(); return false;">
             <label for="login-email">Email:</label>
             <input type="text" id="login-email" name="login-email"><br>
             <label for="login-password">Password:</label>
@@ -11,7 +11,7 @@
     <script>
         function loginUser(username, password){
             console.log("loginUser()");
-            const url = "/api/auth/jwt/login";
+            const url = "http://127.0.0.1:8080/api/auth/jwt/login";
           
             const params = new URLSearchParams();
             params.append('username', username);
@@ -35,12 +35,21 @@
 
         async function postLogin(){
             console.log("postLogin()")
-            const url = '/api/auth/jwt/login';
 
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+            if(verify(getCookie("token"))){
+              console.log('Already logged in');
+              console.log(`Cookie: ${document.cookie}`)
+            } else {
+              console.log('Sending login');
+              const url = 'http://127.0.0.1:8080/api/auth/jwt/login';
 
-            loginUser(email, password)
+              const email = document.getElementById('login-email').value;
+              const password = document.getElementById('login-password').value;
+  
+              loginUser(email, password);
+            }
+
+            window.location.href = "/join_game/" + email
         }
 
         function getCookie(c_name)
@@ -61,7 +70,7 @@
 
         function verify(token){
             console.log("verify()");
-            const url = "/api/auth/whoami";
+            const url = "http://127.0.0.1:8080/api/auth/whoami";
       
             //token = getCookie("token")
       
@@ -76,21 +85,22 @@
                 console.log(response.data);
                 console.log("Verified")
       
-                window.location.href = "/";
+                window.location.href = "/join_game/" + email
       
-                return response.data
+                return true;
                 
               })
               .catch(function(error) {
                 console.log(error)
                 console.log("Not logged in")
+                return false;
               });
+
+              return true;
           }
 
-        document.getElementById("loginForm").addEventListener("submit", postLogin);
+        //document.getElementById("loginForm").addEventListener("submit", postLogin);
 
-        verify(getCookie("token"))
-
-        console.log(`Cookie: ${document.cookie}`)
+        
     </script>
 {% block body %}{% endblock %}
