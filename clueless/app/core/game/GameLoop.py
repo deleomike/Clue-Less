@@ -1,5 +1,9 @@
+def player_turn(current_player):
+    pass  # TODO
+
+
 class GameLoop:
-    def __init__(self, players, characters, weapons, rooms):
+    def __init__(self, players, characters, weapons, rooms, RoomRead):
         self.players = players  # List of players
         self.characters = characters  # Mapping of characters to their positions
         self.weapons = weapons  # List of weapons
@@ -7,6 +11,7 @@ class GameLoop:
         self.turn = 0  # Track whose turn it is
         self.board = self.setup_board()  # Setup game board
         self.solution = self.select_solution()  # Random select solution
+
 
 
     def setup_board(self):
@@ -30,6 +35,7 @@ class GameLoop:
         current_player = self.players[self.turn]
         print(f"Turn: {current_player}")
 
+        player_turn(current_player)
         # Implement game logic for each step
         # Example action for dummy run (TODO)
         if self.move_character("Miss Scarlet", "Hallway 2"):
@@ -60,7 +66,7 @@ class GameLoop:
 
     def make_accusation(self, player, character, weapon, room):
         # Check if the accusation matches the game's solution
-        if self.solution == {"characters": character, "weapon" : weapon, "room": room}:
+        if self.solution == {"characters": character, "weapon": weapon, "room": room}:
             print(f"{player} made the correct accusation! They win! {character} committed the "  # Win condition
                   f"murder with the {weapon} in the {room}.")
             return True
@@ -69,15 +75,24 @@ class GameLoop:
             return False
 
 
-# Example setup (TODO)
-game = GameLoop(
-    players=["Player 1", "Player 2"],
-    characters={"Miss Scarlet": "Hallway 1", "Professor Plum": "Hallway 2"},
-    weapons=["Gun", "Chainsaw"],
-    rooms=["Kitchen", "Library"]
-)
+# Move options : Up, down, left, hallway, room etc
+# in : player
+# do : get location ->
+# out : action options
+
+# add player class, weapon class, board class
+# player.location, player.name, player.clues(list<clue>)
+
+    def simulate_gameloop():
+        # Example setup (TODO)
+        game = GameLoop(
+            players=["Player 1", "Player 2"],
+            characters={"Miss Scarlet": "Hallway 1", "Professor Plum": "Hallway 2"},
+            weapons=["Gun", "Chainsaw"],
+            rooms=["Kitchen", "Library"]
+        )
 
 
-# Dummy simulate turns (TODO)
-game.step()  # P1's turn
-game.step()  # P2's turn
+        # Dummy simulate turns (TODO)
+        game.step()  # P1's turn
+        game.step()  # P2's turn
