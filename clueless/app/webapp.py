@@ -31,7 +31,11 @@ templates = Jinja2Templates(directory=TEMLPATES_PATH)
 app.include_router(main_router, prefix="/api")
 app.include_router(ui_router)
 
-origins = ["http://localhost:8080", "https://localhost", "http://127.0.0.1:8080", "http://127.0.0.1"]
+origins = ["http://localhost:8080", "https://localhost", "http://127.0.0.1:8080", "http://127.0.0.1",
+           "http://127.0.0.1:55102",
+           "http://127.0.0.1:5500",
+           "http://127.0.0.1:55100",
+           "http://127.0.0.1:55085"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

@@ -1,6 +1,4 @@
-
 {% include "base_layout.html" %}
-
 
     <body>
         <h1>Clue-Less</h1>
@@ -30,51 +28,43 @@
       
           for (i=0;i<ARRcookies.length;i++)
           {
-              x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
-              y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
-              x=x.replace(/^\s+|\s+$/g,"");
-              if (x==c_name)
-              {
-                  return unescape(y);
-              }
-           }
+            x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
+            y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
+            x=x.replace(/^\s+|\s+$/g,"");
+          }
+          return unescape(y);
       }
 
       async function startNewGame()
       {
         console.log("startNewGame()");
-        const url = "/api/room";
-      
-        const params = new URLSearchParams();
-        params.append('name', name);
+        const url = "http://127.0.0.1:8080/api/room";
+        var room_name = "{{ name }}";
 
-        //token = getCookie("token");
-        //document.cookie = `token=${token}`;
-        console.log(`yoyoyo = ${document.cookie}`);
-        console.log(`hehehe = ${document.cookie}`);
-      
-        axios.post(url, {
-          headers: {
-            'accept': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          params: params
-        })
-          .then((response) => {
+        // console.log(`document.cookie = ${document.cookie}`);
+        token = getCookie("token");
+        console.log(`token = ${token}`);
+
+        try{
+            const response = await  axios.post(url, {
+              "name": `${room_name}`
+            }, {
+              headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
             console.log(response.data);
-            const room_key = response.data["room_key"]
-            console.log('Created a new room: room_key = ',room_key)
-
-            window.location.href = "/join_room/" + room_key
-          })
-          .catch( function(error) {
-            console.log(error)
-          });
+            const room_key = response.data["room_key"];
+            console.log('Created a new room: room_key = ',room_key);
+            window.location.href = "/join_room/" + room_key;
+        } catch (error) {
+            console.log(`startNewGame axios.post got an error: ${error}`);
+        }
       }
 
 
     </script>
-
 
 {% block body %}{% endblock %}

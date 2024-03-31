@@ -1,66 +1,18 @@
 {% include "base_layout.html" %}
-  <div>
-    <h1> {{ room.name }} - {{room.room_key}} </h1>
+    
+    <div>
+        <h1> Clue-Less </h1>
 
-    <h2>Players</h2>
-    <ul>
-        {% for room in rooms %}
-          <li>
-            <em>{{ room.name }}:</em> 0/{{ room.player_limit }}, {{ room.room_key }}
-          </li>
-        {% endfor %}
-    </ul>
+        <h2> Room Key: {{room.room_key}} </h2>
 
-    <p id="user">Welcome!</p>
-    <button>Start Game</button>
-    <button>Join Game</button>
-    <button>Leave Lobby</button>
-  </div>
-  <script>
-    const parseCookie = str =>
-    str
-      .split(';')
-      .map(v => v.split('='))
-      .reduce((acc, v) => {
-        acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
-        return acc;
-      }, {});
+        <h2>Current Players</h2>
+        <ul>
+        </ul>
 
-    function verify(token){
-      console.log("verify()");
-      const url = "/api/auth/whoami";
+        <button>Start Game</button>
+    </div>
+    <script>
 
-      //token = getCookie("token")
+    </script>
 
-      console.log(token)
-
-      axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
-      })
-        .then((response) => {
-          console.log(response.data);
-          console.log("Verified")
-
-          document.getElementById("user").innerHTML = `Welcome ${response.data['email']}`;
-
-          return response.data
-          
-        })
-        .catch(function(error) {
-          console.log(error)
-          console.log("Not logged in")
-          //window.location.href = "/login";
-        });
-    }
-
-    console.log(`Cookie: ${document.cookie}`)
-    token = parseCookie(document.cookie)
-    console.log(token)
-
-    const data = verify(token)
-
-
-  </script>
 {% block body %}{% endblock %}

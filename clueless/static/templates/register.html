@@ -1,135 +1,78 @@
 {% include "base_layout.html" %}
-    <h1>Register</h1>
 
-    <form id="registerForm", onsubmit="createUser(); return false;">
-        <label for="email">Email:</label>
-        <input type="text" id="email" name="email"><br>
-        <label for="password">Password:</label>
-        <input type="text" id="password" name="password"><br>
-        <button type="submit">Create</button>
-    </form>
-<!-- 
-    <script type="module" src="{{ url_for('static', path='auth.js') }}">
-        import { loginUser } from "{{ url_for('static', path='auth.js') }}";
-        window.loginUser = loginUser;
-    </script> -->
+    <div>
+        <h1>Register:</h1>
+        <form id="registerForm", onsubmit="postCreateUser(); return false;">
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email"><br>
+            <label for="password">Password:</label>
+            <input type="text" id="password" name="password"><br>
+            <button type="submit">Create User</button>
+        </form>
+    </div>
     <script>
 
         async function loginUser(username, password) {
             console.log("loginUser()");
-            try {
-                const url = "http://127.0.0.1:8080/api/auth/jwt/login";
-        
-                const params = new URLSearchParams();
-                params.append('username', username);
-                params.append('password', password);
-                params.append('grant_type', '');
-                params.append('client_secret', '');
-                params.append('scope', '');
-        
-                const response = await axios.post(url, params);
-                console.log('within the then');
-                console.log(response.data);
-                const token = response.data["access_token"];
-                console.log(`Logged in, setting cookie ${token}`);
-                document.cookie = `token=${token}`;
-                console.log('returning from loginUser()');
-                return true;
-            } catch (error) {
-                console.log('within the catch');
-                if (error.response) {
-                    console.log('got a response');
-                    console.log(error.response.data);
-                    console.log(error.response.status);
-                    console.log(error.response.headers);
-                } else if (error.request) {
-                    console.log('no response');
-                    console.log(error.request);
-                    console.log('Status:', error.status);
-                    console.log('Status Text:', error.statusText);
-                    console.log('Response Text:', error.responseText);
-                    console.log('Ready State:', error.readyState);
-                    console.log('Response Headers:', error.responseHeaders);
-                } else {
-                    console.log('Error', error.message);
-                }
-                return false;
-            }
-        }
-
-        /*
-        async function loginUser(username, password){
-            console.log("loginUser()");
             const url = "http://127.0.0.1:8080/api/auth/jwt/login";
-            
+        
             const params = new URLSearchParams();
             params.append('username', username);
             params.append('password', password);
             params.append('grant_type', '');
             params.append('client_secret', '');
             params.append('scope', '');
-
-            axios.post(url, params)
-                .then((response) => {
-                    console.log('within the then');
-                    console.log(response.data);
-                    const token = response.data["access_token"];
-                    console.log(`Logged in, setting cookie ${token}`);
-                    document.cookie = `token=${token}`;
-                })
-                .catch( function(error) {
-                    console.log('within the catch');
-                    if (error.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.log('got a response');
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
-                    } else if (error.request) {
-                        console.log('no response');
-                        // The request was made but no response was received
-                        console.log(error.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log('Error', error.message);
-                    }
-                });
-            
-            console.log('returning from loginUser()');
-            return true;
+        
+            try {
+                const response = await axios.post(url, params);
+                console.log(response.data);
+                const token = response.data["access_token"];
+                console.log(`Logged in, setting cookie ${token}`);
+                document.cookie = `token=${token}`;
+            } catch (error) {
+                console.log(`loginUser axios.post got an error: ${error}`);
+            }
         }
-        */
-
-
-        async function createUser(){
-            console.log("postCreateUser()");
+  
+        async function createUser(username, password){
+            console.log("createUser()");
             const url = "http://127.0.0.1:8080/api/auth/register";
+
+            try {
+                const response = await axios.post(url, {
+                    email: username,
+                    password: password,
+                    is_active: true,
+                    is_superuser: false,
+                    is_verified: true
+                });
+                console.log(response.data);
+            } catch (error){
+                console.log(`createUser axios.post got an error: ${error}`);
+            }
+        }
+
+        async function postCreateUser() {
+            event.preventDefault(); // Prevent the form from submitting normally
+            console.log("postCreateUser()");
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            axios.post(url, {
-                email: email,
-                password: password,
-                is_active: true,
-                is_superuser: false,
-                is_verified: true
-              })
-              .then((response) => {
-                console.log(response.data);
-                console.log("Hello World")
+            try{
+                await createUser(email, password);
+            } catch (error){
+                console.log(`postCreateUser got an error: ${error}`);
+            }
 
-                loginUser(email, password)
+            try {
+                await loginUser(email, password);
+            } catch (error) {
+                console.log(`loginUser got an error: ${error}`);
+            }
 
-                console.log(`after loginUser(), ${document.cookie}`)
-
-                window.location.href = "/join_game/" + email
-              })
-              .then((error) => console.log(error));
+            window.location.href = "/join_game/" + email
         }
-
-        //document.getElementById("registerForm").addEventListener("submit", createUser);
 
     </script>
 {% block body %}{% endblock %}
