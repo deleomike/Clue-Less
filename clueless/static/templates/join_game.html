@@ -9,20 +9,29 @@
 
         <button type="new_game" onclick="startNewGame()">Start a New Game</button>
 
+        <form id="join_game", onsubmit="joinGame(); return false;">
+          <label for="room-id">Room ID:</label>
+          <input type="text" id="room-id" name="room-id">
+          <button type="submit">Join Game</button>
+        </form>
+
+
         <!-- 
         <h2>
           <a href="/new_game/{{name}}-room">Start a New Game</a> 
         </h2>
         -->
 
+        <!-- 
         <h2>
             <a href="/join_game">Join a Game</a>
         </h2>
+         -->
 
     </body>
     <script>
 
-      function getCookie(c_name)
+      function getCookie(user_email)
       {
           var i,x,y,ARRcookies=document.cookie.split(";");
       
@@ -31,23 +40,26 @@
             x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
             y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
             x=x.replace(/^\s+|\s+$/g,"");
+            if (x==user_email)
+            {
+                return unescape(y);
+            }
           }
-          return unescape(y);
       }
 
       async function startNewGame()
       {
         console.log("startNewGame()");
         const url = "http://127.0.0.1:8080/api/room";
-        var room_name = "{{ name }}";
+        var user_email = "{{ name }}";
 
-        // console.log(`document.cookie = ${document.cookie}`);
-        token = getCookie("token");
+        console.log(`document.cookie = ${document.cookie}`);
+        token = getCookie(user_email);
         console.log(`token = ${token}`);
 
         try{
             const response = await  axios.post(url, {
-              "name": `${room_name}`
+              "name": `${user_email}`
             }, {
               headers: {
                 'accept': 'application/json',
@@ -61,6 +73,34 @@
             window.location.href = "/join_room/" + room_key;
         } catch (error) {
             console.log(`startNewGame axios.post got an error: ${error}`);
+        }
+      }
+
+      async function joinGame(){
+        event.preventDefault();
+        console.log("joinGame()");
+        var user_email = "{{ name }}";
+        
+        const room_id = document.getElementById('room-id').value;
+        var url = `http://127.0.0.1:8080/api/room/${room_id}/join/`;
+
+        console.log(`document.cookie = ${document.cookie}`);
+        token = getCookie(user_email);
+        console.log(`token = ${token}`);
+        
+        try {
+            const response = await axios.post(url, null, {
+              headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              }
+            });
+            console.log(response.data);
+            const room_key = response.data["room_key"];
+            console.log('Created a new room: room_key = ',room_key);
+            window.location.href = "/join_room/" + room_key;
+        } catch (error){
+            console.log(`joinGame axios.post got an error: ${error}`);
         }
       }
 

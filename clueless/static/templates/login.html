@@ -9,45 +9,36 @@
             <input type="text" id="login-password" name="login-password"><br>
             <button type="submit">Login</button>
         </form>
+        <p id="login-error-msg"></p>
     </div>
     <script>
-    
-      async function loginUser(username, password) {
-          console.log("loginUser()");
+
+      async function postLogin(){
+          event.preventDefault(); // Prevent the form from submitting normally
+          console.log("postLogin()");
           const url = "http://127.0.0.1:8080/api/auth/jwt/login";
-      
+
+          const email = document.getElementById('login-email').value;
+          const password = document.getElementById('login-password').value;
+        
           const params = new URLSearchParams();
-          params.append('username', username);
+          params.append('username', email);
           params.append('password', password);
           params.append('grant_type', '');
           params.append('client_secret', '');
           params.append('scope', '');
-      
+
           try {
               const response = await axios.post(url, params);
               console.log(response.data);
               const token = response.data["access_token"];
               console.log(`Logged in, setting cookie ${token}`);
-              document.cookie = `token=${token}`;
+              document.cookie = `${email}=${token}`;
+              window.location.href = "/join_game/" + email
           } catch (error) {
-              console.log(`loginUser axios.post got an error: ${error}`);
+              console.log(`postLogin got an error: ${error}`);
+              document.getElementById('login-error-msg').innerText = error.message || 'An error occurred';
           }
-      }
-
-      async function postLogin(){
-          event.preventDefault(); // Prevent the form from submitting normally
-          console.log("postLogin()");
-
-          const email = document.getElementById('login-email').value;
-          const password = document.getElementById('login-password').value;
-        
-          try {
-            await loginUser(email, password);
-          } catch (error) {
-            console.log(`loginUser got an error: ${error}`);
-          }
-
-          window.location.href = "/join_game/" + email
       }
 
       /*

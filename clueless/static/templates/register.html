@@ -9,6 +9,7 @@
             <input type="text" id="password" name="password"><br>
             <button type="submit">Create User</button>
         </form>
+        <p id="register-error-msg"></p>
     </div>
     <script>
 
@@ -28,19 +29,24 @@
                 console.log(response.data);
                 const token = response.data["access_token"];
                 console.log(`Logged in, setting cookie ${token}`);
-                document.cookie = `token=${token}`;
+                document.cookie = `${email}=${token}`;
+                window.location.href = "/join_game/" + username
             } catch (error) {
                 console.log(`loginUser axios.post got an error: ${error}`);
             }
         }
-  
-        async function createUser(username, password){
-            console.log("createUser()");
+
+        async function postCreateUser() {
+            event.preventDefault(); // Prevent the form from submitting normally
+            console.log("postCreateUser()");
             const url = "http://127.0.0.1:8080/api/auth/register";
 
-            try {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try{
                 const response = await axios.post(url, {
-                    email: username,
+                    email: email,
                     password: password,
                     is_active: true,
                     is_superuser: false,
@@ -48,30 +54,16 @@
                 });
                 console.log(response.data);
             } catch (error){
-                console.log(`createUser axios.post got an error: ${error}`);
-            }
-        }
-
-        async function postCreateUser() {
-            event.preventDefault(); // Prevent the form from submitting normally
-            console.log("postCreateUser()");
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try{
-                await createUser(email, password);
-            } catch (error){
                 console.log(`postCreateUser got an error: ${error}`);
+                document.getElementById('register-error-msg').innerText = error.message || 'An error occurred';
             }
 
             try {
                 await loginUser(email, password);
             } catch (error) {
                 console.log(`loginUser got an error: ${error}`);
+                document.getElementById('register-error-msg').innerText = error.message || 'An error occurred';
             }
-
-            window.location.href = "/join_game/" + email
         }
 
     </script>
