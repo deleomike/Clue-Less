@@ -9,9 +9,12 @@ from clueless.app.db.crud.base import BaseCRUD
 from clueless.app.db.crud.room import RoomCRUD
 from clueless.app.db.crud.location import LocationCRUD, LocationCreate
 from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate, GameReadWithLinks
+from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate
 
 
 class GameCRUD(BaseCRUD):
+
+    DEFAULT_NAMES = ["Prof. Plum", "Mrs. Peacock", "Mr. Green", "Mrs. White", "Col. Mustard", "Miss Scarlet"]
 
     def get(self, _id: UUID) -> GameReadWithLinks:
         game = self.session.get(Game, _id)
@@ -23,7 +26,30 @@ class GameCRUD(BaseCRUD):
         games = self.session.exec(select(Game)).all()
         return games
 
-    def create(self, game: GameCreate) -> GameRead:
+    def populate_characters(self, id: UUID, character_names: List[str] = None) -> GameReadWithLinks:
+        # for now, place all in the first room
+        game = self.get(id)
+        ccrud = CharacterCRUD(session=self.session)
+
+        if character_names is None:
+            character_names = self.DEFAULT_NAMES[:len(game.waiting_room.users)]
+
+        assert (len(game.waiting_room.users) == len(character_names))
+
+        starting_location = game.locations[0]
+        for user, name in zip(game.waiting_room.users, character_names):
+            create = CharacterCreate(
+                name=name,
+                user_id=user,
+                location_id=starting_location.id,
+                game_id=game.id
+            )
+
+            ccrud.create(character=create)
+
+        return self.get(id)
+
+    def create(self, game: GameCreate, character_names: List[str] = None) -> GameRead:
         rcrud = RoomCRUD(session=self.session)
         lcrud = LocationCRUD(session=self.session)
 
@@ -49,6 +75,8 @@ class GameCRUD(BaseCRUD):
         for name in location_names:
             create = LocationCreate(game_id=db_game.id, name=name)
             lcrud.create(location=create)
+
+        self.populate_characters(id=db_game.id, character_names=character_names)
 
         return self.get(_id=db_game.id)
 

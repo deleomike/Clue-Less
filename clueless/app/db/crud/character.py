@@ -6,47 +6,47 @@ from uuid import UUID
 from fastapi import HTTPException
 
 from clueless.app.db.crud.base import BaseCRUD
-from clueless.app.db.models.location import LocationBase, Location, LocationRead, LocationCreate, LocationUpdate
+from clueless.app.db.models.character import CharacterBase, Character, CharacterRead, CharacterCreate, CharacterUpdate
 
 
-class LocationCRUD(BaseCRUD):
+class CharacterCRUD(BaseCRUD):
 
-    def get(self, _id: UUID) -> LocationRead:
-        location = self.session.get(Location, _id)
-        if not location:
-            raise HTTPException(status_code=404, detail="Location not found")
-        return location
+    def get(self, _id: UUID) -> CharacterRead:
+        character = self.session.get(Character, _id)
+        if not character:
+            raise HTTPException(status_code=404, detail="Character not found")
+        return character
 
-    def get_all(self) -> List[LocationRead]:
-        locations = self.session.exec(select(Location)).all()
-        return locations
+    def get_all(self) -> List[CharacterRead]:
+        characters = self.session.exec(select(Character)).all()
+        return characters
 
-    def create(self, location: LocationCreate) -> LocationRead:
+    def create(self, character: CharacterCreate) -> CharacterRead:
 
-        # location.users = [str(location.host)]
-        db_location = Location.model_validate(location)
-        self.session.add(db_location)
+        # character.users = [str(character.host)]
+        db_character = Character.model_validate(character)
+        self.session.add(db_character)
         self.session.commit()
-        self.session.refresh(db_location)
+        self.session.refresh(db_character)
 
-        return db_location
+        return db_character
 
-    def delete(self, _id: UUID) -> LocationRead:
-        location = self.session.get(Location, _id)
-        if not location:
+    def delete(self, _id: UUID) -> CharacterRead:
+        character = self.session.get(Character, _id)
+        if not character:
             raise HTTPException(status_code=404, detail="Hero not found")
-        self.session.delete(location)
+        self.session.delete(character)
         self.session.commit()
         return True
 
-    def update(self, _id: UUID, location: LocationUpdate) -> LocationRead:
-        db_location = self.session.get(Location, _id)
-        if not db_location:
-            raise HTTPException(status_code=404, detail="Location not found")
-        location_data = location.model_dump(exclude_unset=True)
-        db_location.sqlmodel_update(location_data)
-        self.session.add(db_location)
+    def update(self, _id: UUID, character: CharacterUpdate) -> CharacterRead:
+        db_character = self.session.get(Character, _id)
+        if not db_character:
+            raise HTTPException(status_code=404, detail="Character not found")
+        character_data = character.model_dump(exclude_unset=True)
+        db_character.sqlmodel_update(character_data)
+        self.session.add(db_character)
         self.session.commit()
-        self.session.refresh(db_location)
-        return db_location
+        self.session.refresh(db_character)
+        return db_character
 

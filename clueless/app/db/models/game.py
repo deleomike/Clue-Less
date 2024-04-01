@@ -32,7 +32,10 @@ class Game(GameBase, BaseTable, table=True):
     )
 
     characters: Optional[list["Character"]] = Relationship(
-        back_populates="game"
+        back_populates="game",
+        sa_relationship_kwargs={
+            "cascade": "all, delete",  # Instruct the ORM how to track changes to local objects
+        },
     )
 
     # TODO: Core game data goes here
@@ -44,7 +47,7 @@ class GameCreate(GameBase):
 
 class GameRead(GameBase):
     id: UUID
-    room: RoomRead | None = None
+    waiting_room: RoomRead | None = None
 
 
 class GameReadWithLinks(GameRead):

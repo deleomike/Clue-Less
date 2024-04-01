@@ -25,7 +25,7 @@ class Location(LocationBase, BaseTable, table=True):
         back_populates="locations"
     )
 
-    characters: list["Game"] = Relationship(
+    characters: list["Character"] = Relationship(
         back_populates="location"
     )
 

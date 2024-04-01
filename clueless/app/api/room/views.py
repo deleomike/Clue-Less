@@ -67,7 +67,7 @@ def start_game(_id: str,
     """
     room = crud.get_by_id_or_key(_id=_id)
 
-    create = GameCreate(room_id = room.id)
+    create = GameCreate(room_id=room.id)
 
     game = game_crud.create(game=create)
 
