@@ -29,6 +29,7 @@ def create_db_and_tables():
     from sqlalchemy.orm import relationship
     from clueless.app.db.models.game import Game
     from clueless.app.db.models.room import Room
+    from clueless.app.db.models.location import Location
     # from clueless.app.db.models.user import User, UserDB
     from clueless.app.db.models.user import User, Base
     #
