@@ -4,7 +4,6 @@ from fastapi.templating import Jinja2Templates
 from uuid import UUID
 
 from clueless.app.db.crud.room import RoomCRUD
-from clueless.app.core.session import SessionData, SessionCreate, SessionCRUD, BasicVerifier, session
 from clueless import TEMLPATES_PATH
 from clueless.settings import settings
 
@@ -29,12 +28,12 @@ def display_index(request: Request):
 
 
 @router.get('/register')
-def display_register(request: Request):
+def register(request: Request):
   return templates.TemplateResponse("register.html", {"request": request, "settings": settings})
 
 
 @router.get('/login')
-def display_login(request: Request):
+def login(request: Request):
   return templates.TemplateResponse("login.html", {"request": request, "settings": settings})
 
 

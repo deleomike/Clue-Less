@@ -1,5 +1,6 @@
 {% include "base_layout.html" %}
   <div>
+      Hello Worl
     <ul>
         {% for room in rooms %}
           <li>
@@ -12,3 +13,11 @@
         </ul>
   </div>
 {% block body %}{% endblock %}
+
+<script>
+    token = cookie.token
+
+    func go_to(){
+        redirect.(headers={}, path)
+    }
+</script>

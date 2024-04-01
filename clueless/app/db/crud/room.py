@@ -41,7 +41,7 @@ class RoomCRUD(BaseCRUD):
     def get(self, _id: UUID) -> RoomRead:
         room = self.session.get(Room, _id)
         if not room:
-            raise HTTPException(status_code=404, detail="Hero not found")
+            raise HTTPException(status_code=404, detail="Room not found")
         return room
 
     def get_all(self) -> List[RoomRead]:
