@@ -17,6 +17,10 @@ class CharacterCRUD(BaseCRUD):
             raise HTTPException(status_code=404, detail="Character not found")
         return character
 
+    def get_by_user_id(self, user_id: str) -> CharacterRead:
+        characters = self.session.exec(select(Character).where(user_id==user_id)).one_or_none()
+        return characters
+
     def get_all(self) -> List[CharacterRead]:
         characters = self.session.exec(select(Character)).all()
         return characters
@@ -49,4 +53,14 @@ class CharacterCRUD(BaseCRUD):
         self.session.commit()
         self.session.refresh(db_character)
         return db_character
+
+    def change_room(self, id: UUID, location_id: UUID):
+        """
+        does not validate if the room is in the corresponding game
+
+        :param id:
+        :param location_id:
+        :return:
+        """
+
 

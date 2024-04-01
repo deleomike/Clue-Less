@@ -107,3 +107,11 @@ class GameCRUD(BaseCRUD):
         new_game.users.append(str(player_id))
 
         return self.update(_id=_id, game=new_game)
+
+
+    def move_player(self, id: UUID, character_id: UUID, location_id: UUID, validate: bool = False):
+        ccrud = CharacterCRUD(session=self.session)
+
+        character = ccrud.get(character_id)
+        character.location_id = location_id
+        ccrud.update(character_id, )
