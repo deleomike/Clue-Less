@@ -11,4 +11,7 @@ RUN chmod +x -R /app/
 
 RUN pip install .
 
-CMD ["clue", "serve", "--host", "0.0.0.0", "--port", "80"]
+ENV BACKEND_PORT=80
+ENV BACKEND_HOST="0.0.0.0"
+
+CMD ["clue", "serve", "--host", "$BACKEND_HOST", "--port", "$BACKEND_PORT"]

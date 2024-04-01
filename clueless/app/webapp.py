@@ -31,10 +31,16 @@ templates = Jinja2Templates(directory=TEMLPATES_PATH)
 app.include_router(main_router, prefix="/api")
 app.include_router(ui_router)
 
-origins = ["http://localhost:8080", "https://localhost", "http://127.0.0.1:8080", "http://127.0.0.1",
+origins = ["http://localhost:8080",
+           "https://localhost",
+           "http://127.0.0.1:8080",
+           "http://127.0.0.1",
+           "http://127.0.0.1:80",
+           "http://127.0.0.1:8000"
            "http://127.0.0.1:55102",
            "http://127.0.0.1:5500",
            "http://127.0.0.1:55100",
+           "*",
            "http://127.0.0.1:55085"]
 app.add_middleware(
     CORSMiddleware,
@@ -105,7 +111,19 @@ async def websocket_endpoint(
         await manager.broadcast(f"Client #{client_id} left the chat")
 
 
-if __name__ == "__main__":
+def start_app(port: int = 8080, host: str = "127.0.0.1", reload: bool = False):
     import uvicorn
 
-    uvicorn.run(app="webapp:app", reload=True, host="127.0.0.1", port=8000)
+    from clueless.settings import settings
+
+    app.add_middleware()
+
+    settings.BACKEND_HOST = host
+    settings.BACKEND_PORT = port
+
+    uvicorn.run(app="webapp:app", reload=reload, host=host, port=port)
+
+if __name__ == "__main__":
+
+    start_app(port=8080, host="127.0.0.1", reload=True)
+
