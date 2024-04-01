@@ -9,6 +9,22 @@
         <ul>
         </ul>
 
+        <!--
+
+        
+        {% for user in room.users %}
+          <li>
+            <em>{{ user }}:</em> 0/{{ room.player_limit }}, {{ room.room_key }}
+          </li>
+        {% endfor %}
+        -->
+
+        <ul>
+          {% for user in room.users %}
+          <li>{{ user }}</li>
+          {% endfor %}
+        </ul>
+
         <button>Start Game</button>
     </div>
     <script>
