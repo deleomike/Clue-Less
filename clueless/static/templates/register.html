@@ -2,7 +2,7 @@
 
     <div>
         <h1>Register:</h1>
-        <form id="registerForm", onsubmit="postCreateUser(); return false;">
+        <form id="registerForm" onsubmit="postCreateUser(); return false;">
             <label for="email">Email:</label>
             <input type="text" id="email" name="email"><br>
             <label for="password">Password:</label>
@@ -15,7 +15,7 @@
 
         async function loginUser(username, password) {
             console.log("loginUser()");
-            const url = "http://127.0.0.1:8080/api/auth/jwt/login";
+            const url = `{{settings.BACKEND_URL}}/api/auth/jwt/login`;
         
             const params = new URLSearchParams();
             params.append('username', username);
@@ -29,8 +29,8 @@
                 console.log(response.data);
                 const token = response.data["access_token"];
                 console.log(`Logged in, setting cookie ${token}`);
-                document.cookie = `${username}=${token}`;
-                window.location.href = "/join_game/" + username
+                document.cookie = `token=${token}`;
+                window.location.href = `/select_room`
             } catch (error) {
                 console.log(`loginUser axios.post got an error: ${error}`);
             }
@@ -39,7 +39,7 @@
         async function postCreateUser() {
             event.preventDefault(); // Prevent the form from submitting normally
             console.log("postCreateUser()");
-            const url = "http://127.0.0.1:8080/api/auth/register";
+            const url = `{{settings.BACKEND_URL}}/api/auth/register`;
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;

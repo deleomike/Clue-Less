@@ -1,6 +1,9 @@
 FROM python:3.10
 
+USER root
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends ntp netbase
 
 COPY clueless/ /app/clueless
 COPY pyproject.toml /app/
@@ -14,4 +17,6 @@ RUN pip install .
 ENV BACKEND_PORT=80
 ENV BACKEND_HOST="0.0.0.0"
 
-CMD ["clue", "serve", "--host", "$BACKEND_HOST", "--port", "$BACKEND_PORT"]
+EXPOSE $BACKEND_PORT
+
+CMD ["clue", "serve"]

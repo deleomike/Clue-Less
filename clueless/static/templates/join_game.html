@@ -50,7 +50,7 @@
       async function startNewGame()
       {
         console.log("startNewGame()");
-        const url = "http://127.0.0.1:8080/api/room";
+        const url = "{{settings.BACKEND_URL}}/api/room";
         var user_email = "{{ name }}";
 
         console.log(`document.cookie = ${document.cookie}`);
@@ -82,7 +82,7 @@
         var user_email = "{{ name }}";
         
         const room_id = document.getElementById('room-id').value;
-        var url = `http://127.0.0.1:8080/api/room/${room_id}/join/`;
+        var url = `{{settings.BACKEND_URL}}/api/room/${room_id}/join/`;
 
         console.log(`document.cookie = ${document.cookie}`);
         token = getCookie(user_email);

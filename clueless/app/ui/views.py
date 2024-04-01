@@ -6,6 +6,7 @@ from uuid import UUID
 from clueless.app.db.crud.room import RoomCRUD
 from clueless.app.core.session import SessionData, SessionCreate, SessionCRUD, BasicVerifier, session
 from clueless import TEMLPATES_PATH
+from clueless.settings import settings
 
 router = APIRouter()
 
@@ -29,33 +30,33 @@ def display_index(request: Request):
 
 @router.get('/register')
 def display_register(request: Request):
-  return templates.TemplateResponse("register.html", {"request": request})
+  return templates.TemplateResponse("register.html", {"request": request, "settings": settings})
 
 
 @router.get('/login')
 def display_login(request: Request):
-  return templates.TemplateResponse("login.html", {"request": request})
+  return templates.TemplateResponse("login.html", {"request": request, "settings": settings})
 
 
 @router.get("/join_game/{name}")
 def join_game(request: Request, name: str):
-  return templates.TemplateResponse("join_game.html", {"request": request, "name": name})
+  return templates.TemplateResponse("join_game.html", {"request": request, "name": name, "settings": settings})
 
 
 @router.get('/room/{_id}')
 def room(_id: str, request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
   room = crud.get_by_id_or_key(_id=_id)
-  return templates.TemplateResponse("room.html", {"request": request, "room": room})
+  return templates.TemplateResponse("room.html", {"request": request, "room": room, "settings": settings})
 
 
 @router.get('/select_room')
 def rooms(request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
   rooms = crud.get_all()
-  return templates.TemplateResponse("rooms.html", {"request": request, "rooms":rooms})
+  return templates.TemplateResponse("rooms.html", {"request": request, "rooms": rooms, "settings": settings})
 
 @router.get('/gameboard/{_id}')
 def display_gameboard(_id: str, request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
   room = crud.get_by_id_or_key(_id=_id)
-  return templates.TemplateResponse("gameboard.html", {"request": request, "room": room})
+  return templates.TemplateResponse("gameboard.html", {"request": request, "room": room, "settings": settings})
 
 
