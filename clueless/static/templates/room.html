@@ -25,9 +25,18 @@
           {% endfor %}
         </ul>
 
-        <button>Start Game</button>
+        <button onclick="startGame()">Start Game</button>
     </div>
     <script>
+
+        async function startGame()
+        {
+          console.log("startGame()");
+          var room_id = "{{ room.room_key }}";
+          console.log("room_id",room_id)
+          window.location.href = `/gameboard/${room_id}`;
+        }
+
 
     </script>
 

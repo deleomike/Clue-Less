@@ -70,7 +70,7 @@
             console.log(response.data);
             const room_key = response.data["room_key"];
             console.log('Created a new room: room_key = ',room_key);
-            window.location.href = "/join_room/" + room_key;
+            window.location.href = "/room/" + room_key;
         } catch (error) {
             console.log(`startNewGame axios.post got an error: ${error}`);
         }
@@ -98,7 +98,7 @@
             console.log(response.data);
             const room_key = response.data["room_key"];
             console.log('Created a new room: room_key = ',room_key);
-            window.location.href = "/join_room/" + room_key;
+            window.location.href = "/room/" + room_key;
         } catch (error){
             console.log(`joinGame axios.post got an error: ${error}`);
         }

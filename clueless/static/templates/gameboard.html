@@ -1,0 +1,51 @@
+{% include "base_layout.html" %}
+    
+    <div>
+        <h1> Clue-Less GameBoard</h1>
+
+        <style>
+
+            body {
+                font-family: Arial, sans-serif;
+                margin: 10vh; /* 10% of the viewport height */
+                padding: 0;
+            }
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(5, 1in);
+                grid-template-rows: repeat(5, 1in);
+                background-color: #ccc;
+            }
+            .cell {
+                background-color: #fff;
+                border: 1px solid #333;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+        </style>
+        </head>
+        <body>
+        <div class="grid" id="grid"></div>
+        
+       
+    </div>
+    <script>
+        const grid = document.getElementById('grid');
+    
+        function createGrid() {
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.textContent = `${i},${j}`;
+                    grid.appendChild(cell);
+                }
+            }
+        }
+    
+        createGrid();
+    </script>
+    
+{% block body %}{% endblock %}

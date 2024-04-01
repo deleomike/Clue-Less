@@ -33,16 +33,16 @@ def display_register(request: Request):
 
 
 @router.get('/login')
-async def display_login(request: Request):
+def display_login(request: Request):
   return templates.TemplateResponse("login.html", {"request": request})
 
 
 @router.get("/join_game/{name}")
-def display_new_room(request: Request, name: str):
+def join_game(request: Request, name: str):
   return templates.TemplateResponse("join_game.html", {"request": request, "name": name})
 
 
-@router.get('/join_room/{_id}')
+@router.get('/room/{_id}')
 def room(_id: str, request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
   room = crud.get_by_id_or_key(_id=_id)
   return templates.TemplateResponse("room.html", {"request": request, "room": room})
@@ -53,5 +53,9 @@ def rooms(request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
   rooms = crud.get_all()
   return templates.TemplateResponse("rooms.html", {"request": request, "rooms":rooms})
 
+@router.get('/gameboard/{_id}')
+def display_gameboard(_id: str, request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
+  room = crud.get_by_id_or_key(_id=_id)
+  return templates.TemplateResponse("gameboard.html", {"request": request, "room": room})
 
 

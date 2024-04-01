@@ -29,7 +29,7 @@
                 console.log(response.data);
                 const token = response.data["access_token"];
                 console.log(`Logged in, setting cookie ${token}`);
-                document.cookie = `${email}=${token}`;
+                document.cookie = `${username}=${token}`;
                 window.location.href = "/join_game/" + username
             } catch (error) {
                 console.log(`loginUser axios.post got an error: ${error}`);
