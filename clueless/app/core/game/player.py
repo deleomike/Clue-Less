@@ -6,9 +6,6 @@ class Player:
         self.location = None  # Player location of the board
         self.is_playing = True  # Flag if player is currently playing
 
-    def choose_character(self, character):
-        self.character = character
-
     def move(self, location):
         self.location = location
 

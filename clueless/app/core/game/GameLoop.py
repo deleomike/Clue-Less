@@ -1,33 +1,34 @@
+from clueless.app.core.game.gameboard import GameBoard
+
+
 def player_turn(current_player):
     pass  # TODO
 
 
 class GameLoop:
-    def __init__(self, players, characters, weapons, rooms, RoomRead):
-        self.players = players  # List of players
-        self.characters = characters  # Mapping of characters to their positions
-        self.weapons = weapons  # List of weapons
-        self.rooms = rooms  # List of rooms
+    def __init__(self):
         self.turn = 0  # Track whose turn it is
         self.board = self.setup_board()  # Setup game board
+        self.players = self.board.get_players()
         self.solution = self.select_solution()  # Random select solution
 
-
-
     def setup_board(self):
-        # Initialize the board layout, character starting positions, and rooms
-        # Return a structure representing the board
-
-        return {
-            "rooms": {room: None for room in self.rooms},
-            "hallways": {f"Hallway {i}": None for i in range(1, 10)},
-            "characters": self.characters
-        }
+        # Initialize the gameboard
+        game_board = GameBoard()
+        return game_board
 
     def select_solution(self):
         # Select a random character/weapon/room for winning solution.
-        # Example that removes randomness for testing (TODO)
-        return {"characters": "Miss Scarlet", "weapon": "Chainsaw", "room": "Library"}
+        import random
+        murderer = random.choice(self.players)
+        crime_scene = random.choice(self.board.rooms)
+        murder_weapon = random.choice(self.board.rooms).weapon
+        solution = {
+            "character": murderer.character,
+            "weapon": murder_weapon,
+            "rooms": crime_scene
+        }
+        return solution
 
     def step(self):
         # This method would be called in a loop to progress the game
@@ -74,25 +75,19 @@ class GameLoop:
             print(f"{player} made the wrong accusation! The show goes on.")  # Handle incorrect accusation
             return False
 
+    # Move options : Up, down, left, hallway, room etc
+    # in : player
+    # do : get location ->
+    # out : action options
 
-# Move options : Up, down, left, hallway, room etc
-# in : player
-# do : get location ->
-# out : action options
+    # player.location, player.name, player.clues(list<clue>)
 
-# add player class, weapon class, board class
-# player.location, player.name, player.clues(list<clue>)
-
-    def simulate_gameloop():
+    def simulate_gameloop(self):
         # Example setup (TODO)
-        game = GameLoop(
-            players=["Player 1", "Player 2"],
-            characters={"Miss Scarlet": "Hallway 1", "Professor Plum": "Hallway 2"},
-            weapons=["Gun", "Chainsaw"],
-            rooms=["Kitchen", "Library"]
-        )
-
-
         # Dummy simulate turns (TODO)
-        game.step()  # P1's turn
-        game.step()  # P2's turn
+        self.step()  # P1's turn
+        self.step()  # P2's turn
+
+
+gameloop = GameLoop()
+gameloop.simulate_gameloop()
