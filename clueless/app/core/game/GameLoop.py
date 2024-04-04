@@ -1,21 +1,15 @@
+import time
+
 from clueless.app.core.game.gameboard import GameBoard
-
-
-def player_turn(current_player):
-    pass  # TODO
 
 
 class GameLoop:
     def __init__(self):
         self.turn = 0  # Track whose turn it is
-        self.board = self.setup_board()  # Setup game board
+        self.board = GameBoard()  # Setup game board
         self.players = self.board.get_players()
         self.solution = self.select_solution()  # Random select solution
-
-    def setup_board(self):
-        # Initialize the gameboard
-        game_board = GameBoard()
-        return game_board
+        self.game_over = False
 
     def select_solution(self):
         # Select a random character/weapon/room for winning solution.
@@ -34,29 +28,37 @@ class GameLoop:
         # This method would be called in a loop to progress the game
 
         current_player = self.players[self.turn]
-        print(f"Turn: {current_player}")
+        print(f"Turn: {current_player.name}")
 
-        player_turn(current_player)
+        self.player_turn(current_player)
         # Implement game logic for each step
-        # Example action for dummy run (TODO)
-        if self.move_character("Miss Scarlet", "Hallway 2"):
-            print("Miss Scarlet moves to Hallway 2.")
-        # Update game state accordingly
+        # TODO Check win status and # Update game state accordingly
 
         # Move to the next player's turn
         self.turn = (self.turn + 1) % len(self.players)
 
-    def move_character(self, character, new_position):
+    def move_character(self, player, room):
         # Move character to a new position if it's a legal move
-        if self.is_move_legal(character, new_position):
-            self.board["characters"][character] = new_position
+        if self.is_move_legal(player, room):
+            # TODO Move player to room by setting player location and room current players
             return True
         return False
 
-    def is_move_legal(self, character, new_position):
+    def player_turn(self, current_player):
+        pass  # TODO
+
+    def is_move_legal(self, player, to_room):
         # Check if a move exists and is unblocked
         # Dummy example that removes game-board check (TODO)
-        return True
+        if to_room in player.location.neighbors:
+            print(f"{player.name}: {player.character}, moved to the {to_room}.")
+            player.location.current_players.remove(player)
+            to_room.current_players.append(player)
+            player.location = to_room
+            return True
+        else:
+            print(f"Cannot move {player.name} to the {to_room}.")
+            return False
 
     def make_suggestion(self, player, character, weapon, room):
         # Handle suggestion logic
@@ -75,6 +77,9 @@ class GameLoop:
             print(f"{player} made the wrong accusation! The show goes on.")  # Handle incorrect accusation
             return False
 
+    def is_game_over(self):
+        return self.game_over
+
     # Move options : Up, down, left, hallway, room etc
     # in : player
     # do : get location ->
@@ -82,12 +87,15 @@ class GameLoop:
 
     # player.location, player.name, player.clues(list<clue>)
 
-    def simulate_gameloop(self):
+    def run_game(self):
         # Example setup (TODO)
-        # Dummy simulate turns (TODO)
-        self.step()  # P1's turn
-        self.step()  # P2's turn
+        while 1:
+            self.step()  # Player turn
+            time.sleep(1)
+
+            if self.is_game_over():
+                break
 
 
 gameloop = GameLoop()
-gameloop.simulate_gameloop()
+gameloop.run_game()

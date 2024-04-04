@@ -39,7 +39,7 @@ def create_weapons():
 
 def print_characters(characters):
     for i in range(len(characters)):
-        print(f"{i} {characters[i]}")
+        print(f"{i}. {characters[i]}")
 
 
 class GameBoard:
@@ -54,7 +54,7 @@ class GameBoard:
             "Mr. Green",
             "Mrs. Peacock",
             "Professor Plum"]
-        self.players = self.console_create_players()
+        self.players = self.create_players()
         self.set_room_weapons()  # Set the locations for each weapon
 
     def set_room_weapons(self):  # Place weapons randomly throughout rooms
@@ -66,7 +66,7 @@ class GameBoard:
                 room_ref.weapon = self.weapons.pop()
                 room_ref.weapon.location = room_ref
 
-    def console_create_players(self):
+    def create_players(self):
         players = []
         num_players = int(input("How many players are playing this game?"))
         while num_players < 2 or num_players > 6:

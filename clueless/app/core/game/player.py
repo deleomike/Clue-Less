@@ -16,10 +16,3 @@ class Player:
         if card in self.hand:
             self.hand.remove(card)
 
-    def make_accusation(self, accusation):
-        # TODO
-        pass
-
-    def make_suggestion(self, accusation):
-        # TODO
-        pass
