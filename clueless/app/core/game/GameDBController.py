@@ -5,9 +5,9 @@ from typing import List, Union
 from uuid import UUID
 from fastapi import HTTPException
 
-from clueless.app.db.crud.base import BaseCRUD
+from clueless.app.db.crud.game import GameCRUD
 from clueless.app.db.crud.room import RoomCRUD
-from clueless.app.db.crud.location import LocationCRUD, LocationCreate
+from clueless.app.db.crud.location import LocationCRUD, LocationRead
 from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate, GameReadWithLinks
 from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate, CharacterUpdate
 
@@ -15,10 +15,29 @@ from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate, Chara
 
 class GameDBController:
 
-    def __init__(self):
+    def __init__(self, id: UUID, session):
+        self.id = id
+
+        self.session = session
+        self.game_crud = GameCRUD(session=self.session)
+        self.location_crud = LocationCRUD(session=self.session)
+
+    @property
+    def full_state(self) -> GameRead:
+        return self.game_crud.get(self.id)
+
+    def valid_moves(self):
         pass
 
-    def move_player(self, id: UUID, character_id: UUID, location_id: UUID, validate: bool = False):
+    def get_adjacent_locations(self, location_id: UUID) -> List[LocationRead]:
+        location = self.location_crud.get(location_id)
+
+        return location.connected_locations
+
+    def get_player_info(self, user_id: UUID):
+        pass
+
+    def move_player(self, character_id: UUID, location_id: UUID, validate: bool = False):
         ccrud = CharacterCRUD(session=self.session)
 
         character = ccrud.get(character_id)

@@ -60,21 +60,7 @@ class GameCRUD(BaseCRUD):
         self.session.commit()
         self.session.refresh(db_game)
 
-        location_names = [
-            "study",
-            "hall",
-            "lounge",
-            "dining_room",
-            "billiard_room",
-            "library",
-            "conservatory",
-            "ball_room",
-            "kitchen"
-        ]
-
-        for name in location_names:
-            create = LocationCreate(game_id=db_game.id, name=name)
-            lcrud.create(location=create)
+        lcrud.create_all_game_rooms(game_id=db_game.id)
 
         self.populate_characters(id=db_game.id, character_names=character_names)
 
