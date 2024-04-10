@@ -3,7 +3,7 @@ from uuid import UUID
 from typing import List
 
 from clueless.app.db.crud.room import RoomCRUD, RoomRead, RoomCreate, RoomUpdate, RoomCreateUI
-from clueless.app.db.crud.game import GameCRUD, GameRead, GameCreate
+from clueless.app.db.crud.game import GameCRUD, GameRead, GameCreate, GameReadWithLinks
 from clueless.app.db import get_session
 from clueless.app.core.users import current_active_user
 
@@ -54,7 +54,7 @@ def join_game(_id: str,
     return crud.add_player(_id=_id, player_id=user.id)
 
 
-@router.post("/{_id}/start/", response_model=GameRead)
+@router.post("/{_id}/start/", response_model=GameReadWithLinks)
 def start_game(_id: str,
                crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
                game_crud: GameCRUD = Depends(GameCRUD.as_dependency),
@@ -67,7 +67,7 @@ def start_game(_id: str,
     """
     room = crud.get_by_id_or_key(_id=_id)
 
-    create = GameCreate(room_id = room.id)
+    create = GameCreate(room_id=room.id)
 
     game = game_crud.create(game=create)
 

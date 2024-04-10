@@ -7,6 +7,7 @@ from uuid import uuid4, UUID
 
 from clueless.app.db.models.base import BaseTable
 from clueless.app.db.models.room import Room, RoomRead
+from clueless.app.db.models.location import Location, LocationRead
 from clueless.app.db.models.user import User
 
 
@@ -19,8 +20,22 @@ class GameBase(SQLModel):
 
 class Game(GameBase, BaseTable, table=True):
 
-    room: Room = Relationship(
+    waiting_room: Room = Relationship(
         back_populates="game"
+    )
+
+    locations: Optional[list[Location]] = Relationship(
+        back_populates="game",
+        sa_relationship_kwargs={
+            "cascade": "all, delete",  # Instruct the ORM how to track changes to local objects
+        },
+    )
+
+    characters: Optional[list["Character"]] = Relationship(
+        back_populates="game",
+        sa_relationship_kwargs={
+            "cascade": "all, delete",  # Instruct the ORM how to track changes to local objects
+        },
     )
 
     # TODO: Core game data goes here
@@ -32,7 +47,11 @@ class GameCreate(GameBase):
 
 class GameRead(GameBase):
     id: UUID
-    room: RoomRead | None = None
+    waiting_room: RoomRead | None = None
+
+
+class GameReadWithLinks(GameRead):
+    locations: list[LocationRead]
 
 
 class GameUpdate(SQLModel):

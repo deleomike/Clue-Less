@@ -7,47 +7,51 @@ from fastapi import HTTPException
 
 from clueless.app.db.crud.base import BaseCRUD
 from clueless.app.db.crud.room import RoomCRUD
-from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate
+from clueless.app.db.crud.location import LocationCRUD, LocationCreate
+from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate, GameReadWithLinks
+from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate
 
 
 class GameCRUD(BaseCRUD):
 
-    def get_by_id_or_key(self, _id: Union[str, UUID]) -> GameRead:
-        """
-        Gets the game by either the alphanumeric game key or by the ID
-        :param _id:
-        :return:
-        """
-        # try string to UUID conversion
-        if isinstance(_id, str):
-            try:
-                uuid_obj = UUID(_id)
-                _id = uuid_obj
-            except ValueError:
-                pass
+    DEFAULT_NAMES = ["Prof. Plum", "Mrs. Peacock", "Mr. Green", "Mrs. White", "Col. Mustard", "Miss Scarlet"]
 
-        # Get game by uuid
-        if isinstance(_id, UUID):
-            return self.get(_id=_id)
-        # Get game by game_key
-        elif isinstance(_id, str):
-            return self.get_by_game_key(game_key=_id)
-        # Invalid ID
-        else:
-            raise HTTPException(status_code=500, detail=f"Invalid type for id, {type(_id)}")
-
-    def get(self, _id: UUID) -> GameRead:
+    def get(self, _id: UUID) -> GameReadWithLinks:
         game = self.session.get(Game, _id)
         if not game:
-            raise HTTPException(status_code=404, detail="Hero not found")
+            raise HTTPException(status_code=404, detail="Game not found")
         return game
 
     def get_all(self) -> List[GameRead]:
         games = self.session.exec(select(Game)).all()
         return games
 
-    def create(self, game: GameCreate) -> GameRead:
+    def populate_characters(self, id: UUID, character_names: List[str] = None) -> GameReadWithLinks:
+        # for now, place all in the first room
+        game = self.get(id)
+        ccrud = CharacterCRUD(session=self.session)
+
+        if character_names is None:
+            character_names = self.DEFAULT_NAMES[:len(game.waiting_room.users)]
+
+        assert (len(game.waiting_room.users) == len(character_names))
+
+        starting_location = game.locations[0]
+        for user, name in zip(game.waiting_room.users, character_names):
+            create = CharacterCreate(
+                name=name,
+                user_id=user,
+                location_id=starting_location.id,
+                game_id=game.id
+            )
+
+            ccrud.create(character=create)
+
+        return self.get(id)
+
+    def create(self, game: GameCreate, character_names: List[str] = None) -> GameRead:
         rcrud = RoomCRUD(session=self.session)
+        lcrud = LocationCRUD(session=self.session)
 
         # game.users = [str(game.host)]
         db_game = Game.model_validate(game)
@@ -56,7 +60,11 @@ class GameCRUD(BaseCRUD):
         self.session.commit()
         self.session.refresh(db_game)
 
-        return db_game
+        lcrud.create_all_game_rooms(game_id=db_game.id)
+
+        self.populate_characters(id=db_game.id, character_names=character_names)
+
+        return self.get(_id=db_game.id)
 
     def delete(self, _id: UUID) -> GameRead:
         game = self.session.get(Game, _id)
@@ -85,3 +93,11 @@ class GameCRUD(BaseCRUD):
         new_game.users.append(str(player_id))
 
         return self.update(_id=_id, game=new_game)
+
+
+    def move_player(self, id: UUID, character_id: UUID, location_id: UUID, validate: bool = False):
+        ccrud = CharacterCRUD(session=self.session)
+
+        character = ccrud.get(character_id)
+        character.location_id = location_id
+        ccrud.update(character_id, )
