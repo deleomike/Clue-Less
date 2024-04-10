@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from clueless.app.db.crud.game import GameCRUD
 from clueless.app.db.crud.room import RoomCRUD
 from clueless.app.db.crud.location import LocationCRUD, LocationRead
+from clueless.app.db.crud.character import CharacterCRUD, CharacterRead
 from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate, GameReadWithLinks
 from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate, CharacterUpdate
 
@@ -21,6 +22,7 @@ class GameDBController:
         self.session = session
         self.game_crud = GameCRUD(session=self.session)
         self.location_crud = LocationCRUD(session=self.session)
+        self.character_crud = CharacterCRUD(session=self.session)
 
     @property
     def full_state(self) -> GameRead:
@@ -34,8 +36,11 @@ class GameDBController:
 
         return location.connected_locations
 
-    def get_player_info(self, user_id: UUID):
+    def is_valid_location_move(self, character_id: UUID, location_id: UUID):
         pass
+
+    def get_character_info(self, user_id: UUID) -> CharacterRead:
+        return self.character_crud.get_by_user_id(user_id=str(user_id))
 
     def move_player(self, character_id: UUID, location_id: UUID, validate: bool = False):
         ccrud = CharacterCRUD(session=self.session)
