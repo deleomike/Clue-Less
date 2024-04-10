@@ -7,6 +7,7 @@ from fastapi import HTTPException
 
 from clueless.app.db.crud.base import BaseCRUD
 from clueless.app.db.models.character import CharacterBase, Character, CharacterRead, CharacterCreate, CharacterUpdate
+from clueless.app.db.models.shared import CharacterReadLinks
 
 
 class CharacterCRUD(BaseCRUD):
@@ -17,7 +18,10 @@ class CharacterCRUD(BaseCRUD):
             raise HTTPException(status_code=404, detail="Character not found")
         return character
 
-    def get_by_user_id(self, user_id: str) -> CharacterRead:
+    def get_with_link(self, _id: UUID) -> CharacterReadLinks:
+        return self.get(_id)
+
+    def get_by_user_id(self, user_id: str) -> CharacterReadLinks:
         characters = self.session.exec(select(Character).where(user_id==user_id)).one_or_none()
         return characters
 
@@ -63,4 +67,10 @@ class CharacterCRUD(BaseCRUD):
         :return:
         """
 
+        character = self.get(id)
 
+        character.location_id = location_id
+
+        self.session.add(character)
+        self.session.commit()
+        self.session.refresh(character)

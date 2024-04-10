@@ -55,9 +55,5 @@ class LocationRead(LocationBase):
     id: UUID
 
 
-class LocationReadLinks(LocationRead):
-    connected_locations: list[Location]
-
-
 class LocationUpdate(SQLModel):
     pass

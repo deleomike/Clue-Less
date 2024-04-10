@@ -6,7 +6,8 @@ from uuid import UUID
 from fastapi import HTTPException
 
 from clueless.app.db.crud.base import BaseCRUD
-from clueless.app.db.models.location import LocationBase, Location, LocationRead, LocationCreate, LocationUpdate, LocationReadLinks
+from clueless.app.db.models.location import LocationBase, Location, LocationRead, LocationCreate, LocationUpdate
+from clueless.app.db.models.shared import LocationReadLinks
 
 
 class LocationCRUD(BaseCRUD):
