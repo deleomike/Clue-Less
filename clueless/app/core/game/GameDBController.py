@@ -130,6 +130,17 @@ class GameDBController:
         return self.character_crud.get_with_link(character_id)
 
     def make_suggestion(self, current_player: UUID, accused_id: UUID, weapon: str) -> CardRead:
+        """
+        Makes a suggestion.
+
+        teleports the accused and checks their cards.
+
+        TODO: Probably not checking their cards specifically
+        :param current_player:
+        :param accused_id:
+        :param weapon:
+        :return:
+        """
         current_player = self.character_crud.get_with_link(current_player)
         accused_player = self.character_crud.get_with_link(accused_id)
 
@@ -149,3 +160,29 @@ class GameDBController:
 
         #return one matching card
         return random.choice(matching_cards)
+
+    def make_accusation(self, current_player: UUID, player_name: str, room_name: str, weapon: str) -> bool:
+        """
+        Make an accusation, checks the game's cards.
+
+        TODO: Make the player lose, add a field for lost or not to the character db
+        TODO: Return all cards?
+
+        :param current_player:
+        :param player_name:
+        :param room_name:
+        :param weapon:
+        :return:
+        """
+        current_player = self.character_crud.get_with_link(current_player)
+
+        if "hallway" in current_player.location.name:
+            raise Exception("Cannot make a suggestion from a hallway")
+
+        game = self.full_state
+
+        names = set([card.name for card in game.solution])
+
+        match = ({player_name, room_name, weapon} == names)
+
+        return match
