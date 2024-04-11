@@ -31,6 +31,10 @@ class Character(CharacterBase, BaseTable, table=True):
         back_populates="characters"
     )
 
+    hand: Optional[list["Card"]] = Relationship(
+        back_populates="character"
+    )
+
     # TODO: Core game data goes here
 
 

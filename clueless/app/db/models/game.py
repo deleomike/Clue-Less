@@ -8,6 +8,7 @@ from uuid import uuid4, UUID
 from clueless.app.db.models.base import BaseTable
 from clueless.app.db.models.room import Room, RoomRead
 from clueless.app.db.models.location import Location, LocationRead
+from clueless.app.db.models.character import CharacterRead
 from clueless.app.db.models.user import User
 
 
@@ -38,6 +39,10 @@ class Game(GameBase, BaseTable, table=True):
         },
     )
 
+    solution: Optional[list["Card"]] = Relationship(
+        back_populates="game"
+    )
+
     # TODO: Core game data goes here
 
 
@@ -48,10 +53,6 @@ class GameCreate(GameBase):
 class GameRead(GameBase):
     id: UUID
     waiting_room: RoomRead | None = None
-
-
-class GameReadWithLinks(GameRead):
-    locations: list[LocationRead]
 
 
 class GameUpdate(SQLModel):
