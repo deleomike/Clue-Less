@@ -22,7 +22,7 @@ class CharacterCRUD(BaseCRUD):
         return self.get(_id)
 
     def get_by_user_id(self, user_id: str) -> CharacterReadLinks:
-        characters = self.session.exec(select(Character).where(user_id==user_id)).one_or_none()
+        characters = self.session.exec(select(Character).where(user_id==user_id)).all()[0]
         return characters
 
     def get_all(self) -> List[CharacterRead]:

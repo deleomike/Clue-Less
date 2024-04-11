@@ -16,7 +16,6 @@ from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate, Chara
 from clueless.app.db.models.card import CardRead
 
 
-
 class GameDBController:
     """
     The main interface for

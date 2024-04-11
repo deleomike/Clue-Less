@@ -3,9 +3,10 @@ from uuid import UUID
 from typing import List
 
 from clueless.app.db.models.game import GameRead, GameCreate, GameUpdate
+from clueless.app.db.models.location import LocationRead
 from clueless.app.db.models.character import CharacterRead
 from clueless.app.db.models.card import CardRead
-from clueless.app.db.models.shared import GameReadWithLinks, CharacterReadLinks
+from clueless.app.db.models.shared import GameReadWithLinks, CharacterReadLinks, LocationReadLinks
 from clueless.app.core.game.GameDBController import GameDBController
 from clueless.app.db.crud.game import GameCRUD
 from clueless.app.db import get_session
@@ -44,6 +45,24 @@ def get_character(_id: UUID,
     """
     controller = GameDBController(game_id=_id, session=crud.session)
     return controller.get_character_info(user_id=user.id)
+
+
+@router.post("/{_id}/character/valid_moves/", response_model=List[LocationRead])
+def valid_moves(_id: UUID,
+                crud: GameCRUD = Depends(GameCRUD.as_dependency),
+                user = Depends(current_active_user)):
+    """
+    Gets list of valid locations to move to
+
+    :param _id:
+    :param crud:
+    :param user:
+    :return:
+    """
+    controller = GameDBController(game_id=_id, session=crud.session)
+    character = controller.get_character_info(user_id=user.id)
+
+    return controller.get_adjacent_character_locations(character_id=character.id)
 
 
 @router.post("/{_id}/character/move/{location_id}", response_model=CharacterReadLinks)
@@ -87,6 +106,35 @@ def make_suggestion(_id: UUID,
     character = controller.get_character_info(user_id=user.id)
 
     return controller.make_suggestion(current_player=character.id, accused_id=accused_player_id, weapon=weapon)
+
+
+@router.post("/{_id}/character/make_accusation", response_model=CardRead)
+def make_accusation(_id: UUID,
+                    character: str,
+                    weapon: str,
+                    room: str,
+                    crud: GameCRUD = Depends(GameCRUD.as_dependency),
+                    user = Depends(current_active_user)):
+    """
+    Makes an accusation
+
+    :param _id:
+    :param character:
+    :param weapon:
+    :param room:
+    :param crud:
+    :param user:
+    :return:
+    """
+    controller = GameDBController(game_id=_id, session=crud.session)
+    character_m = controller.get_character_info(user_id=user.id)
+
+    return controller.make_accusation(
+        current_player=character_m.id,
+        player_name=character,
+        room_name=room,
+        weapon=weapon
+    )
 
 
 @router.delete("/{_id}/")
