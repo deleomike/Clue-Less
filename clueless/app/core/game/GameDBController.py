@@ -66,6 +66,8 @@ class GameDBController:
         """
         Checks whether a move is invalid (no connection between locations)
 
+        UNTESTED
+
         :param character_id:
         :param location_id:
         :return:
@@ -86,6 +88,8 @@ class GameDBController:
         """
         Gets the character info by the user's ID
 
+        UNTESTED
+
         :param user_id:
         :return:
         """
@@ -94,6 +98,8 @@ class GameDBController:
     def move_player_location_name(self, character_id: UUID, location_name: str, validate: bool = False) -> CharacterReadLinks:
         """
         Move a character to a new room by the name of the room
+
+        UNTESTED
 
         :param character_id:
         :param location_name:
@@ -113,6 +119,8 @@ class GameDBController:
     def move_player(self, character_id: UUID, location_id: UUID, validate: bool = False) -> CharacterReadLinks:
         """
         Move a character to a new room by the location's id
+
+        UNTESTED
 
         :param character_id:
         :param location_id:
@@ -136,6 +144,9 @@ class GameDBController:
         teleports the accused and checks their cards.
 
         TODO: Probably not checking their cards specifically
+
+        UNTESTED
+
         :param current_player:
         :param accused_id:
         :param weapon:
@@ -167,6 +178,8 @@ class GameDBController:
 
         TODO: Make the player lose, add a field for lost or not to the character db
         TODO: Return all cards?
+
+        UNTESTED
 
         :param current_player:
         :param player_name:
