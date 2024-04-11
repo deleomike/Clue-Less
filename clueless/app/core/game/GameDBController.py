@@ -1,4 +1,5 @@
 import uuid
+import random
 
 from sqlmodel import select
 from typing import List, Union
@@ -8,10 +9,11 @@ from fastapi import HTTPException
 from clueless.app.db.crud.game import GameCRUD
 from clueless.app.db.crud.room import RoomCRUD
 from clueless.app.db.crud.location import LocationCRUD, LocationRead
-from clueless.app.db.models.shared import CharacterReadLinks, LocationReadLinks
+from clueless.app.db.models.shared import CharacterReadLinks, LocationReadLinks, GameReadWithLinks
 from clueless.app.db.crud.character import CharacterCRUD, CharacterRead
-from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate, GameReadWithLinks
+from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate
 from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate, CharacterUpdate
+from clueless.app.db.models.card import CardRead
 
 
 
@@ -126,3 +128,24 @@ class GameDBController:
         self.character_crud.change_room(id=character_id, location_id=location_id)
 
         return self.character_crud.get_with_link(character_id)
+
+    def make_suggestion(self, current_player: UUID, accused_id: UUID, weapon: str) -> CardRead:
+        current_player = self.character_crud.get_with_link(current_player)
+        accused_player = self.character_crud.get_with_link(accused_id)
+
+        if "hallway" in current_player.location.name:
+            raise Exception("Cannot make a suggestion from a hallway")
+
+        # teleport the accused
+        self.move_player(character_id=accused_id, location_id=current_player.location_id, validate=False)
+
+        # TODO Card checking for this player and maybe others
+
+        matching_cards = []
+        for name in [weapon, accused_player.name, current_player.location.name]:
+            for card in accused_player.hand:
+                if name == card.name:
+                    matching_cards.append(card)
+
+        #return one matching card
+        return random.choice(matching_cards)
