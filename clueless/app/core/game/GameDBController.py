@@ -1,4 +1,5 @@
 import uuid
+import random
 
 from sqlmodel import select
 from typing import List, Union
@@ -8,10 +9,11 @@ from fastapi import HTTPException
 from clueless.app.db.crud.game import GameCRUD
 from clueless.app.db.crud.room import RoomCRUD
 from clueless.app.db.crud.location import LocationCRUD, LocationRead
-from clueless.app.db.models.shared import CharacterReadLinks, LocationReadLinks
+from clueless.app.db.models.shared import CharacterReadLinks, LocationReadLinks, GameReadWithLinks
 from clueless.app.db.crud.character import CharacterCRUD, CharacterRead
-from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate, GameReadWithLinks
+from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate
 from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate, CharacterUpdate
+from clueless.app.db.models.card import CardRead
 
 
 
@@ -64,6 +66,8 @@ class GameDBController:
         """
         Checks whether a move is invalid (no connection between locations)
 
+        UNTESTED
+
         :param character_id:
         :param location_id:
         :return:
@@ -84,6 +88,8 @@ class GameDBController:
         """
         Gets the character info by the user's ID
 
+        UNTESTED
+
         :param user_id:
         :return:
         """
@@ -92,6 +98,8 @@ class GameDBController:
     def move_player_location_name(self, character_id: UUID, location_name: str, validate: bool = False) -> CharacterReadLinks:
         """
         Move a character to a new room by the name of the room
+
+        UNTESTED
 
         :param character_id:
         :param location_name:
@@ -112,6 +120,8 @@ class GameDBController:
         """
         Move a character to a new room by the location's id
 
+        UNTESTED
+
         :param character_id:
         :param location_id:
         :param validate:
@@ -126,3 +136,66 @@ class GameDBController:
         self.character_crud.change_room(id=character_id, location_id=location_id)
 
         return self.character_crud.get_with_link(character_id)
+
+    def make_suggestion(self, current_player: UUID, accused_id: UUID, weapon: str) -> CardRead:
+        """
+        Makes a suggestion.
+
+        teleports the accused and checks their cards.
+
+        TODO: Probably not checking their cards specifically
+
+        UNTESTED
+
+        :param current_player:
+        :param accused_id:
+        :param weapon:
+        :return:
+        """
+        current_player = self.character_crud.get_with_link(current_player)
+        accused_player = self.character_crud.get_with_link(accused_id)
+
+        if "hallway" in current_player.location.name:
+            raise Exception("Cannot make a suggestion from a hallway")
+
+        # teleport the accused
+        self.move_player(character_id=accused_id, location_id=current_player.location_id, validate=False)
+
+        # TODO Card checking for this player and maybe others
+
+        matching_cards = []
+        for name in [weapon, accused_player.name, current_player.location.name]:
+            for card in accused_player.hand:
+                if name == card.name:
+                    matching_cards.append(card)
+
+        #return one matching card
+        return random.choice(matching_cards)
+
+    def make_accusation(self, current_player: UUID, player_name: str, room_name: str, weapon: str) -> bool:
+        """
+        Make an accusation, checks the game's cards.
+
+        TODO: Make the player lose, add a field for lost or not to the character db
+        TODO: Return all cards?
+
+        UNTESTED
+
+        :param current_player:
+        :param player_name:
+        :param room_name:
+        :param weapon:
+        :return:
+        """
+        current_player = self.character_crud.get_with_link(current_player)
+
+        if "hallway" in current_player.location.name:
+            raise Exception("Cannot make a suggestion from a hallway")
+
+        game = self.full_state
+
+        names = set([card.name for card in game.solution])
+
+        match = ({player_name, room_name, weapon} == names)
+
+        return match

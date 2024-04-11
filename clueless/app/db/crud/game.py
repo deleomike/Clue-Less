@@ -1,3 +1,4 @@
+import math
 import uuid
 
 from sqlmodel import select
@@ -8,13 +9,34 @@ from fastapi import HTTPException
 from clueless.app.db.crud.base import BaseCRUD
 from clueless.app.db.crud.room import RoomCRUD
 from clueless.app.db.crud.location import LocationCRUD, LocationCreate
-from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate, GameReadWithLinks
+from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate
 from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate
+from clueless.app.db.crud.card import CardCRUD, CardCreate
+from clueless.app.db.models.shared import GameReadWithLinks
 
 
 class GameCRUD(BaseCRUD):
 
     DEFAULT_NAMES = ["Prof. Plum", "Mrs. Peacock", "Mr. Green", "Mrs. White", "Col. Mustard", "Miss Scarlet"]
+    LOCATION_NAMES = [
+        "study",
+        "hall",
+        "lounge",
+        "dining_room",
+        "billiard_room",
+        "library",
+        "conservatory",
+        "ball_room",
+        "kitchen"
+    ]
+    WEAPON_NAMES = [
+        "Candlestick",
+        "Dagger",
+        "Lead Pipe",
+        "Revolver",
+        "Rope",
+        "Wrench"
+    ]
 
     def get(self, _id: UUID) -> GameReadWithLinks:
         game = self.session.get(Game, _id)
@@ -49,6 +71,42 @@ class GameCRUD(BaseCRUD):
 
         return self.get(id)
 
+    def _deal_cards(self, game_id: UUID):
+        locations, weapons, characters = self.LOCATION_NAMES, self.WEAPON_NAMES, self.DEFAULT_NAMES,
+        card_details = []
+
+        import random
+
+        random.shuffle(locations)
+        random.shuffle(weapons)
+        random.shuffle(characters)
+
+        solution = ((locations.pop(), "room"), (weapons.pop(), "weapon"), (characters.pop(), "character"))
+
+        card_details.extend([(name, "character") for name in self.DEFAULT_NAMES])
+        card_details.extend([(name, "room") for name in self.LOCATION_NAMES])
+        card_details.extend([(name, "weapon") for name in self.WEAPON_NAMES])
+
+        ########
+        # Adjust how many characters get how many cards
+        game: GameReadWithLinks = self.get(game_id)
+        card_character_multiple = math.ceil(len(card_details) / len(game.characters))
+        characters_ = (game.characters * card_character_multiple)[:len(card_details)]
+        random.shuffle(characters_)
+        ########
+
+        cards = [CardCreate(name=details[0], type=details[1], character_id=character.id)
+                 for details, character in zip(card_details, characters_)]
+
+        solution_cards = [CardCreate(name=name, type=type, game_id=game_id) for name, type in solution]
+
+        cards.extend(solution_cards)
+
+        card_crud = CardCRUD(session=self.session)
+
+        for card in cards:
+            card_crud.create(card)
+
     def create(self, game: GameCreate, character_names: List[str] = None) -> GameRead:
         rcrud = RoomCRUD(session=self.session)
         lcrud = LocationCRUD(session=self.session)
@@ -63,6 +121,8 @@ class GameCRUD(BaseCRUD):
         lcrud.create_all_game_rooms(game_id=db_game.id)
 
         self.populate_characters(id=db_game.id, character_names=character_names)
+
+        self._deal_cards(game_id=db_game.id)
 
         return self.get(_id=db_game.id)
 
