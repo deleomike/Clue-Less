@@ -209,7 +209,19 @@ class GameDBController:
         #return one matching card
         return random.choice(matching_cards)
 
-    def make_accusation(self, current_player: UUID, player_name: str, room_name: str, weapon: str) -> bool:
+    def _set_player_lost(self, character_id: UUID):
+        character = CharacterUpdate(is_playing=False, is_won=False)
+
+        self.character_crud.update(_id=character_id, character=character)
+
+    def _set_player_won(self, character_id: UUID):
+        character = CharacterUpdate(is_won=True)
+
+        self.character_crud.update(_id=character_id, character=character)
+
+        self.game_crud.set_win(self.id, game_over=True)
+
+    def make_accusation(self, current_player_id: UUID, player_name: str, room_name: str, weapon: str) -> bool:
         """
         Make an accusation, checks the game's cards.
 
@@ -218,21 +230,21 @@ class GameDBController:
 
         UNTESTED
 
-        :param current_player:
+        :param current_player_id:
         :param player_name:
         :param room_name:
         :param weapon:
         :return:
         """
-        current_player = self.character_crud.get_with_link(current_player)
+        current_player = self.character_crud.get_with_link(current_player_id)
 
-        if "hallway" in current_player.location.name:
-            raise Exception("Cannot make a suggestion from a hallway")
+        won = self.is_solution(character=player_name, weapon=weapon, location=room_name)
 
-        game = self.full_state
+        if won:
+            # TODO: set game to winning
+            self._set_player_won(character_id=current_player_id)
+        else:
+            # TODO set player to having lost
+            self._set_player_lost(character_id=current_player_id)
 
-        names = set([card.name for card in game.solution])
-
-        match = ({player_name, room_name, weapon} == names)
-
-        return match
+        return won

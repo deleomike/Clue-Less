@@ -281,7 +281,7 @@ class GameLoop:
         print(f"Suggestion made: {character} with the {weapon} in the {current_player.location.name}.")
 
         # TODO Iterate until not None
-        for next_player in self.get_next_player(): # TODO: Luke implement, maybe just in this loop
+        for next_player in self.get_next_player(current_player=current_player): # TODO: Luke implement, maybe just in this loop
 
             # For each player not me, get their character object, and make suggestion
             # Get player, check if they are in the game, by index
@@ -301,7 +301,13 @@ class GameLoop:
 
     def make_accusation(self, player: CharacterReadLinks, character: str, weapon: str, room: str):
         # Check if the accusation matches the game's solution
-        if self.controller.is_solution(character=character, weapon=weapon, location=room):
+        result = self.controller.make_accusation(
+            current_player_id=player.id,
+            room_name=room,
+            weapon=weapon,
+            player_name=character
+        )
+        if result:
             print(
                 f"{player.name} made the correct accusation! They win! {character} committed the "  # Win condition
                 f"murder with the {weapon} in the {room}.")

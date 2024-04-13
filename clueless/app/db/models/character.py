@@ -18,6 +18,7 @@ class CharacterBase(SQLModel):
     name: str = Field(index=True)
 
     is_playing: bool = Field(default=True, index=False)
+    is_won: bool = Field(default=False, index=False)
 
     class Config:
         arbitrary_types_allowed = True
@@ -49,4 +50,5 @@ class CharacterRead(CharacterBase):
 
 
 class CharacterUpdate(SQLModel):
-    pass
+    is_playing: Optional[bool] = None
+    is_won: Optional[bool] = None

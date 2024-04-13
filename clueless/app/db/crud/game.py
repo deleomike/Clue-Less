@@ -162,3 +162,8 @@ class GameCRUD(BaseCRUD):
         character = ccrud.get(character_id)
         character.location_id = location_id
         ccrud.update(character_id, )
+
+    def set_win(self, id: UUID, game_over: bool) -> GameReadWithLinks:
+        self.update(_id=id, game=GameUpdate(game_over=game_over))
+
+        return self.get(id)

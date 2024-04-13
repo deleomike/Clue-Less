@@ -61,4 +61,4 @@ class GameRead(GameBase):
 
 
 class GameUpdate(SQLModel):
-    pass
+    game_over: Optional[bool] = None
