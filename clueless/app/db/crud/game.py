@@ -1,0 +1,163 @@
+import math
+import uuid
+
+from sqlmodel import select
+from typing import List, Union
+from uuid import UUID
+from fastapi import HTTPException
+
+from clueless.app.db.crud.base import BaseCRUD
+from clueless.app.db.crud.room import RoomCRUD
+from clueless.app.db.crud.location import LocationCRUD, LocationCreate
+from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate
+from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate
+from clueless.app.db.crud.card import CardCRUD, CardCreate
+from clueless.app.db.models.shared import GameReadWithLinks
+
+
+class GameCRUD(BaseCRUD):
+
+    DEFAULT_NAMES = ["Prof. Plum", "Mrs. Peacock", "Mr. Green", "Mrs. White", "Col. Mustard", "Miss Scarlet"]
+    LOCATION_NAMES = [
+        "study",
+        "hall",
+        "lounge",
+        "dining_room",
+        "billiard_room",
+        "library",
+        "conservatory",
+        "ball_room",
+        "kitchen"
+    ]
+    WEAPON_NAMES = [
+        "Candlestick",
+        "Dagger",
+        "Lead Pipe",
+        "Revolver",
+        "Rope",
+        "Wrench"
+    ]
+
+    def get(self, _id: UUID) -> GameReadWithLinks:
+        game = self.session.get(Game, _id)
+        if not game:
+            raise HTTPException(status_code=404, detail="Game not found")
+        return game
+
+    def get_all(self) -> List[GameRead]:
+        games = self.session.exec(select(Game)).all()
+        return games
+
+    def populate_characters(self, id: UUID, character_names: List[str] = None) -> GameReadWithLinks:
+        # for now, place all in the first room
+        game = self.get(id)
+        ccrud = CharacterCRUD(session=self.session)
+
+        if character_names is None:
+            character_names = self.DEFAULT_NAMES[:len(game.waiting_room.users)]
+
+        assert (len(game.waiting_room.users) == len(character_names))
+
+        starting_location = game.locations[0]
+        for user, name in zip(game.waiting_room.users, character_names):
+            create = CharacterCreate(
+                name=name,
+                user_id=user,
+                location_id=starting_location.id,
+                game_id=game.id
+            )
+
+            ccrud.create(character=create)
+
+        return self.get(id)
+
+    def _deal_cards(self, game_id: UUID):
+        locations, weapons, characters = self.LOCATION_NAMES, self.WEAPON_NAMES, self.DEFAULT_NAMES,
+        card_details = []
+
+        import random
+
+        random.shuffle(locations)
+        random.shuffle(weapons)
+        random.shuffle(characters)
+
+        solution = ((locations.pop(), "room"), (weapons.pop(), "weapon"), (characters.pop(), "character"))
+
+        card_details.extend([(name, "character") for name in self.DEFAULT_NAMES])
+        card_details.extend([(name, "room") for name in self.LOCATION_NAMES])
+        card_details.extend([(name, "weapon") for name in self.WEAPON_NAMES])
+
+        ########
+        # Adjust how many characters get how many cards
+        game: GameReadWithLinks = self.get(game_id)
+        card_character_multiple = math.ceil(len(card_details) / len(game.characters))
+        characters_ = (game.characters * card_character_multiple)[:len(card_details)]
+        random.shuffle(characters_)
+        ########
+
+        cards = [CardCreate(name=details[0], type=details[1], character_id=character.id)
+                 for details, character in zip(card_details, characters_)]
+
+        solution_cards = [CardCreate(name=name, type=type, game_id=game_id) for name, type in solution]
+
+        cards.extend(solution_cards)
+
+        card_crud = CardCRUD(session=self.session)
+
+        for card in cards:
+            card_crud.create(card)
+
+    def create(self, game: GameCreate, character_names: List[str] = None) -> GameRead:
+        rcrud = RoomCRUD(session=self.session)
+        lcrud = LocationCRUD(session=self.session)
+
+        # game.users = [str(game.host)]
+        db_game = Game.model_validate(game)
+        rcrud.get(game.room_id)
+        self.session.add(db_game)
+        self.session.commit()
+        self.session.refresh(db_game)
+
+        lcrud.create_all_game_rooms(game_id=db_game.id)
+
+        self.populate_characters(id=db_game.id, character_names=character_names)
+
+        self._deal_cards(game_id=db_game.id)
+
+        return self.get(_id=db_game.id)
+
+    def delete(self, _id: UUID) -> GameRead:
+        game = self.session.get(Game, _id)
+        if not game:
+            raise HTTPException(status_code=404, detail="Hero not found")
+        self.session.delete(game)
+        self.session.commit()
+        return True
+
+    def update(self, _id: UUID, game: GameUpdate) -> GameRead:
+        db_game = self.session.get(Game, _id)
+        if not db_game:
+            raise HTTPException(status_code=404, detail="Game not found")
+        game_data = game.model_dump(exclude_unset=True)
+        db_game.sqlmodel_update(game_data)
+        self.session.add(db_game)
+        self.session.commit()
+        self.session.refresh(db_game)
+        return db_game
+
+
+    def add_player(self, _id: UUID, player_id: UUID) -> GameRead:
+        game = self.get(_id=_id)
+
+        new_game = GameUpdate(users=game.users)
+        new_game.users.append(str(player_id))
+
+        return self.update(_id=_id, game=new_game)
+
+
+    def move_player(self, id: UUID, character_id: UUID, location_id: UUID, validate: bool = False):
+        ccrud = CharacterCRUD(session=self.session)
+
+        character = ccrud.get(character_id)
+        character.location_id = location_id
+        ccrud.update(character_id, )

@@ -1,13 +1,23 @@
 import pydantic
 import pytest
 import uuid
+import asyncio
 
 from typing import Dict
 from fastapi.testclient import TestClient
 
+from tests.utils import create_room, delete_room
+
 from clueless.app.webapp import app
 from clueless.app.db.user_schemas import UserCreate, UserLogin
 
+from clueless.app.db import create_db_and_tables, alchemy_create_db_and_tables
+
+async def setup():
+    create_db_and_tables()
+    await alchemy_create_db_and_tables()
+
+asyncio.run(setup())
 
 class User(pydantic.BaseModel):
     id: str
@@ -92,3 +102,19 @@ def test_user_a_header(test_client, test_user_a) -> Dict:
 @pytest.fixture
 def test_user_b_header(test_client, test_user_b) -> Dict:
     return get_user_headers(app=test_client, email=test_user_b.email, password=test_user_b.password)
+
+
+@pytest.fixture
+def user_a_room(test_client, test_user_a, test_user_a_header):
+    create = {
+        "name": "My-Room",
+        "host": test_user_a.id
+    }
+    print("ROOM CREATE ", create)
+    room = create_room(app=test_client, create=create, headers=test_user_a_header)
+
+    room = room.json()
+
+    yield room
+
+    delete_room(app=test_client, _id=room["id"], headers=test_user_a_header)

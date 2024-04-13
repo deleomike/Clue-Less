@@ -40,16 +40,31 @@ def play(players: int):
     :param players:
     :return:
     """
-
-    from clueless.app.core.game.GameLoop import GameLoop
-
-    GameLoop()
-
     if players <= 1:
         print("Can't start a game with fewer than 2 players.")
         exit(1)
 
-    # TODO
+    import asyncio
+
+    from clueless.app.db import create_db_and_tables, alchemy_create_db_and_tables
+    create_db_and_tables()
+    asyncio.run(alchemy_create_db_and_tables())
+
+    from clueless.app.core.game.GameLoop import GameLoop
+    from clueless.app.core.game.RoomBuilderCLI import RoomBuilder
+    from clueless.app.db import Session, engine
+
+    with Session(engine) as session:
+
+        room_builder = RoomBuilder(session=session, num_players=players, dummy_data=True)
+
+        room = room_builder.create_room("My room")
+
+        print(room)
+
+        GameLoop()
+
+        # TODO
 
 
 if __name__ == '__main__':

@@ -42,6 +42,8 @@
         const clientID = Date.now();
         const ws;
 
+        console.log("HEllo world!");
+
         function processMessage(event) {
             const d = JSON.parse(event.data);
             const messageEl = document.createElement("div");
