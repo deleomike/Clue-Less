@@ -217,7 +217,9 @@ class GameLoop:
         for player in self.players:
             if player.character.name == character.name:
                 temp_player = player
-
+        if temp_player is None:
+            print("That character does not have a player")
+            return
         print(f"Bringing {temp_player.name} ({character.name}) in for questioning in the {room.name}")
         # Move suggested character to the current room
         self.force_move_player(temp_player, room)
@@ -275,7 +277,7 @@ class GameLoop:
 
         if current_player.character.name == self.board.characters[character_idx].name:
             print(f"{self.board.characters[character_idx].name} is you! Make another suggestion")
-            self.suggestion_entry(current_player)
+            return self.suggestion_entry(current_player)
         self.make_suggestion(current_player,
                              self.board.characters[character_idx],
                              self.board.weapons[weapon_idx],
