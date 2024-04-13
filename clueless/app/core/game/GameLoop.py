@@ -132,10 +132,10 @@ class GameLoop:
             deck.append(room)
         print("First shuffle...")
         random.shuffle(deck)
-        time.sleep(1)
+        
         print("Second shuffle...")
         random.shuffle(deck)
-        time.sleep(1)
+        
         print("Third shuffle...")
         random.shuffle(deck)
         return deck
@@ -199,9 +199,7 @@ class GameLoop:
     def player_turn(self, current_player: CharacterReadLinks):
         end_turn_flag = False
         print(f"\n\n{current_player.name}! It's your turn. ")
-        time.sleep(1) # TODO get rid of delays
         print(self.controller.print_character_info(character_id=current_player.id))
-        time.sleep(1)
         while not end_turn_flag:
             options = generate_options(current_player)
             print(f"{options}")
@@ -224,23 +222,20 @@ class GameLoop:
                 # end_turn_flag = try_move(current_player, current_player.location.neighbors[hall_idx])
 
             elif choice == "2" and options.__contains__("2"):
-                time.sleep(1)
                 print(f"Moving to secret passage...")
-                time.sleep(1)
                 use_secret_passage(current_player)
-                time.sleep(1)
                 end_turn_flag = self.suggestion_entry(current_player)
 
             elif choice == "3" and options.__contains__("3"):
-                time.sleep(1)
+                
                 print_room_neighbors(hall=current_player.location)
-                time.sleep(1)
+                
                 room_idx = int(input(f"Where to?:"))
-                time.sleep(1)
+                
                 try_move(current_player, current_player.location.neighbors[room_idx])
-                time.sleep(1)
+                
                 end_turn_flag = self.suggestion_entry(current_player)
-                time.sleep(1)
+                
 
             elif choice == "4" and options.__contains__("4"):
                 print(f"\n\nMaking an accusation, choose wisely...")
@@ -321,10 +316,9 @@ class GameLoop:
         return self.board.game_over
 
     def run_game(self):
-        # Example setup (TODO)
         while not self.is_game_over():
             self.step()  # Player turn
-            time.sleep(1)
+            
 
         print(f"\n\n\n\nThanks for playing! Play again? (y/n)")
         answer = input()
@@ -343,14 +337,16 @@ class GameLoop:
         self.print_characters()
         character_idx = int(input(f"Suggest a killer:"))
 
-        if current_player.name == self.players[character_idx].name:
-            print(f"{self.players[character_idx].name} is you! Make another suggestion")
+        character_name = self.controller.character_card_list[character_idx]
+
+        if current_player.name == character_name:
+            print(f"{character_name} is you! Make another suggestion")
             return self.suggestion_entry(current_player) # recurse
 
         self.make_suggestion(
-            current_player,
-            self.players[character_idx],
-            self.controller.weapon_card_list[weapon_idx], # TODO wont work
+            current_player=current_player,
+            character=character_name,
+            weapon=self.controller.weapon_card_list[weapon_idx], # TODO wont work
         )
 
         return True
@@ -361,6 +357,23 @@ class GameLoop:
             if player.is_playing:
                 count += 1
         return count
+
+    def get_next_player(self, current_player):
+        players = []
+        num_players = len(self.players)
+        player_idx = self.get_player_idx(current_player)
+        while self.players[player_idx + 1 % num_players] is not current_player:
+            if self.players[player_idx + 1 % num_players].is_playing:
+                players.append(self.players[player_idx + 1 % num_players])
+                player_idx += 1
+
+        for player in players:
+            yield player
+
+    def get_player_idx(self, current_player):
+        for player_idx, player in enumerate(self.players):
+            if player == current_player:
+                return player_idx
 
 
 if __name__ == "__main__":
