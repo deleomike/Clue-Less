@@ -5,7 +5,7 @@ from clueless.app.db.models.location import Location, LocationRead
 
 
 class CharacterReadLinks(CharacterRead):
-    location: Location
+    location: LocationRead
     hand: list[Card] = None
 
 

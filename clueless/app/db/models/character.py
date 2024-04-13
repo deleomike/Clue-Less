@@ -17,6 +17,8 @@ class CharacterBase(SQLModel):
 
     name: str = Field(index=True)
 
+    is_playing: bool = Field(default=True, index=False)
+
     class Config:
         arbitrary_types_allowed = True
 

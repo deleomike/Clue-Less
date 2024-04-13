@@ -58,11 +58,13 @@ def play(players: int):
 
         room_builder = RoomBuilder(session=session, num_players=players, dummy_data=True)
 
-        room = room_builder.create_room("My room")
+        game = room_builder.create_room_and_start("My room")
 
-        print(room)
+        print(game)
 
-        GameLoop()
+        loop = GameLoop(game=game, session=session)
+
+        loop.run_game()
 
         # TODO
 

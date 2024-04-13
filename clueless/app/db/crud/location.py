@@ -1,5 +1,6 @@
 import uuid
 
+from collections import defaultdict
 from sqlmodel import select
 from typing import List, Union
 from uuid import UUID
@@ -95,6 +96,13 @@ class LocationCRUD(BaseCRUD):
                 ]
         }
 
+        reverse_connections = defaultdict(set)
+
+        for name in connections:
+            connects = connections[name]
+            for other_name in connects:
+                reverse_connections[other_name].add(name)
+
         locations = {}
 
         # Create the rooms and hallways
@@ -108,12 +116,20 @@ class LocationCRUD(BaseCRUD):
 
         for name in names:
             location = locations[name]
+            for reverse_connection in reverse_connections[name]:
+                print(f"{reverse_connection}, {name}")
+                dest = locations[reverse_connection]
+
+                self.connect_location(location.id, dest.id)
+
             if "hallway" in name:
                 continue
+
             for connection in connections[name]:
                 dest = locations[connection]
 
                 self.connect_location(location.id, dest.id)
+
 
     def create(self, location: LocationCreate) -> LocationRead:
 

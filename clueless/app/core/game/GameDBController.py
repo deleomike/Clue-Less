@@ -49,7 +49,6 @@ class GameDBController:
 
         return self.get_adjacent_locations(location_id=character.location_id)
 
-
     def get_adjacent_locations(self, location_id: UUID) -> List[LocationRead]:
         """
         Get the adjacent rooms to a given location.
@@ -82,6 +81,15 @@ class GameDBController:
                 return True
 
         return False
+
+    def print_character_info(self, character_id: UUID):
+
+        character = self.character_crud.get_with_link(character_id)
+
+        print(f"Name: {character.name}")
+        print(f"Location: {character.location.name}")
+        print(f"Adjacent Locations: {[location.name for location in self.get_adjacent_character_locations(character_id=character_id)]}")
+        print(f"Cards: {[card.name for card in character.hand]}")
 
     def get_character_info(self, user_id: UUID) -> CharacterReadLinks:
         """
@@ -136,13 +144,14 @@ class GameDBController:
 
         return self.character_crud.get_with_link(character_id)
 
-    def make_suggestion(self, current_player: UUID, accused_id: UUID, weapon: str) -> CardRead:
+    def make_suggestion(self, current_player: UUID, accused_id: UUID, character_name: str, weapon_name: str) -> CardRead:
         """
         Makes a suggestion.
 
         teleports the accused and checks their cards.
 
         TODO: Probably not checking their cards specifically
+        TODO: Implement character name logic instead here
 
         UNTESTED
 
