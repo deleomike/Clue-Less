@@ -1,5 +1,7 @@
 import click
 
+from clueless.app.core.game.GameLoop import GameLoop
+
 
 @click.group()
 def clue():
@@ -67,3 +69,4 @@ def play(players: int):
 
 if __name__ == '__main__':
     clue()
+    GameLoop()
