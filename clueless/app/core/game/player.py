@@ -21,7 +21,7 @@ class Player:
 
     def get_player_info(self):
         print(f"Your character: {self.character.name}"
-              f"\nYour location {self.location.name}"
+              f"\nYour location: {self.location.name}"
               f"\n{self.location.name}'s neighbors: {self.location.get_neighbors_string()}"
               f"\nCurrent Clues: " f"{self.get_hand_str()}")
 

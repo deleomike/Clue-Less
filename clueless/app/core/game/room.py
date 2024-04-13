@@ -3,6 +3,7 @@ class Room:
         self.name = name
         self.current_players = []
         self.neighbors = []
+        self.secret_passage = None
 
     def get_neighbors(self):  # Get rooms one hallway away from current room
         return self.neighbors

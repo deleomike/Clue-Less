@@ -2,7 +2,7 @@ class Hall:
     def __init__(self, name):
         self.name = name
         self.current_players = []
-        self.neighbors = None
+        self.neighbors = []
 
     def get_neighbors(self):  # Get locations next to current hallway
         return self.neighbors

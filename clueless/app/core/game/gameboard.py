@@ -29,15 +29,21 @@ def create_rooms_and_halls():
     dk_hall = Hall("Dining Room-Kitchen Hall")
     bk_hall = Hall("Ballroom-Kitchen Hall")
 
-    study.neighbors = [sl_hall, sh_hall, kitchen]
+    study.neighbors = [sl_hall, sh_hall]
     hall.neighbors = [sh_hall, hl_hall, hb_hall]
-    lounge.neighbors = [hl_hall, ld_hall, conservatory]
+    lounge.neighbors = [hl_hall, ld_hall]
     library.neighbors = [sl_hall, lb_hall, lc_hall]
     billiard_room.neighbors = [hb_hall, lb_hall, ld_hall]
     dining_room.neighbors = [ld_hall, bd_hall, dk_hall]
-    conservatory.neighbors = [lc_hall, cb_hall, lounge]
+    conservatory.neighbors = [lc_hall, cb_hall]
     ballroom.neighbors = [bb_hall, cb_hall, bk_hall]
-    kitchen.neighbors = [dk_hall, bk_hall, study]
+    kitchen.neighbors = [dk_hall, bk_hall]
+
+    study.secret_passage = kitchen
+    kitchen.secret_passage = study
+
+    lounge.secret_passage = conservatory
+    conservatory.secret_passage = lounge
 
     sl_hall.neighbors = [study, library]
     sh_hall.neighbors = [study, hall]
@@ -120,50 +126,49 @@ class GameBoard:
         num_players = len(self.players)
         if num_players == 6:
             self.players[0].location = self.halls[2]
-            self.players[0].location.current_players = self.players[0]
+            self.players[0].location.current_players.append(self.players[0])
             self.players[1].location = self.halls[7]
-            self.players[1].location.current_players = self.players[1]
+            self.players[1].location.current_players.append(self.players[1])
             self.players[2].location = self.halls[10]
-            self.players[2].location.current_players = self.players[2]
+            self.players[2].location.current_players.append(self.players[2])
             self.players[3].location = self.halls[11]
-            self.players[3].location.current_players = self.players[3]
+            self.players[3].location.current_players.append(self.players[3])
             self.players[4].location = self.halls[4]
-            self.players[4].location.current_players = self.players[4]
+            self.players[4].location.current_players.append(self.players[4])
             self.players[5].location = self.halls[1]
-            self.players[5].location.current_players = self.players[5]
+            self.players[5].location.current_players.append(self.players[5])
         elif num_players == 5:
             self.players[0].location = self.halls[2]
-            self.players[0].location.current_players = self.players[0]
+            self.players[0].location.current_players.append(self.players[0])
             self.players[1].location = self.halls[7]
-            self.players[1].location.current_players = self.players[1]
+            self.players[1].location.current_players.append(self.players[1])
             self.players[2].location = self.halls[10]
-            self.players[2].location.current_players = self.players[2]
+            self.players[2].location.current_players.append(self.players[2])
             self.players[3].location = self.halls[11]
-            self.players[3].location.current_players = self.players[3]
+            self.players[3].location.current_players.append(self.players[3])
             self.players[4].location = self.halls[4]
-            self.players[4].location.current_players = self.players[4]
+            self.players[4].location.current_players.append(self.players[4])
         elif num_players == 4:
             self.players[0].location = self.halls[2]
-            self.players[0].location.current_players = self.players[0]
+            self.players[0].location.current_players.append(self.players[0])
             self.players[1].location = self.halls[7]
-            self.players[1].location.current_players = self.players[1]
+            self.players[1].location.current_players.append(self.players[1])
             self.players[2].location = self.halls[10]
-            self.players[2].location.current_players = self.players[2]
+            self.players[2].location.current_players.append(self.players[2])
             self.players[3].location = self.halls[11]
-            self.players[3].location.current_players = self.players[3]
+            self.players[3].location.current_players.append(self.players[3])
         elif num_players == 3:
             self.players[0].location = self.halls[2]
-            self.players[0].location.current_players = self.players[0]
+            self.players[0].location.current_players.append(self.players[0])
             self.players[1].location = self.halls[7]
-            self.players[1].location.current_players = self.players[1]
+            self.players[1].location.current_players.append(self.players[1])
             self.players[2].location = self.halls[10]
-            self.players[2].location.current_players = self.players[2]
+            self.players[2].location.current_players.append(self.players[2])
         elif num_players == 2:
             self.players[0].location = self.halls[2]
-            # self.players[0].location = self.rooms[2]
-            self.players[0].location.current_players = self.players[0]
+            self.players[0].location.current_players.append(self.players[0])
             self.players[1].location = self.halls[7]
-            self.players[1].location.current_players = self.players[1]
+            self.players[1].location.current_players.append(self.players[1])
 
     def choose_character(self, player):
         print("Which character do you want to be?")

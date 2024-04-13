@@ -1,8 +1,10 @@
 import time
 
+from clueless.app.core.game.character import Character
 from clueless.app.core.game.gameboard import GameBoard
 from clueless.app.core.game.hall import Hall
 from clueless.app.core.game.room import Room
+from clueless.app.core.game.weapon import Weapon
 
 
 def print_room_neighbors(room=None, hall=None):
@@ -15,6 +17,51 @@ def print_room_neighbors(room=None, hall=None):
         for neighbor in hall.neighbors:
             print(f"{idx}. {neighbor.name}")
             idx += 1
+
+
+def try_move(player, to_room):
+    if to_room in player.location.neighbors:
+        if type(player.location) is Hall:
+            print(f"{player.name}: {player.character.name}, moved to the {to_room.name}.")
+            player.location.current_players.remove(player)
+            to_room.current_players.append(player)
+            player.location = to_room
+            return True
+        elif type(to_room) is Hall:
+            if len(to_room.current_players) > 0:
+                print(
+                    f"{to_room.current_players[0].name} ({to_room.current_players[0].character.name}) is in the "
+                    f"hallway. Cannot move {player.name} (you) to the {to_room.name}.")
+                return False
+            else:
+                print(f"{player.name}: {player.character.name}, moved to the {to_room.name}.")
+                player.location.current_players.remove(player)
+                to_room.current_players.append(player)
+                player.location = to_room
+                return True
+    else:
+        print(f"Cannot move {player.name} to the {to_room}.")
+        return False
+
+
+def generate_options(current_player):
+    options = f""
+    if type(current_player.location) is Room:
+        options += f"0. Make a suggestion"
+        options += f"\n1. Move to a hall"
+        if current_player.location.secret_passage is not None:
+            options += f"\n2. Use secret passage to {current_player.location.secret_passage.name}"
+    if type(current_player.location) is Hall:
+        options += f"\n3. Move to a room"
+    options += f"\n4. Make an accusation"
+    return options
+
+
+def use_secret_passage(player):
+    player.location.current_players.remove(player)
+    player.location = player.location.secret_passage
+    player.location.current_players.append(player)
+    print(f"{player.name} (you) has taken the secret passage to {player.location.name}. Shhh ;)")
 
 
 class GameLoop:
@@ -48,17 +95,17 @@ class GameLoop:
         crime_scene = None
         murder_weapon = None
         for card in self.deck:
-            if type(card) is type(self.characters[0]):
+            if type(card) is Character:
                 murderer = card
                 self.deck.remove(card)
                 break
         for card in self.deck:
-            if type(card) is type(self.board.weapons[0]):
+            if type(card) is Weapon:
                 murder_weapon = card
                 self.deck.remove(card)
                 break
         for card in self.deck:
-            if type(card) is type(self.board.rooms[0]):
+            if type(card) is Room:
                 crime_scene = card
                 self.deck.remove(card)
                 break
@@ -81,48 +128,56 @@ class GameLoop:
 
     def step(self):
         # This method would be called in a loop to progress the game
-
+        if self.get_players_playing() < 2:
+            for player in self.players:
+                if player.is_playing:
+                    print(f"{player.name} ({player.character.name}) wins!!")
+                    self.game_over = True
+                    return
         current_player = self.players[self.turn]
         if not current_player.is_playing:
             self.turn = (self.turn + 1) % len(self.players)
-            pass
-        print(f"Turn: {current_player.name}")
-
+            return
+        # Player turn entry point
         self.player_turn(current_player)
-        # Implement game logic for each step
-        # TODO Check win status and # Update game state accordingly
-
         # Move to the next player's turn
         self.turn = (self.turn + 1) % len(self.players)
 
     def player_turn(self, current_player):
-        m_turn_flag = True
+        end_turn_flag = False
         print(f"\n\n{current_player.name}! It's your turn. ")
+        time.sleep(1)
         current_player.get_player_info()
-        while m_turn_flag:
-            options = self.generate_options(current_player)
-            print(f"\n\n{options}")
+        time.sleep(1)
+        while not end_turn_flag:
+            options = generate_options(current_player)
+            print(f"{options}")
             choice = input("\nChoose an option: ")
             if choice == "0" and options.__contains__("0"):
-                # move the player of character
-                self.print_weapons()
-                weapon_idx = int(input(f"Choose a murder weapon:"))
-
-                self.print_characters()
-                character_idx = int(input(f"Choose a killer:"))
-                m_turn_flag = False
-                pass
+                end_turn_flag = self.suggestion_entry(current_player)
             elif choice == "1" and options.__contains__("1"):
                 print_room_neighbors(room=current_player.location)
                 hall_idx = int(input(f"Where to?:"))
-                self.try_move(current_player, current_player.location.neighbors[hall_idx])
-                m_turn_flag = False
+                end_turn_flag = try_move(current_player, current_player.location.neighbors[hall_idx])
             elif choice == "2" and options.__contains__("2"):
-                print_room_neighbors(hall=current_player.location)
-                room_idx = int(input(f"Where to?:"))
-                self.try_move(current_player, current_player.location.neighbors[room_idx])
-
+                time.sleep(1)
+                print(f"Moving to secret passage...")
+                time.sleep(1)
+                use_secret_passage(current_player)
+                time.sleep(1)
+                end_turn_flag = self.suggestion_entry(current_player)
             elif choice == "3" and options.__contains__("3"):
+                time.sleep(1)
+                print_room_neighbors(hall=current_player.location)
+                time.sleep(1)
+                room_idx = int(input(f"Where to?:"))
+                time.sleep(1)
+                try_move(current_player, current_player.location.neighbors[room_idx])
+                time.sleep(1)
+                end_turn_flag = self.suggestion_entry(current_player)
+                time.sleep(1)
+
+            elif choice == "4" and options.__contains__("4"):
                 print(f"\n\nMaking an accusation, choose wisely...")
 
                 self.print_rooms()
@@ -133,7 +188,7 @@ class GameLoop:
 
                 self.print_characters()
                 character_idx = int(input(f"Choose a killer:"))
-                m_turn_flag = False
+                end_turn_flag = True
                 self.make_accusation(current_player,
                                      self.board.characters[character_idx],
                                      self.board.weapons[weapon_idx],
@@ -157,47 +212,27 @@ class GameLoop:
             print(f"{idx}. {room.name}")
             idx += 1
 
-    def generate_options(self, current_player):
-        options = f""
-        if type(current_player.location) is Room:
-            options += f"0. Make a suggestion"
-            options += f"\n1. Move to a hall"
-        if type(current_player.location) is Hall:
-            options += f"\n2. Move to a room"
-        options += f"\n3. Make an accusation"
-        return options
+    def make_suggestion(self, current_player, character, weapon, room):
+        temp_player = None
+        for player in self.players:
+            if player.character.name == character.name:
+                temp_player = player
 
-    def try_move(self, player, to_room):
-        # Check if a move exists and is unblocked
-        # Dummy example that removes game-board check (TODO)
-        if to_room in player.location.neighbors:
-            if type(player.location) is Hall:
-                print(f"{player.name}: {player.character.name}, moved to the {to_room.name}.")
-                player.location.current_players.remove(player)
-                to_room.current_players.append(player)
-                player.location = to_room
-                return True
-            elif type(to_room) is Hall:
-                if len(to_room.current_players) > 0:
-                    print(
-                        f"{to_room.current_players.name} is in the hallway. Cannot move {player.name} to the {to_room}.")
-                    return False
-                else:
-                    print(f"{player.name}: {player.character.name}, moved to the {to_room.name}.")
-                    # player.location.current_players.remove(player)
-                    to_room.current_players.append(player)
-                    player.location = to_room
-                    return True
-        else:
-            print(f"Cannot move {player.name} to the {to_room}.")
-            return False
-
-    def make_suggestion(self, player, character, weapon, room):
+        print(f"Bringing {temp_player.name} ({character.name}) in for questioning in the {room.name}")
+        # Move suggested character to the current room
+        self.force_move_player(temp_player, room)
         # Handle suggestion logic
         print(f"Suggestion made: {character} with the {weapon} in the {room}.")
-        # Move suggested character to the current room
-        self.move_character(character, room)
-        # Let other players respond to the suggestion (TODO)
+        for card in temp_player.hand:
+            if card.name == character.name or card.name == weapon.name or card.name == room.name:
+                current_player.hand.append(card)
+                temp_player.hand.remove(card)
+                print(f"{temp_player.name} gave you the {card.name} card.")
+                return
+        print(f"{temp_player.name} disproved the suggestion of {character.name}, {weapon.name}, {room.name}!")
+        # IF PLAYER CLUES CONTAINS ANY OF THE FOLLOWING: CHARACTER, WEAPON, ROOM, GIVE PLAYER THE FIRST CARD FOUND
+        # AND END THE TURN, ELSE NOTIFY CONSOLE OF THE PLAYERS ENTIRE SUGGESTION, CHARACTER, WEAPON, ROOM -- BEING
+        # DISPROVED
 
     def make_accusation(self, player, character, weapon, room):
         # Check if the accusation matches the game's solution
@@ -224,9 +259,37 @@ class GameLoop:
         print(f"\n\n\n\nThanks for playing! Play again? (y/n)")
         answer = input()
         if answer.lower() == "y":
+            self = GameLoop()
             self.run_game()
         else:
             exit(1876)
+
+    def suggestion_entry(self, current_player):
+        print(f"Making suggestion in the {current_player.location.name}...")
+        # move the player of character
+        self.print_weapons()
+        weapon_idx = int(input(f"Suggest a murder weapon:"))
+
+        self.print_characters()
+        character_idx = int(input(f"Suggest a killer:"))
+
+        self.make_suggestion(current_player,
+                             self.board.characters[character_idx],
+                             self.board.weapons[weapon_idx],
+                             current_player.location)
+        return True
+
+    def force_move_player(self, player, room):
+        player.location.current_players.remove(player)
+        player.location = room
+        player.location.current_players.append(player)
+
+    def get_players_playing(self):
+        count = 0
+        for player in self.players:
+            if player.is_playing:
+                count += 1
+        return count
 
 
 gameloop = GameLoop()
