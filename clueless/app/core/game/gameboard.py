@@ -1,9 +1,11 @@
+from clueless.app.core.game.character import Character
 from clueless.app.core.game.player import Player
 from clueless.app.core.game.room import Room
 from clueless.app.core.game.weapon import Weapon
+from clueless.app.core.game.hall import Hall
 
 
-def create_rooms():
+def create_rooms_and_halls():
     study = Room("Study")
     hall = Room("Hall")
     lounge = Room("Lounge")
@@ -11,19 +13,53 @@ def create_rooms():
     billiard_room = Room("Billiard Room")
     dining_room = Room("Dining Room")
     conservatory = Room("Conservatory")
-    ball_room = Room("Ball Room")
+    ballroom = Room("Ballroom")
     kitchen = Room("Kitchen")
 
-    study.neighbors = [hall, library]
-    hall.neighbors = [study, lounge, billiard_room]
-    library.neighbors = [study, billiard_room, conservatory]
-    billiard_room.neighbors = [hall, library, dining_room]
-    dining_room.neighbors = [lounge, billiard_room, kitchen]
-    conservatory.neighbors = [library, ball_room]
-    ball_room.neighbors = [conservatory, kitchen]
-    kitchen.neighbors = [dining_room, ball_room]
+    sh_hall = Hall("Study-Hallway Hall")
+    hl_hall = Hall("Hall-Lounge Hall")
+    sl_hall = Hall("Study-Lounge Hall")
+    lb_hall = Hall("Lounge-Billiard Room Hall")
+    bd_hall = Hall("Billiard Room-Dining Room Hall")
+    hb_hall = Hall("Hall-Billiard Room Hall")
+    ld_hall = Hall("Lounge-Dining Room Hall")
+    lc_hall = Hall("Library-Conservatory Hall")
+    cb_hall = Hall("Conservatory-Ballroom Hall")
+    bb_hall = Hall("Billiard Room-Ballroom Hall")
+    dk_hall = Hall("Dining Room-Kitchen Hall")
+    bk_hall = Hall("Ballroom-Kitchen Hall")
 
-    return [study, hall, library, billiard_room, dining_room, conservatory, ball_room, kitchen]
+    study.neighbors = [sl_hall, sh_hall, kitchen]
+    hall.neighbors = [sh_hall, hl_hall, hb_hall]
+    lounge.neighbors = [hl_hall, ld_hall, conservatory]
+    library.neighbors = [sl_hall, lb_hall, lc_hall]
+    billiard_room.neighbors = [hb_hall, lb_hall, ld_hall]
+    dining_room.neighbors = [ld_hall, bd_hall, dk_hall]
+    conservatory.neighbors = [lc_hall, cb_hall, lounge]
+    ballroom.neighbors = [bb_hall, cb_hall, bk_hall]
+    kitchen.neighbors = [dk_hall, bk_hall, study]
+
+    sl_hall.neighbors = [study, library]
+    sh_hall.neighbors = [study, hall]
+    hl_hall.neighbors = [hall, lounge]
+    hb_hall.neighbors = [hall, billiard_room]
+    ld_hall.neighbors = [lounge, dining_room]
+    lb_hall.neighbors = [library, billiard_room]
+    bd_hall.neighbors = [billiard_room, dining_room]
+    lc_hall.neighbors = [library, conservatory]
+    bb_hall.neighbors = [billiard_room, ballroom]
+    dk_hall.neighbors = [dining_room, kitchen]
+    cb_hall.neighbors = [conservatory, ballroom]
+    bk_hall.neighbors = [ballroom, kitchen]
+
+    return [study, hall, lounge,
+            library, billiard_room, dining_room,
+            conservatory, ballroom, kitchen,
+            sh_hall, hl_hall,
+            sl_hall, hb_hall, ld_hall,
+            lb_hall, bd_hall,
+            lc_hall, bb_hall, dk_hall,
+            cb_hall, bk_hall]
 
 
 def create_weapons():
@@ -37,34 +73,30 @@ def create_weapons():
     return [candlestick, knife, lead_pipe, revolver, rope, wrench]
 
 
+def create_characters():
+    miss_scarlet = Character("Miss Scarlet")
+    colonel_mustard = Character("Colonel Mustard")
+    mrs_white = Character("Mrs. White")
+    mr_green = Character("Mr. Green")
+    mrs_peacock = Character("Mrs. Peacock")
+    professor_plum = Character("Professor Plum")
+    return [miss_scarlet, colonel_mustard, mrs_white, mrs_peacock, professor_plum, mr_green]
+
+
 def print_characters(characters):
     for i in range(len(characters)):
-        print(f"{i}. {characters[i]}")
+        print(f"{i}. {characters[i].name}")
 
 
 class GameBoard:
     def __init__(self):
-
-        self.rooms = create_rooms()  # Initialize room objects and their neighbors
+        self.locations = create_rooms_and_halls()
+        self.rooms = self.locations[0:9]
+        self.halls = self.locations[9:]
         self.weapons = create_weapons()  # Create list of weapon objects
-        self.characters = [  # Dictionary listing character names and whether a player has selected them
-            "Miss Scarlet",
-            "Colonel Mustard",
-            "Mrs. White",
-            "Mr. Green",
-            "Mrs. Peacock",
-            "Professor Plum"]
+        self.characters = create_characters()
         self.players = self.create_players()
-        self.set_room_weapons()  # Set the locations for each weapon
-
-    def set_room_weapons(self):  # Place weapons randomly throughout rooms
-        import random
-        while len(self.weapons) != 0:  # While weapons are still in the distribution array
-            room_ref = random.choice(self.rooms)
-            if room_ref.weapon is None:  # If a random room doesn't have a weapon put the first weapon
-                # weapon in the array there
-                room_ref.weapon = self.weapons.pop()
-                room_ref.weapon.location = room_ref
+        self.set_player_locations()
 
     def create_players(self):
         players = []
@@ -72,10 +104,66 @@ class GameBoard:
         while num_players < 2 or num_players > 6:
             num_players = int(input("2-6 players required to play Clue-Less! Enter a number between 2 & 6: "))
         for i in range(num_players):
-            player = Player(f"Player {i+1}")
+            player = Player(f"Player {i + 1}")
             player.character = self.choose_character(player)
             players.append(player)
+        self.characters = create_characters()
         return players
+
+    def set_player_locations(self):
+
+        # sh_hall, hl_hall,
+        # sl_hall, hb_hall, ld_hall,
+        # lb_hall, bd_hall,
+        # lc_hall, bb_hall, dk_hall,
+        # cb_hall, bk_hall
+        num_players = len(self.players)
+        if num_players == 6:
+            self.players[0].location = self.halls[2]
+            self.players[0].location.current_players = self.players[0]
+            self.players[1].location = self.halls[7]
+            self.players[1].location.current_players = self.players[1]
+            self.players[2].location = self.halls[10]
+            self.players[2].location.current_players = self.players[2]
+            self.players[3].location = self.halls[11]
+            self.players[3].location.current_players = self.players[3]
+            self.players[4].location = self.halls[4]
+            self.players[4].location.current_players = self.players[4]
+            self.players[5].location = self.halls[1]
+            self.players[5].location.current_players = self.players[5]
+        elif num_players == 5:
+            self.players[0].location = self.halls[2]
+            self.players[0].location.current_players = self.players[0]
+            self.players[1].location = self.halls[7]
+            self.players[1].location.current_players = self.players[1]
+            self.players[2].location = self.halls[10]
+            self.players[2].location.current_players = self.players[2]
+            self.players[3].location = self.halls[11]
+            self.players[3].location.current_players = self.players[3]
+            self.players[4].location = self.halls[4]
+            self.players[4].location.current_players = self.players[4]
+        elif num_players == 4:
+            self.players[0].location = self.halls[2]
+            self.players[0].location.current_players = self.players[0]
+            self.players[1].location = self.halls[7]
+            self.players[1].location.current_players = self.players[1]
+            self.players[2].location = self.halls[10]
+            self.players[2].location.current_players = self.players[2]
+            self.players[3].location = self.halls[11]
+            self.players[3].location.current_players = self.players[3]
+        elif num_players == 3:
+            self.players[0].location = self.halls[2]
+            self.players[0].location.current_players = self.players[0]
+            self.players[1].location = self.halls[7]
+            self.players[1].location.current_players = self.players[1]
+            self.players[2].location = self.halls[10]
+            self.players[2].location.current_players = self.players[2]
+        elif num_players == 2:
+            self.players[0].location = self.halls[2]
+            # self.players[0].location = self.rooms[2]
+            self.players[0].location.current_players = self.players[0]
+            self.players[1].location = self.halls[7]
+            self.players[1].location.current_players = self.players[1]
 
     def choose_character(self, player):
         print("Which character do you want to be?")
@@ -84,8 +172,11 @@ class GameBoard:
         while character_choice >= len(self.characters) or character_choice < 0:
             character_choice = int(input("Invalid character, please enter again."))
             print_characters(self.characters)
-        print(f"{player.name} has chosen {self.characters[character_choice]}!")
+        print(f"{player.name} has chosen {self.characters[character_choice].name}!")
         return self.characters.pop(character_choice)  # Remove at index
 
     def get_players(self):
         return self.players
+
+    def get_characters(self):
+        return self.characters

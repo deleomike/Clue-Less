@@ -1,10 +1,10 @@
-class Room:
+class Hall:
     def __init__(self, name):
         self.name = name
         self.current_players = []
-        self.neighbors = []
+        self.neighbors = None
 
-    def get_neighbors(self):  # Get rooms one hallway away from current room
+    def get_neighbors(self):  # Get locations next to current hallway
         return self.neighbors
 
     def add_player(self, player):  # Add player to a room
