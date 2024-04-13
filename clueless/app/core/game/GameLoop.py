@@ -222,7 +222,7 @@ class GameLoop:
         # Move suggested character to the current room
         self.force_move_player(temp_player, room)
         # Handle suggestion logic
-        print(f"Suggestion made: {character} with the {weapon} in the {room}.")
+        print(f"Suggestion made: {character.name} with the {weapon.name} in the {room.name}.")
         for card in temp_player.hand:
             if card.name == character.name or card.name == weapon.name or card.name == room.name:
                 current_player.hand.append(card)
@@ -273,6 +273,9 @@ class GameLoop:
         self.print_characters()
         character_idx = int(input(f"Suggest a killer:"))
 
+        if current_player.character.name == self.board.characters[character_idx].name:
+            print(f"{self.board.characters[character_idx].name} is you! Make another suggestion")
+            return False
         self.make_suggestion(current_player,
                              self.board.characters[character_idx],
                              self.board.weapons[weapon_idx],
