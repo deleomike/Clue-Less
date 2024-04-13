@@ -38,6 +38,18 @@ class GameDBController:
         """
         return self.game_crud.get(self.id)
 
+    @property
+    def weapon_card_list(self) -> List[str]:
+        return self.game_crud.WEAPON_NAMES
+
+    @property
+    def location_card_list(self) -> List[str]:
+        return self.game_crud.LOCATION_NAMES
+
+    @property
+    def character_card_list(self) -> List[str]:
+        return self.game_crud.DEFAULT_NAMES
+
     def get_adjacent_character_locations(self, character_id: UUID) -> List[LocationRead]:
         """
         Get the rooms adjacent to the character

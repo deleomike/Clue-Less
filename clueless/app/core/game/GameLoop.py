@@ -107,6 +107,18 @@ class GameLoop:
     def players(self) -> List[CharacterReadLinks]:
         return self.board.characters
 
+    def _format_string_list(self, string_list: List[str]) -> str:
+        """
+        adds input ids
+
+        :param string_list:
+        :return:
+        """
+
+        names = [f"{idx}. {name}" for idx, name in enumerate(string_list)]
+
+        return "\n".join(names)
+
     def create_deck(self):
         import random
         deck = []
@@ -246,16 +258,14 @@ class GameLoop:
                                      self.board.rooms[room_idx])
 
     def print_weapons(self):
-        idx = 0
-        for weapon in self.board.weapons:
-            print(f"{idx}. {weapon.name}")
-            idx += 1
+        print(self._format_string_list(self.controller.weapon_card_list))
 
     def print_characters(self):
-        for idx, character in enumerate(self.board.characters):
-            print(f"{idx}. {character.name}")
+        for idx, character in enumerate(self.controller.character_card_list):
+            print(f"{idx}. {character}")
 
     def print_rooms(self):
+        # print(self._format_string_list(self.controller.location_card_list))
         idx = 0
         for room in self.board.locations:
             print(f"{idx}. {room.name}")
@@ -342,7 +352,7 @@ class GameLoop:
         self.make_suggestion(
             current_player,
             self.players[character_idx],
-            self.board.weapons[weapon_idx], # TODO wont work
+            self.controller.weapon_card_list[weapon_idx], # TODO wont work
         )
 
         return True
