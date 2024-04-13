@@ -2,11 +2,6 @@ import time
 
 from typing import List
 
-from clueless.app.core.game.character import Character
-from clueless.app.core.game.gameboard import GameBoard
-from clueless.app.core.game.hall import Hall
-from clueless.app.core.game.room import Room
-from clueless.app.core.game.weapon import Weapon
 from clueless.app.db.models.game import GameRead
 from clueless.app.core.game.GameDBController import (
     GameDBController,
@@ -32,29 +27,29 @@ def print_room_neighbors(locations: List[LocationReadLinks]):
     #         idx += 1
 
 
-def try_move(player, to_room):
-    if to_room in player.location.neighbors:
-        if type(player.location) is Hall:
-            print(f"{player.name}: {player.character.name}, moved to the {to_room.name}.")
-            player.location.current_players.remove(player)
-            to_room.current_players.append(player)
-            player.location = to_room
-            return True
-        elif type(to_room) is Hall:
-            if len(to_room.current_players) > 0:
-                print(
-                    f"{to_room.current_players[0].name} ({to_room.current_players[0].character.name}) is in the "
-                    f"hallway. Cannot move {player.name} (you) to the {to_room.name}.")
-                return False
-            else:
-                print(f"{player.name}: {player.character.name}, moved to the {to_room.name}.")
-                player.location.current_players.remove(player)
-                to_room.current_players.append(player)
-                player.location = to_room
-                return True
-    else:
-        print(f"Cannot move {player.name} to the {to_room}.")
-        return False
+# def try_move(player, to_room):
+#     if to_room in player.location.neighbors:
+#         if type(player.location) is Hall:
+#             print(f"{player.name}: {player.character.name}, moved to the {to_room.name}.")
+#             player.location.current_players.remove(player)
+#             to_room.current_players.append(player)
+#             player.location = to_room
+#             return True
+#         elif type(to_room) is Hall:
+#             if len(to_room.current_players) > 0:
+#                 print(
+#                     f"{to_room.current_players[0].name} ({to_room.current_players[0].character.name}) is in the "
+#                     f"hallway. Cannot move {player.name} (you) to the {to_room.name}.")
+#                 return False
+#             else:
+#                 print(f"{player.name}: {player.character.name}, moved to the {to_room.name}.")
+#                 player.location.current_players.remove(player)
+#                 to_room.current_players.append(player)
+#                 player.location = to_room
+#                 return True
+#     else:
+#         print(f"Cannot move {player.name} to the {to_room}.")
+#         return False
 
 
 def generate_options(current_player):
@@ -140,32 +135,32 @@ class GameLoop:
         random.shuffle(deck)
         return deck
 
-    def select_solution(self):
-        # Select a random character/weapon/room for winning solution.
-        murderer = None
-        crime_scene = None
-        murder_weapon = None
-        for card in self.deck:
-            if type(card) is Character:
-                murderer = card
-                self.deck.remove(card)
-                break
-        for card in self.deck:
-            if type(card) is Weapon:
-                murder_weapon = card
-                self.deck.remove(card)
-                break
-        for card in self.deck:
-            if type(card) is Room:
-                crime_scene = card
-                self.deck.remove(card)
-                break
-        solution = {
-            "character": murderer.name,
-            "weapon": murder_weapon.name,
-            "rooms": crime_scene.name
-        }
-        return solution
+    # def select_solution(self):
+    #     # Select a random character/weapon/room for winning solution.
+    #     murderer = None
+    #     crime_scene = None
+    #     murder_weapon = None
+    #     for card in self.deck:
+    #         if type(card) is Character:
+    #             murderer = card
+    #             self.deck.remove(card)
+    #             break
+    #     for card in self.deck:
+    #         if type(card) is Weapon:
+    #             murder_weapon = card
+    #             self.deck.remove(card)
+    #             break
+    #     for card in self.deck:
+    #         if type(card) is Room:
+    #             crime_scene = card
+    #             self.deck.remove(card)
+    #             break
+    #     solution = {
+    #         "character": murderer.name,
+    #         "weapon": murder_weapon.name,
+    #         "rooms": crime_scene.name
+    #     }
+    #     return solution
 
     def distribute_cards(self):
         print("\n\n\nDistributing cards...")
@@ -226,15 +221,15 @@ class GameLoop:
                 use_secret_passage(current_player)
                 end_turn_flag = self.suggestion_entry(current_player)
 
-            elif choice == "3" and options.__contains__("3"):
-                
-                print_room_neighbors(hall=current_player.location)
-                
-                room_idx = int(input(f"Where to?:"))
-                
-                try_move(current_player, current_player.location.neighbors[room_idx])
-                
-                end_turn_flag = self.suggestion_entry(current_player)
+            # elif choice == "3" and options.__contains__("3"):
+            #
+            #     print_room_neighbors(hall=current_player.location)
+            #
+            #     room_idx = int(input(f"Where to?:"))
+            #
+            #     try_move(current_player, current_player.location.neighbors[room_idx])
+            #
+            #     end_turn_flag = self.suggestion_entry(current_player)
                 
 
             elif choice == "4" and options.__contains__("4"):
@@ -296,7 +291,7 @@ class GameLoop:
             if card is None:
                 print(f"{next_player.name} disproved the suggestion of {character}, {weapon}, {current_player.location.name}!")
             else:
-                print(f"{next_player.name} gave you the {card.name} card.")
+                print(f"{next_player.name} showed you the {card.name} card.")
                 return
 
     def make_accusation(self, player: CharacterReadLinks, character: str, weapon: str, room: str):
@@ -368,9 +363,9 @@ class GameLoop:
         players = []
         num_players = len(self.players)
         player_idx = self.get_player_idx(current_player)
-        while self.players[player_idx + 1 % num_players] is not current_player:
-            if self.players[player_idx + 1 % num_players].is_playing:
-                players.append(self.players[player_idx + 1 % num_players])
+        while self.players[(player_idx + 1) % num_players] is not current_player:
+            if self.players[(player_idx + 1) % num_players].is_playing:
+                players.append(self.players[(player_idx + 1) % num_players])
                 player_idx += 1
 
         for player in players:

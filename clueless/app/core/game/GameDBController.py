@@ -62,6 +62,10 @@ class GameDBController:
     def character_card_list(self) -> List[str]:
         return self.game_crud.DEFAULT_NAMES
 
+    # @property
+    # def players(self):
+    #     return [characterfor character in self.full_state.characters if character.is_playing]
+
     def is_solution(self, character: str, weapon: str, location: str):
         solution = self.solution
 
@@ -87,7 +91,15 @@ class GameDBController:
         """
         location = self.location_crud.get(location_id)
 
-        return location.connected_locations
+        locations = []
+        for location in location.connected_locations:
+            if "hallway" in location.name:
+                if len(location.characters) == 0:
+                    locations.append(location)
+            else:
+                locations.append(location)
+
+        return locations
 
     def is_valid_location_move(self, character_id: UUID, location_id: UUID) -> bool:
         """
@@ -173,6 +185,16 @@ class GameDBController:
 
         return self.character_crud.get_with_link(character_id)
 
+
+    def make_suggestions(self, current_player: UUID, character_name: str, weapon_name: str):
+        """
+        Go round the table and make suggestions
+        :param current_player:
+        :param character_name:
+        :param weapon_name:
+        :return:
+        """
+
     def make_suggestion(self, current_player: UUID, accused_id: UUID, character_name: str, weapon_name: str) -> CardRead:
         """
         Makes a suggestion.
@@ -201,7 +223,7 @@ class GameDBController:
         # TODO Card checking for this player and maybe others
 
         matching_cards = []
-        for name in [weapon, accused_player.name, current_player.location.name]:
+        for name in [weapon_name, accused_player.name, current_player.location.name]:
             for card in accused_player.hand:
                 if name == card.name:
                     matching_cards.append(card)

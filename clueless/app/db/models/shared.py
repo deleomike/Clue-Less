@@ -10,8 +10,8 @@ class CharacterReadLinks(CharacterRead):
 
 
 class LocationReadLinks(LocationRead):
-    connected_locations: list[Location]
-    characters: list[Character]
+    connected_locations: list[LocationRead]
+    characters: list[CharacterRead]
 
 
 class GameReadWithLinks(GameRead):
