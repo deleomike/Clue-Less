@@ -64,6 +64,12 @@ def use_secret_passage(player):
     print(f"{player.name} (you) has taken the secret passage to {player.location.name}. Shhh ;)")
 
 
+def force_move_player(player, room):
+    player.location.current_players.remove(player)
+    player.location = room
+    player.location.current_players.append(player)
+
+
 class GameLoop:
     def __init__(self):
         self.turn = 0  # Track whose turn it is
@@ -71,7 +77,7 @@ class GameLoop:
         self.characters = self.board.get_characters()
         self.players = self.board.get_players()
         self.deck = self.create_deck()
-        self.solution = self.select_solution()  # Random select solution
+        self.solution = self.select_solution()  # select solution
         self.game_over = False
         self.distribute_cards()
         print(self.solution)
@@ -85,12 +91,18 @@ class GameLoop:
             deck.append(weapon)
         for room in self.board.rooms:
             deck.append(room)
+        print("First shuffle...")
+        random.shuffle(deck)
+        time.sleep(1)
+        print("Second shuffle...")
+        random.shuffle(deck)
+        time.sleep(1)
+        print("Third shuffle...")
         random.shuffle(deck)
         return deck
 
     def select_solution(self):
         # Select a random character/weapon/room for winning solution.
-        import random
         murderer = None
         crime_scene = None
         murder_weapon = None
@@ -222,7 +234,7 @@ class GameLoop:
             return
         print(f"Bringing {temp_player.name} ({character.name}) in for questioning in the {room.name}")
         # Move suggested character to the current room
-        self.force_move_player(temp_player, room)
+        force_move_player(temp_player, room)
         # Handle suggestion logic
         print(f"Suggestion made: {character.name} with the {weapon.name} in the {room.name}.")
         for card in temp_player.hand:
@@ -283,11 +295,6 @@ class GameLoop:
                              self.board.weapons[weapon_idx],
                              current_player.location)
         return True
-
-    def force_move_player(self, player, room):
-        player.location.current_players.remove(player)
-        player.location = room
-        player.location.current_players.append(player)
 
     def get_players_playing(self):
         count = 0
