@@ -275,7 +275,7 @@ class GameLoop:
 
         if current_player.character.name == self.board.characters[character_idx].name:
             print(f"{self.board.characters[character_idx].name} is you! Make another suggestion")
-            return False
+            self.suggestion_entry(current_player)
         self.make_suggestion(current_player,
                              self.board.characters[character_idx],
                              self.board.weapons[weapon_idx],
