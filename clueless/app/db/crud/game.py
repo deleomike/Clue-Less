@@ -1,6 +1,7 @@
 import math
 import uuid
 
+from copy import deepcopy
 from sqlmodel import select
 from typing import List, Union
 from uuid import UUID
@@ -72,7 +73,7 @@ class GameCRUD(BaseCRUD):
         return self.get(id)
 
     def _deal_cards(self, game_id: UUID):
-        locations, weapons, characters = self.LOCATION_NAMES, self.WEAPON_NAMES, self.DEFAULT_NAMES,
+        locations, weapons, characters = deepcopy(self.LOCATION_NAMES), deepcopy(self.WEAPON_NAMES), deepcopy(self.DEFAULT_NAMES)
         card_details = []
 
         import random

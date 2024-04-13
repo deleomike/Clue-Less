@@ -2,7 +2,7 @@ import uuid
 import random
 
 from sqlmodel import select
-from typing import List, Union
+from typing import List, Union, Tuple
 from uuid import UUID
 from fastapi import HTTPException
 
@@ -38,6 +38,18 @@ class GameDBController:
         """
         return self.game_crud.get(self.id)
 
+
+    @property
+    def solution(self) -> Tuple[CardRead, CardRead, CardRead]:
+        """
+        Solution
+
+        :return:
+        """
+        sol = self.full_state.solution
+
+        return (sol[0], sol[1], sol[2])
+
     @property
     def weapon_card_list(self) -> List[str]:
         return self.game_crud.WEAPON_NAMES
@@ -49,6 +61,11 @@ class GameDBController:
     @property
     def character_card_list(self) -> List[str]:
         return self.game_crud.DEFAULT_NAMES
+
+    def is_solution(self, character: str, weapon: str, location: str):
+        solution = self.solution
+
+        return {character, weapon, location} == set(card.name for card in solution)
 
     def get_adjacent_character_locations(self, character_id: UUID) -> List[LocationRead]:
         """

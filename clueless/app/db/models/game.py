@@ -15,6 +15,8 @@ from clueless.app.db.models.user import User
 class GameBase(SQLModel):
     room_id: UUID = Field(default=None, foreign_key="room.id")
 
+    game_over: bool = Field(default=False, index=False)
+
     class Config:
         arbitrary_types_allowed = True
 

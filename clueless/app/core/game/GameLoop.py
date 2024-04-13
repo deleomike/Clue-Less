@@ -97,6 +97,8 @@ class GameLoop:
 
         self.controller = GameDBController(game_id=game.id, session=session)
 
+        print(f"SOLUTION: {self.controller.solution}")
+
         # print(self.solution)
 
     @property
@@ -252,24 +254,21 @@ class GameLoop:
                 self.print_characters()
                 character_idx = int(input(f"Choose a killer:"))
                 end_turn_flag = True
-                self.make_accusation(current_player,
-                                     self.board.characters[character_idx],
-                                     self.board.weapons[weapon_idx],
-                                     self.board.rooms[room_idx])
+                self.make_accusation(
+                    current_player,
+                    self.controller.character_card_list[character_idx],
+                    self.controller.weapon_card_list[weapon_idx],
+                    self.controller.location_card_list[room_idx]
+                )
 
     def print_weapons(self):
         print(self._format_string_list(self.controller.weapon_card_list))
 
     def print_characters(self):
-        for idx, character in enumerate(self.controller.character_card_list):
-            print(f"{idx}. {character}")
+        print(self._format_string_list(self.controller.character_card_list))
 
     def print_rooms(self):
-        # print(self._format_string_list(self.controller.location_card_list))
-        idx = 0
-        for room in self.board.locations:
-            print(f"{idx}. {room.name}")
-            idx += 1
+        print(self._format_string_list(self.controller.location_card_list))
 
     def make_suggestion(self,
                         current_player: CharacterReadLinks,
@@ -305,13 +304,12 @@ class GameLoop:
                 print(f"{next_player.name} gave you the {card.name} card.")
                 return
 
-
-    def make_accusation(self, player, character, weapon, room):
+    def make_accusation(self, player: CharacterReadLinks, character: str, weapon: str, room: str):
         # Check if the accusation matches the game's solution
-        if self.solution == {"character": character.name, "weapon": weapon.name, "rooms": room.name}:
+        if self.controller.is_solution(character=character, weapon=weapon, location=room):
             print(
-                f"{player.name} made the correct accusation! They win! {character.name} committed the "  # Win condition
-                f"murder with the {weapon.name} in the {room.name}.")
+                f"{player.name} made the correct accusation! They win! {character} committed the "  # Win condition
+                f"murder with the {weapon} in the {room}.")
             self.game_over = True
             return True
         else:
@@ -320,7 +318,7 @@ class GameLoop:
             return False
 
     def is_game_over(self):
-        return self.game_over
+        return self.board.game_over
 
     def run_game(self):
         # Example setup (TODO)
