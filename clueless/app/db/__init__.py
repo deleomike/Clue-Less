@@ -32,6 +32,7 @@ def create_db_and_tables():
     from clueless.app.db.models.location import Location
     from clueless.app.db.models.character import Character
     from clueless.app.db.models.card import Card
+    from clueless.app.db.models.CardCharacterLink import CardCharacterLink
     # from clueless.app.db.models.user import User, UserDB
     from clueless.app.db.models.user import User, Base
     #

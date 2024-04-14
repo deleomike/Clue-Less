@@ -6,6 +6,7 @@ from typing import Optional, List
 from uuid import uuid4, UUID
 
 from clueless.app.db.models.base import BaseTable
+from clueless.app.db.models.CardCharacterLink import CardCharacterLink
 from clueless.app.db.models.room import Room, RoomRead
 from clueless.app.db.models.user import User
 
@@ -35,7 +36,8 @@ class Character(CharacterBase, BaseTable, table=True):
     )
 
     hand: Optional[list["Card"]] = Relationship(
-        back_populates="character"
+        back_populates="characters",
+        link_model=CardCharacterLink
     )
 
     # TODO: Core game data goes here

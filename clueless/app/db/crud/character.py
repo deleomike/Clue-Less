@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from clueless.app.db.crud.base import BaseCRUD
 from clueless.app.db.models.character import CharacterBase, Character, CharacterRead, CharacterCreate, CharacterUpdate
 from clueless.app.db.models.shared import CharacterReadLinks
+from clueless.app.db.models.card import CardRead, Card
 
 
 class CharacterCRUD(BaseCRUD):
@@ -20,6 +21,11 @@ class CharacterCRUD(BaseCRUD):
 
     def get_with_link(self, _id: UUID) -> CharacterReadLinks:
         return self.get(_id)
+
+    def get_owned_cards(self, character_id: UUID) -> List[CardRead]:
+        cards = self.session.exec(select(Card).where(Card.owner_id == character_id)).all()
+
+        return cards
 
     def get_by_user_id(self, user_id: str) -> CharacterReadLinks:
         characters = self.session.exec(select(Character).where(user_id==user_id)).all()[0]

@@ -18,3 +18,7 @@ class GameReadWithLinks(GameRead):
     locations: list[LocationReadLinks]
     characters: list[CharacterRead] = None
     solution: list[CardRead] = None
+
+
+class CardReadWithLinks(CardRead):
+    characters: list[CharacterRead]

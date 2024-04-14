@@ -13,6 +13,7 @@ from clueless.app.db.models.shared import CharacterReadLinks, LocationReadLinks,
 from clueless.app.db.crud.character import CharacterCRUD, CharacterRead
 from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate
 from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate, CharacterUpdate
+from clueless.app.db.crud.card import CardCRUD
 from clueless.app.db.models.card import CardRead
 
 
@@ -28,6 +29,7 @@ class GameDBController:
         self.game_crud = GameCRUD(session=self.session)
         self.location_crud = LocationCRUD(session=self.session)
         self.character_crud = CharacterCRUD(session=self.session)
+        self.card_crud = CardCRUD(session=self.session)
 
     @property
     def full_state(self) -> GameReadWithLinks:
@@ -259,12 +261,15 @@ class GameDBController:
 
         matching_cards = []
         for name in [weapon_name, accused_player.name, current_player.location.name]:
-            for card in accused_player.hand:
+            for card in self.character_crud.get_owned_cards(character_id=accused_id):
                 if name == card.name:
                     matching_cards.append(card)
 
         #return one matching card
-        return random.choice(matching_cards)
+        card = random.choice(matching_cards)
+        self.card_crud.link_to_character(card.id, current_player)
+
+        return card
 
     def _set_player_lost(self, character_id: UUID):
         character = CharacterUpdate(is_playing=False, is_won=False)
