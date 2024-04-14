@@ -59,12 +59,12 @@ class GameCRUD(BaseCRUD):
 
         assert (len(game.waiting_room.users) == len(character_names))
 
-        starting_location = game.locations[0]
+        starting_locations = [location for location in game.locations if "hallway" in location.name]
         for user, name in zip(game.waiting_room.users, character_names):
             create = CharacterCreate(
                 name=name,
                 user_id=user,
-                location_id=starting_location.id,
+                location_id=starting_locations.pop().id,
                 game_id=game.id
             )
 
