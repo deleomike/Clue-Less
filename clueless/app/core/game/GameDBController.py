@@ -231,7 +231,6 @@ class GameDBController:
                     return card
 
 
-
     def make_suggestion(self, current_player: UUID, accused_id: UUID, character_name: str, weapon_name: str) -> CardRead:
         """
         Makes a suggestion.
@@ -275,6 +274,10 @@ class GameDBController:
         character = CharacterUpdate(is_playing=False, is_won=False)
 
         self.character_crud.update(_id=character_id, character=character)
+
+        if len(self.players) == 1:
+            #last player
+            self._set_player_won(self.players[0].id)
 
     def _set_player_won(self, character_id: UUID):
         character = CharacterUpdate(is_won=True)
