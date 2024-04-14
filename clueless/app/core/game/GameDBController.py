@@ -62,9 +62,20 @@ class GameDBController:
     def character_card_list(self) -> List[str]:
         return self.game_crud.DEFAULT_NAMES
 
-    # @property
-    # def players(self):
-    #     return [characterfor character in self.full_state.characters if character.is_playing]
+    @property
+    def players(self) -> List[CharacterRead]:
+        return [character for character in self.all_characters if character.is_playing]
+
+    @property
+    def all_characters(self) -> List[CharacterReadLinks]:
+        return self.full_state.characters
+
+    def get_character_by_name(self, character_name) -> CharacterRead:
+        characters = self.all_characters
+
+        for character in characters:
+            if character.name == character_name:
+                return character
 
     def is_solution(self, character: str, weapon: str, location: str):
         solution = self.solution
@@ -186,7 +197,7 @@ class GameDBController:
         return self.character_crud.get_with_link(character_id)
 
 
-    def make_suggestions(self, current_player: UUID, character_name: str, weapon_name: str):
+    def make_suggestions(self, current_player_id: UUID, character_name: str, weapon_name: str) -> CardRead:
         """
         Go round the table and make suggestions
         :param current_player:
@@ -194,6 +205,30 @@ class GameDBController:
         :param weapon_name:
         :return:
         """
+        current_player = self.character_crud.get_with_link(current_player_id)
+
+        chosen_character = self.get_character_by_name(character_name=character_name)
+
+        if "hallway" in current_player.location.name:
+            raise Exception("Cannot make a suggestion from a hallway")
+
+        # teleport the character
+        self.move_player(character_id=chosen_character.id, location_id=current_player.location_id, validate=False)
+
+        for player in self.players:
+            if player.id == current_player_id:
+                continue
+            else:
+                card = self.make_suggestion(
+                    current_player=current_player_id,
+                    accused_id=player.id,
+                    character_name=character_name,
+                    weapon_name=weapon_name
+                )
+                if card is not None:
+                    return card
+
+
 
     def make_suggestion(self, current_player: UUID, accused_id: UUID, character_name: str, weapon_name: str) -> CardRead:
         """
