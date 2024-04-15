@@ -2,6 +2,7 @@ import time
 
 from typing import List
 
+from clueless.app.db.models.character import CharacterRead, Character
 from clueless.app.db.models.game import GameRead
 from clueless.app.core.game.GameDBController import (
     GameDBController,
@@ -14,7 +15,6 @@ from clueless.app.db.models.location import LocationRead
 
 
 def print_room_neighbors(locations: List[LocationRead]):
-    print(locations)
     rooms = [f"{idx}. {location.name}" for idx, location in enumerate(locations)]
 
     print("\n".join(rooms))
@@ -53,19 +53,6 @@ def print_room_neighbors(locations: List[LocationRead]):
 #         return False
 
 
-def generate_options(current_player):
-    options = f""
-    if "hallway" in current_player.location.name:
-        options += f"\n3. Move to a room"
-    else:
-        options += f"0. Make a suggestion"
-        options += f"\n1. Move to a hall"
-        # if current_player.location.secret_passage is not None:
-        #     options += f"\n2. Use secret passage to {current_player.location.secret_passage.name}"
-
-    options += f"\n4. Make an accusation"
-    return options
-
 
 def use_secret_passage(player):
     player.location.current_players.remove(player)
@@ -93,7 +80,7 @@ class GameLoop:
 
         self.controller = GameDBController(game_id=game.id, session=session)
 
-        print(f"SOLUTION: {self.controller.solution}")
+        print(f"SOLUTION: {self.controller.solution[0].name}, {self.controller.solution[1].name}, {self.controller.solution[2].name}")
 
         # print(self.solution)
 
@@ -128,10 +115,10 @@ class GameLoop:
             deck.append(room)
         print("First shuffle...")
         random.shuffle(deck)
-        
+
         print("Second shuffle...")
         random.shuffle(deck)
-        
+
         print("Third shuffle...")
         random.shuffle(deck)
         return deck
@@ -163,6 +150,20 @@ class GameLoop:
     #     }
     #     return solution
 
+    def generate_options(self, current_player):
+        options = f""
+        if "-" in current_player.location.name:
+            options += f"\n3. Move to a room"
+        else:
+            options += f"0. Make a suggestion"
+            options += f"\n1. Move to a hall"
+            neighbors = self.controller.get_adjacent_locations(current_player.location.id) # TODO Try to get secret passage implemented
+            if len(neighbors) > 2 and "-" not in neighbors[2].name:
+                options += f"\n2. Use secret passage to {neighbors[2]}"
+
+        options += f"\n4. Make an accusation"
+        return options
+
     def distribute_cards(self):
         print("\n\n\nDistributing cards...")
         player_idx = 0
@@ -177,10 +178,10 @@ class GameLoop:
         # This method would be called in a loop to progress the game
         if self.get_players_playing() < 2:
             for player in self.players:
-                # TODO: is_playing field in the table
+                # TODO: is_playing field in the table (not sure if done)
                 if player.is_playing:
                     print(f"{player.user_id} ({player.name}) wins!!")
-                    # TODO: Need a game over
+                    # TODO: Need a game over (think this is done)
                     self.game_over = True
                     return
         current_player = self.players[self.turn]
@@ -197,7 +198,7 @@ class GameLoop:
         print(f"\n\n{current_player.name}! It's your turn. ")
         print(self.controller.print_character_info(character_id=current_player.id))
         while not end_turn_flag:
-            options = generate_options(current_player)
+            options = self.generate_options(current_player)
             print(f"{options}")
             choice = input("\nChoose an option: ")
 
@@ -211,7 +212,8 @@ class GameLoop:
                 location = adjacent[hall_idx]
                 try:
                     self.controller.move_player(character_id=current_player.id, location_id=location.id)
-                    end_turn_flag = True
+                    print(location)
+                    end_turn_flag = True  # TODO IF ITS A ROOM/SECRET PASSAGE GIVE ABILITY TO SUGGEST
                 except Exception as e:
                     print(e)
                     end_turn_flag = False
@@ -225,7 +227,7 @@ class GameLoop:
             elif choice == "3" and options.__contains__("3"):
 
                 neighbors = self.controller.get_adjacent_locations(current_player.location_id)
-                print_room_neighbors(locations=neighbors)
+                print_room_neighbors(locations=neighbors) # TODO FOR some reason the neighbors aren't printing the last neighbor or being copied to the neighbor list
 
                 room_idx = int(input(f"Where to?:"))
                 location = neighbors[room_idx]
@@ -283,9 +285,21 @@ class GameLoop:
         """
 
         print(f"Suggestion made: {character} with the {weapon} in the {current_player.location.name}.")
-        print(f"{character} has been called into the {current_player.location.name}...")
+        if character == current_player.name:
+            print("Suggesting yourself huh? Could it really be you?")
+        else:
+            print(f"{character} has been called into the {current_player.location.name}...")
 
-        # TODO Iterate until not None
+            suggested_player = self.find_by_name(character)
+
+            if "-" in current_player.location.name:
+                raise Exception("Cannot make a suggestion from a hallway")
+            # teleport the accused
+            if type(suggested_player) is Character:
+                self.controller.move_player(character_id=suggested_player.id,
+                                            location_id=current_player.location_id,
+                                            validate=False)
+
         for next_player in self.get_next_player(current_player=current_player):
 
             # For each player not me, get their character object, and make suggestion
@@ -299,10 +313,17 @@ class GameLoop:
             )
 
             if card is None:
-                print(f"{next_player.name} disproved the suggestion of {character}, {weapon}, {current_player.location.name}!")
+                print(
+                    f"{next_player.name} disproved the suggestion of {character}, {weapon}, {current_player.location.name}!")
             else:
-                print(f"{next_player.name} showed you the {card} card.")
+                print(f"{next_player.name} showed you the {card.name} card.")
                 return
+
+    def find_by_name(self, character_name: str) -> CharacterRead | None:
+        for player in self.controller.players:
+            if player.name == character_name:
+                return player
+        return None
 
     def make_accusation(self, player: CharacterReadLinks, character: str, weapon: str, room: str):
         # Check if the accusation matches the game's solution
@@ -329,9 +350,8 @@ class GameLoop:
     def run_game(self):
         while not self.is_game_over():
             self.step()  # Player turn
-            
 
-        print(f"\n\n\n\nThanks for playing! Play again? (y/n)")
+        print(f"\n\n\n\nThanks for playing! Play again? (y/n)")  # TODO BROKEN
         answer = input()
         if answer.lower() == "y":
             self = GameLoop()
@@ -388,6 +408,5 @@ class GameLoop:
 
 
 if __name__ == "__main__":
-
     gameloop = GameLoop()
     gameloop.run_game()

@@ -36,62 +36,75 @@ class LocationCRUD(BaseCRUD):
             "Kitchen"
         ]
 
-        names.extend([f"hallway{i}" for i in range(12)])
+        names.extend(["Study-Hall Hall",
+                      "Hall-Lounge Hall",
+                      "Study-Library Hall",
+                      "Hall-Billiard Room Hall",
+                      "Lounge-Dining Room Hall",
+                      "Library-Billiard Room Hall",
+                      "Billiard Room-Dining Room Hall",
+                      "Library-Conservatory Hall",
+                      "Billiard Room-Ball Room Hall",
+                      "Dining Room-Kitchen Hall",
+                      "Conservatory-Ball Room Hall",
+                      "Ball Room-Kitchen Hall"
+                      ])
+        # names.extend([f"hallway{i}" for i in range(12)])
 
         connections = {
             "Study":
                 [
-                    "hallway0",
-                    "hallway2",
+                    "Study-Hall Hall",
+                    "Study-Library Hall",
                     "Kitchen",
                 ],
             "Hall":
                 [
-                    "hallway0",
-                    "hallway1",
-                    "hallway3"
+                    "Study-Hall Hall",
+                    "Hall-Lounge Hall",
+                    "Hall-Billiard Room Hall"
                 ],
             "Lounge":
                 [
-                    "hallway1",
-                    "hallway4",
+                    "Hall-Lounge Hall",
+                    "Lounge-Dining Room Hall",
                     "Conservatory"
                 ],
             "Library":
                 [
-                    "hallway5",
-                    "hallway2",
-                    "hallway7",
+                    "Library-Billiard Room Hall",
+                    "Study-Library Hall",
+                    "Library-Conservatory Hall",
                 ],
             "Billiard Room":
                 [
-                    "hallway3",
-                    "hallway5",
-                    "hallway6",
-                    "hallway8"
+                    "Hall-Billiard Room Hall",
+                    "Library-Billiard Room Hall",
+                    "Billiard Room-Dining Room Hall",
+                    "Billiard Room-Ball Room Hall"
                 ],
             "Dining Room":
                 [
-                    "hallway4",
-                    "hallway6",
-                    "hallway9"
+                    "Lounge-Dining Room Hall",
+                    "Billiard Room-Dining Room Hall",
+                    "Dining Room-Kitchen Hall"
                 ],
             "Conservatory":
                 [
-                    "hallway7",
-                    "hallway10",
+                    "Library-Conservatory Hall",
+                    "Conservatory-Ball Room Hall",
                     "Lounge",
                 ],
             "Ball Room":
                 [
-                    "hallway8",
-                    "hallway10",
-                    "hallway11",
+                    "Billiard Room-Ball Room Hall",
+                    "Conservatory-Ball Room Hall",
+                    "Ball Room-Kitchen Hall",
                 ],
             "Kitchen":
                 [
-                    "hallway11",
-                    "hallway9",
+                    "Ball Room-Kitchen Hall",
+                    "Dining Room-Kitchen Hall",
                     "Study"
                 ]
         }
@@ -122,7 +135,7 @@ class LocationCRUD(BaseCRUD):
 
                 self.connect_location(location.id, dest.id)
 
-            if "hallway" in name:
+            if "-" in name:
                 continue
 
             for connection in connections[name]:

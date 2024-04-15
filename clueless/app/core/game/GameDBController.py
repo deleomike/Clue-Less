@@ -106,7 +106,7 @@ class GameDBController:
 
         locations = []
         for location in location.connected_locations:
-            if "hallway" in location.name:
+            if "-" in location.name:
                 if len(location.characters) == 0:
                     locations.append(location)
             else:
@@ -211,7 +211,7 @@ class GameDBController:
 
         chosen_character = self.get_character_by_name(character_name=character_name)
 
-        if "hallway" in current_player.location.name:
+        if "-" in current_player.location.name:
             raise Exception("Cannot make a suggestion from a hallway")
 
         # teleport the character
@@ -250,11 +250,11 @@ class GameDBController:
         current_player = self.character_crud.get_with_link(current_player)
         accused_player = self.character_crud.get_with_link(accused_id)
 
-        if "hallway" in current_player.location.name:
+        if "-" in current_player.location.name:
             raise Exception("Cannot make a suggestion from a hallway")
 
-        # teleport the accused
-        self.move_player(character_id=accused_id, location_id=current_player.location_id, validate=False)
+        # # teleport the accused
+        # self.move_player(character_id=accused_id, location_id=current_player.location_id, validate=False)
 
         # TODO Card checking for this player and maybe others
 

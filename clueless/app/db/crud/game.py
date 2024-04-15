@@ -20,15 +20,15 @@ class GameCRUD(BaseCRUD):
 
     DEFAULT_NAMES = ["Prof. Plum", "Mrs. Peacock", "Mr. Green", "Mrs. White", "Col. Mustard", "Miss Scarlet"]
     LOCATION_NAMES = [
-        "study",
-        "hall",
-        "lounge",
-        "dining_room",
-        "billiard_room",
-        "library",
-        "conservatory",
-        "ball_room",
-        "kitchen"
+        "Study",
+        "Hall",
+        "Lounge",
+        "Dining Room",
+        "Billiard Room",
+        "Library",
+        "Conservatory",
+        "Ball Room",
+        "Kitchen"
     ]
     WEAPON_NAMES = [
         "Candlestick",
@@ -59,7 +59,7 @@ class GameCRUD(BaseCRUD):
 
         assert (len(game.waiting_room.users) == len(character_names))
 
-        starting_locations = [location for location in game.locations if "hallway" in location.name]
+        starting_locations = [location for location in game.locations if "-" in location.name]
         for user, name in zip(game.waiting_room.users, character_names):
             create = CharacterCreate(
                 name=name,
