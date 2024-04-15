@@ -264,6 +264,9 @@ class GameDBController:
                 if name == card.name:
                     matching_cards.append(card)
 
+        if len(matching_cards) == 0:
+            return None
+
         #return one matching card
         card = random.choice(matching_cards)
         self.card_crud.link_to_character(card.id, current_player)

@@ -283,9 +283,10 @@ class GameLoop:
         """
 
         print(f"Suggestion made: {character} with the {weapon} in the {current_player.location.name}.")
+        print(f"{character} has been called into the {current_player.location.name}...")
 
         # TODO Iterate until not None
-        for next_player in self.get_next_player(current_player=current_player): # TODO: Luke implement, maybe just in this loop
+        for next_player in self.get_next_player(current_player=current_player):
 
             # For each player not me, get their character object, and make suggestion
             # Get player, check if they are in the game, by index
@@ -300,7 +301,7 @@ class GameLoop:
             if card is None:
                 print(f"{next_player.name} disproved the suggestion of {character}, {weapon}, {current_player.location.name}!")
             else:
-                print(f"{next_player.name} showed you the {card.name} card.")
+                print(f"{next_player.name} showed you the {card} card.")
                 return
 
     def make_accusation(self, player: CharacterReadLinks, character: str, weapon: str, room: str):
@@ -349,14 +350,14 @@ class GameLoop:
 
         character_name = self.controller.character_card_list[character_idx]
 
-        if current_player.name == character_name:
-            print(f"{character_name} is you! Make another suggestion")
-            return self.suggestion_entry(current_player) # recurse
+        # if current_player.name == character_name:
+        #     print(f"{character_name} is you! Make another suggestion")
+        #     return self.suggestion_entry(current_player)  # recurse
 
         self.make_suggestion(
             current_player=current_player,
             character=character_name,
-            weapon=self.controller.weapon_card_list[weapon_idx], # TODO wont work
+            weapon=self.controller.weapon_card_list[weapon_idx],  # TODO wont work
         )
 
         return True

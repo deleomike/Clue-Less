@@ -75,7 +75,7 @@ class GameCRUD(BaseCRUD):
     def _deal_cards(self, game_id: UUID):
         locations, weapons, characters = deepcopy(self.LOCATION_NAMES), deepcopy(self.WEAPON_NAMES), deepcopy(self.DEFAULT_NAMES)
         card_details = []
-
+#  TODO IF IS_PLAYING == FALSE, DON'T DEAL THEM CARDS!!
         import random
 
         random.shuffle(locations)

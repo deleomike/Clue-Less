@@ -25,74 +25,74 @@ class LocationCRUD(BaseCRUD):
 
     def create_all_game_rooms(self, game_id):
         names = [
-            "study",
-            "hall",
-            "lounge",
-            "dining_room",
-            "billiard_room",
-            "library",
-            "conservatory",
-            "ball_room",
-            "kitchen"
+            "Study",
+            "Hall",
+            "Lounge",
+            "Dining Room",
+            "Billiard Room",
+            "Library",
+            "Conservatory",
+            "Ball Room",
+            "Kitchen"
         ]
 
         names.extend([f"hallway{i}" for i in range(12)])
 
         connections = {
-            "study":
+            "Study":
                 [
                     "hallway0",
                     "hallway2",
-                    "kitchen",
+                    "Kitchen",
                 ],
-            "hall":
+            "Hall":
                 [
                     "hallway0",
                     "hallway1",
                     "hallway3"
                 ],
-            "lounge":
+            "Lounge":
                 [
                     "hallway1",
                     "hallway4",
-                    "conservatory"
+                    "Conservatory"
                 ],
-            "library":
+            "Library":
                 [
                     "hallway5",
                     "hallway2",
                     "hallway7",
                 ],
-            "billiard_room":
+            "Billiard Room":
                 [
                     "hallway3",
                     "hallway5",
                     "hallway6",
                     "hallway8"
                 ],
-            "dining_room":
+            "Dining Room":
                 [
                     "hallway4",
                     "hallway6",
                     "hallway9"
                 ],
-            "conservatory":
+            "Conservatory":
                 [
                     "hallway7",
                     "hallway10",
-                    "lounge",
+                    "Lounge",
                 ],
-            "ball_room":
+            "Ball Room":
                 [
                     "hallway8",
                     "hallway10",
                     "hallway11",
                 ],
-            "kitchen":
+            "Kitchen":
                 [
                     "hallway11",
                     "hallway9",
-                    "study"
+                    "Study"
                 ]
         }
 
