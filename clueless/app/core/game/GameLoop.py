@@ -55,10 +55,10 @@ def print_room_neighbors(locations: List[LocationRead]):
 
 
 def use_secret_passage(player):
-    player.location.current_players.remove(player)
-    player.location = player.location.secret_passage
-    player.location.current_players.append(player)
-    print(f"{player.name} (you) has taken the secret passage to {player.location.name}. Shhh ;)")
+    player.location_id.current_players.remove(player)
+    player.location_id = player.location_id.secret_passage
+    player.location_id.current_players.append(player)
+    print(f"{player.name} (you) has taken the secret passage to {player.location_id.name}. Shhh ;)")
 
 
 def force_move_player(player, room):
