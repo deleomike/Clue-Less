@@ -14,7 +14,7 @@ from clueless.app.db.models.user import User
 class CharacterBase(SQLModel):
     game_id: UUID = Field(default=None, foreign_key="game.id")
     location_id: UUID = Field(default=None, foreign_key="location.id")
-    user_id: str = Field(index=True)
+    user_id: Optional[str] = Field(index=True)
 
     name: str = Field(index=True)
 

@@ -10,9 +10,10 @@ from clueless.app.core.game.GameDBController import (
     CardRead,
     LocationReadLinks
 )
+from clueless.app.db.models.location import LocationRead
 
 
-def print_room_neighbors(locations: List[LocationReadLinks]):
+def print_room_neighbors(locations: List[LocationRead]):
     print(locations)
     rooms = [f"{idx}. {location.name}" for idx, location in enumerate(locations)]
 
@@ -54,7 +55,7 @@ def print_room_neighbors(locations: List[LocationReadLinks]):
 
 def generate_options(current_player):
     options = f""
-    if "hallway" in current_player.location:
+    if "hallway" in current_player.location.name:
         options += f"\n3. Move to a room"
     else:
         options += f"0. Make a suggestion"
@@ -82,13 +83,13 @@ def force_move_player(player, room):
 class GameLoop:
     def __init__(self, game: GameRead, session):
 
-        self.turn = 0  # Track whose turn it is
         # self.characters = self.board.get_characters()
         # self.players = self.board.get_players()
         # self.deck = self.create_deck()
         # self.solution = self.select_solution()  # select solution
-        self.game_over = False
         # self.distribute_cards()
+        self.turn = 0  # Track whose turn it is
+        self.game_over = False
 
         self.controller = GameDBController(game_id=game.id, session=session)
 
@@ -221,16 +222,24 @@ class GameLoop:
                 use_secret_passage(current_player)
                 end_turn_flag = self.suggestion_entry(current_player)
 
-            # elif choice == "3" and options.__contains__("3"):
-            #
-            #     print_room_neighbors(hall=current_player.location)
-            #
-            #     room_idx = int(input(f"Where to?:"))
-            #
-            #     try_move(current_player, current_player.location.neighbors[room_idx])
-            #
-            #     end_turn_flag = self.suggestion_entry(current_player)
-                
+            elif choice == "3" and options.__contains__("3"):
+
+                neighbors = self.controller.get_adjacent_locations(current_player.location_id)
+                print_room_neighbors(locations=neighbors)
+
+                room_idx = int(input(f"Where to?:"))
+                location = neighbors[room_idx]
+
+                try:
+                    self.controller.move_player(character_id=current_player.id, location_id=location.id)
+                    print(f"{current_player.name} moved to {location.name}.")
+                    end_turn_flag = self.suggestion_entry(current_player)
+                except Exception as e:
+                    print(e)
+
+                # try_move(current_player, current_player.location.neighbors[room_idx])
+
+
 
             elif choice == "4" and options.__contains__("4"):
                 print(f"\n\nMaking an accusation, choose wisely...")
