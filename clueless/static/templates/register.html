@@ -45,6 +45,7 @@
             const password = document.getElementById('password').value;
 
             // Create the new user
+            // If already exists, will continue to login
             try{
                 const response = await axios.post(url, {
                     email: email,
