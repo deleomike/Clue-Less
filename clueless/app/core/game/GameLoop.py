@@ -284,7 +284,7 @@ class GameLoop:
         :return:
         """
 
-        print("ENTERING FUNCTION")
+        # print("ENTERING FUNCTION")
 
         print(f"Suggestion made: {character} with the {weapon} in the {current_player.location.name}.")
         if character == current_player.name:
@@ -298,18 +298,22 @@ class GameLoop:
                 raise Exception("Cannot make a suggestion from a hallway")
             # teleport the accused
             if type(suggested_player) is Character:
-                print("Trying to move player")
+                # print("Trying to move player")
                 self.controller.move_player(character_id=suggested_player.id,
                                             location_id=current_player.location_id,
                                             validate=False)
 
-        print("CONTINUING")
+        # print("CONTINUING")
+
+        print("")
 
         for next_player in self.get_next_player(current_player=current_player):
 
             # For each player not me, get their character object, and make suggestion
             # Get player, check if they are in the game, by index
-            print("LOOPING")
+            # print("LOOPING")
+
+            print("CHARACTER CHOSEN: ", character)
 
             card: CardRead = self.controller.make_suggestion(
                 current_player=current_player.id,
@@ -325,7 +329,7 @@ class GameLoop:
                 print(f"{next_player.name} showed you the {card.name} card.")
                 return
 
-        print("Exiting")
+        # print("Exiting")
 
     def find_by_name(self, character_name: str) -> CharacterRead | None:
         for player in self.controller.players:
@@ -399,13 +403,15 @@ class GameLoop:
 
     def get_next_player(self, current_player):
 
+        from copy import deepcopy
+
         current_player_index = self.get_player_idx(current_player=current_player)
 
-        in_order_players = self.players[current_player_index:]
+        in_order_players = deepcopy(self.players[current_player_index:])
         in_order_players.extend(self.players[:current_player_index])
 
         for player in in_order_players:
-            if player.id != current_player.id:
+            if player.id == current_player.id:
                 continue
 
             yield player

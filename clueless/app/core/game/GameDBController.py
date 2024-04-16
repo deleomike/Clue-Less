@@ -259,7 +259,7 @@ class GameDBController:
         # TODO Card checking for this player and maybe others
 
         matching_cards = []
-        for name in [weapon_name, accused_player.name, current_player.location.name]:
+        for name in [weapon_name, character_name, current_player.location.name]:
             for card in self.character_crud.get_owned_cards(character_id=accused_id):
                 if name == card.name:
                     matching_cards.append(card)
