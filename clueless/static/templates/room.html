@@ -25,16 +25,34 @@
           {% endfor %}
         </ul>
 
-        <button onclick="startGame()">Start Game</button>
+        <button onclick='start_game("{{ room.room_key }}")'>Start Game</button>
     </div>
     <script>
 
-        async function startGame()
+        async function start_game(room_key)
         {
-          console.log("startGame()");
-          var room_id = "{{ room.room_key }}";
-          console.log("room_id",room_id)
-          window.location.href = `/gameboard/${room_id}`;
+            event.preventDefault();
+            console.log("start_game()");
+            var url = `/api/room/${room_key}/start/`;
+
+            const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('token='))
+            .split('=')[1];
+            console.log("token: ",token);
+
+            try{
+                const response = await  axios.post(url, null, {
+                  headers: {
+                    'accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                  }
+                });
+                console.log(response.data);
+                window.location.href = `/gameboard/${room_key}`;
+            } catch (error) {
+                console.log(`start_game axios.post got an error: ${error}`);
+            }
         }
 
 

@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 from uuid import UUID
 
 from clueless.app.db.crud.room import RoomCRUD
+from clueless.app.db.crud.character import CharacterCRUD
 from clueless import TEMLPATES_PATH
 from clueless.settings import settings
 
@@ -37,21 +38,23 @@ def login(request: Request):
   return templates.TemplateResponse("login.html", {"request": request, "settings": settings})
 
 
-@router.get("/join_game/{name}")
-def join_game(request: Request, name: str):
-  return templates.TemplateResponse("join_game.html", {"request": request, "name": name, "settings": settings})
+@router.get("/lobby")
+def lobby(request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
+  rooms = crud.get_all()
+  return templates.TemplateResponse("lobby.html", {"request": request, "rooms": rooms, "settings": settings})
 
+@router.get("/delete_room/{room_id}")
+def delete_room(request: Request, room_id: str, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
+  to_del_room = crud.get_by_id_or_key(room_id)
+  print("room to delete = ", to_del_room)
+  crud.delete(to_del_room.id)
+  rooms = crud.get_all()
+  return templates.TemplateResponse("lobby.html", {"request": request, "rooms": rooms, "settings": settings})
 
 @router.get('/room/{_id}')
 def room(_id: str, request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
   room = crud.get_by_id_or_key(_id=_id)
   return templates.TemplateResponse("room.html", {"request": request, "room": room, "settings": settings})
-
-
-@router.get('/select_room')
-def rooms(request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
-  rooms = crud.get_all()
-  return templates.TemplateResponse("rooms.html", {"request": request, "rooms": rooms, "settings": settings})
 
 @router.get('/gameboard/{_id}')
 def display_gameboard(_id: str, request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):

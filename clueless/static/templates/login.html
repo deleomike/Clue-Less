@@ -13,6 +13,7 @@
     </div>
     <script>
 
+      /*
         function getCookie(c_name)
         {
             var i,x,y,ARRcookies=document.cookie.split(";");
@@ -35,7 +36,7 @@
 
         function verify(token){
             console.log("verify()");
-            const url = "http://127.0.0.1:8080/api/auth/whoami";
+            const url = "/api/auth/whoami";
       
             //token = getCookie("token")
       
@@ -59,11 +60,12 @@
                 return false;
               });
         }
+        */
 
       async function postLogin(){
           event.preventDefault(); // Prevent the form from submitting normally
           console.log("postLogin()");
-          const url = "http://$BACKEND_URL/api/auth/jwt/login";
+          const url = "/api/auth/jwt/login";
 
           const email = document.getElementById('login-email').value;
           const password = document.getElementById('login-password').value;
@@ -80,8 +82,10 @@
               console.log(response.data);
               const token = response.data["access_token"];
               console.log(`Logged in, setting cookie ${token}`);
+              document.cookie = '';
               document.cookie = `token=${token}`; //We won't always have the unique email in the basic script
-              window.location.href = "/select_room"
+              console.log(document.cookie);
+              window.location.href = "/lobby"
           } catch (error) {
               console.log(`postLogin got an error: ${error}`);
               document.getElementById('login-error-msg').innerText = error.message || 'An error occurred';
@@ -89,8 +93,8 @@
       }
 
 
-        const cookie_token = getCookie("token")
-        verify(cookie_token)
+        //const cookie_token = getCookie("token")
+        //verify(cookie_token)
         
         
 

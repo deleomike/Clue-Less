@@ -15,7 +15,7 @@
 
         async function loginUser(username, password) {
             console.log("loginUser()");
-            const url = `{{settings.BACKEND_URL}}/api/auth/jwt/login`;
+            const url = `/api/auth/jwt/login`;
         
             const params = new URLSearchParams();
             params.append('username', username);
@@ -30,7 +30,7 @@
                 const token = response.data["access_token"];
                 console.log(`Logged in, setting cookie ${token}`);
                 document.cookie = `token=${token}`;
-                window.location.href = `/select_room`
+                window.location.href = `/lobby`
             } catch (error) {
                 console.log(`loginUser axios.post got an error: ${error}`);
             }
@@ -39,11 +39,12 @@
         async function postCreateUser() {
             event.preventDefault(); // Prevent the form from submitting normally
             console.log("postCreateUser()");
-            const url = `{{settings.BACKEND_URL}}/api/auth/register`;
+            const url = `/api/auth/register`;
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
+            // Create the new user
             try{
                 const response = await axios.post(url, {
                     email: email,
@@ -58,6 +59,7 @@
                 document.getElementById('register-error-msg').innerText = error.message || 'An error occurred';
             }
 
+            // Log in the new user
             try {
                 await loginUser(email, password);
             } catch (error) {
