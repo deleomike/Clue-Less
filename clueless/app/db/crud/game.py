@@ -1,5 +1,7 @@
+import math
 import uuid
 
+from copy import deepcopy
 from sqlmodel import select
 from typing import List, Union
 from uuid import UUID
@@ -7,47 +9,108 @@ from fastapi import HTTPException
 
 from clueless.app.db.crud.base import BaseCRUD
 from clueless.app.db.crud.room import RoomCRUD
+from clueless.app.db.crud.location import LocationCRUD, LocationCreate
 from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate
+from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate
+from clueless.app.db.crud.card import CardCRUD, CardCreate
+from clueless.app.db.models.shared import GameReadWithLinks
 
 
 class GameCRUD(BaseCRUD):
 
-    def get_by_id_or_key(self, _id: Union[str, UUID]) -> GameRead:
-        """
-        Gets the game by either the alphanumeric game key or by the ID
-        :param _id:
-        :return:
-        """
-        # try string to UUID conversion
-        if isinstance(_id, str):
-            try:
-                uuid_obj = UUID(_id)
-                _id = uuid_obj
-            except ValueError:
-                pass
+    DEFAULT_NAMES = ["Prof. Plum", "Mrs. Peacock", "Mr. Green", "Mrs. White", "Col. Mustard", "Miss Scarlet"]
+    LOCATION_NAMES = [
+        "Study",
+        "Hall",
+        "Lounge",
+        "Dining Room",
+        "Billiard Room",
+        "Library",
+        "Conservatory",
+        "Ball Room",
+        "Kitchen"
+    ]
+    WEAPON_NAMES = [
+        "Candlestick",
+        "Dagger",
+        "Lead Pipe",
+        "Revolver",
+        "Rope",
+        "Wrench"
+    ]
 
-        # Get game by uuid
-        if isinstance(_id, UUID):
-            return self.get(_id=_id)
-        # Get game by game_key
-        elif isinstance(_id, str):
-            return self.get_by_game_key(game_key=_id)
-        # Invalid ID
-        else:
-            raise HTTPException(status_code=500, detail=f"Invalid type for id, {type(_id)}")
-
-    def get(self, _id: UUID) -> GameRead:
+    def get(self, _id: UUID) -> GameReadWithLinks:
         game = self.session.get(Game, _id)
         if not game:
-            raise HTTPException(status_code=404, detail="Hero not found")
+            raise HTTPException(status_code=404, detail="Game not found")
         return game
 
     def get_all(self) -> List[GameRead]:
         games = self.session.exec(select(Game)).all()
         return games
 
-    def create(self, game: GameCreate) -> GameRead:
+    def populate_characters(self, id: UUID, character_names: List[str] = None) -> GameReadWithLinks:
+        # for now, place all in the first room
+        game = self.get(id)
+        ccrud = CharacterCRUD(session=self.session)
+
+        if character_names is None:
+            character_names = self.DEFAULT_NAMES[:len(game.waiting_room.users)]
+
+        assert (len(game.waiting_room.users) == len(character_names))
+
+        starting_locations = [location for location in game.locations if "-" in location.name]
+        for user, name in zip(game.waiting_room.users, character_names):
+            create = CharacterCreate(
+                name=name,
+                user_id=user,
+                location_id=starting_locations.pop().id,
+                game_id=game.id
+            )
+
+            ccrud.create(character=create)
+
+        return self.get(id)
+
+    def _deal_cards(self, game_id: UUID):
+        locations, weapons, characters = deepcopy(self.LOCATION_NAMES), deepcopy(self.WEAPON_NAMES), deepcopy(self.DEFAULT_NAMES)
+        card_details = []
+#  TODO IF IS_PLAYING == FALSE, DON'T DEAL THEM CARDS!!
+        import random
+
+        random.shuffle(locations)
+        random.shuffle(weapons)
+        random.shuffle(characters)
+
+        solution = ((locations.pop(), "room"), (weapons.pop(), "weapon"), (characters.pop(), "character"))
+
+        card_details.extend([(name, "character") for name in self.DEFAULT_NAMES])
+        card_details.extend([(name, "room") for name in self.LOCATION_NAMES])
+        card_details.extend([(name, "weapon") for name in self.WEAPON_NAMES])
+
+        ########
+        # Adjust how many characters get how many cards
+        game: GameReadWithLinks = self.get(game_id)
+        card_character_multiple = math.ceil(len(card_details) / len(game.characters))
+        characters_ = (game.characters * card_character_multiple)[:len(card_details)]
+        random.shuffle(characters_)
+        ########
+
+        cards = [CardCreate(name=details[0], type=details[1], owner_id=character.id)
+                 for details, character in zip(card_details, characters_)]
+
+        solution_cards = [CardCreate(name=name, type=type, game_id=game_id) for name, type in solution]
+
+        cards.extend(solution_cards)
+
+        card_crud = CardCRUD(session=self.session)
+
+        for card in cards:
+            card_crud.create(card)
+
+    def create(self, game: GameCreate, character_names: List[str] = None) -> GameRead:
         rcrud = RoomCRUD(session=self.session)
+        lcrud = LocationCRUD(session=self.session)
 
         # game.users = [str(game.host)]
         db_game = Game.model_validate(game)
@@ -56,7 +119,13 @@ class GameCRUD(BaseCRUD):
         self.session.commit()
         self.session.refresh(db_game)
 
-        return db_game
+        lcrud.create_all_game_rooms(game_id=db_game.id)
+
+        self.populate_characters(id=db_game.id, character_names=character_names)
+
+        self._deal_cards(game_id=db_game.id)
+
+        return self.get(_id=db_game.id)
 
     def delete(self, _id: UUID) -> GameRead:
         game = self.session.get(Game, _id)
@@ -85,3 +154,16 @@ class GameCRUD(BaseCRUD):
         new_game.users.append(str(player_id))
 
         return self.update(_id=_id, game=new_game)
+
+
+    def move_player(self, id: UUID, character_id: UUID, location_id: UUID, validate: bool = False):
+        ccrud = CharacterCRUD(session=self.session)
+
+        character = ccrud.get(character_id)
+        character.location_id = location_id
+        ccrud.update(character_id, )
+
+    def set_win(self, id: UUID, game_over: bool) -> GameReadWithLinks:
+        self.update(_id=id, game=GameUpdate(game_over=game_over))
+
+        return self.get(id)

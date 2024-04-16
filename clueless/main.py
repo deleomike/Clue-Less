@@ -1,6 +1,6 @@
 import click
-
 from clueless.settings import settings
+from clueless.app.core.game.GameLoop import GameLoop
 
 
 @click.group()
@@ -38,17 +38,35 @@ def play(players: int):
     :param players:
     :return:
     """
-
-    from clueless.app.core.game.GameLoop import GameLoop
-
-    GameLoop()
-
     if players <= 1:
         print("Can't start a game with fewer than 2 players.")
         exit(1)
 
-    # TODO
+    import asyncio
+
+    from clueless.app.db import create_db_and_tables, alchemy_create_db_and_tables
+    create_db_and_tables()
+    asyncio.run(alchemy_create_db_and_tables())
+
+    from clueless.app.core.game.GameLoop import GameLoop
+    from clueless.app.core.game.RoomBuilderCLI import RoomBuilder
+    from clueless.app.db import Session, engine
+
+    with Session(engine) as session:
+
+        room_builder = RoomBuilder(session=session, num_players=players, dummy_data=True)
+
+        game = room_builder.create_room_and_start("My room")
+
+        print(game)
+
+        loop = GameLoop(game=game, session=session)
+
+        loop.run_game()
+
+        # TODO
 
 
 if __name__ == '__main__':
     clue()
+    GameLoop()
