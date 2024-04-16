@@ -43,9 +43,7 @@
             <p>Am going to add visual of the gameboard here...</p>
         </div>
         <div class="column right" style="background-color:#bbb;">
-            <h2>Column 2</h2>
-            <p>Some text..</p>
-
+            <h2 id="playerTurn">It is your turn!</h2>
             <br> 
 
             <div class="dispaly_char_info">
@@ -57,14 +55,19 @@
                 <br>
                 <label>Cards:</label>
                 <ul id="character_cards">
+                    <!-- Dynamically show character's cards -->
                 </ul>
                 <br>
             </div>
 
             <br>
             <br>
-            <label>Current Player's Turn:</label>
-            <input id="playerTurn" placeholder="Enter player's name">
+            <label>What would you like to do?</label>
+            <div id="display_turn_options" class="display_turn_options"><br>
+                <button id="move_button" style="display: none;" onclick='ask_move()'>Move to new location</button><br>
+                <button id="suggest_button" style="display: none;" onclick='ask_suggest()'>Make suggestion</button><br>
+                <button onclick='ask_accusation()'>Make accusation</button>
+            </div>
         
 
         </div>
@@ -82,7 +85,6 @@
         var room_key = "{{room.room_key}}";
         var room_id = "{{room.id}}";
         var url = `/api/game/${room_id}/character/`;
-        console.log(url)
 
         const token = document.cookie
         .split('; ')
@@ -91,39 +93,57 @@
         console.log("token: ",token);
 
         try{
-            const response = await axios.get(url, null, {
+            const response = await axios.get(url, {
               headers: {
                 'accept': 'application/json',
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${token}`
               }
             });
             console.log(response.data);
+
+            // Update character display information
             const character_name = response.data["name"];
             const character_location = response.data["location"];
-            //const character_cards = response.data["hand"];
+            const character_cards = response.data["hand"];
+
             document.getElementById("character_name").value = character_name;
-            document.getElementById("character_location").value = character_location;
+            document.getElementById("character_location").value = character_location.name;
+
+            const bulletList = document.getElementById('character_cards');
+            character_cards.forEach(function (card_obj) {
+                const li = document.createElement('li');
+                li.textContent = card_obj.name;
+                bulletList.appendChild(li);
+            });
+
+            // Update buttons of available moves during turn
+            const button1 = document.getElementById('move_button');
+            const button2 = document.getElementById('suggest_button');
+
+            if (character_location.name.indexOf("-") == -1) { // currently in room
+                button1.style.display = 'inline-block';
+                button1.innerHTML = "Move to hallway"
+                button2.style.display = 'inline-block';
+                
+            } else { // currently in hallway
+                button1.style.display = 'inline-block';
+                button1.innerHTML = "Move to room"
+                button2.style.display = 'none';
+            }
+
+
         } catch (error) {
             console.log(`load_character_info axios.post got an error: ${error}`);
         }
     }
 
-    /*
-
-      -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NzhjZGJlZS1kNTgyLTQ1ZTEtOWE2Zi03MTUxNzMxOGQ0ODciLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcxMzI5NzczMH0.P8ZDEEqf4OIS5LeUwq6Me9Eef-PJBmxN23-spko-xkU' \
-      -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NzhjZGJlZS1kNTgyLTQ1ZTEtOWE2Zi03MTUxNzMxOGQ0ODciLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcxMzI5NzczMH0.P8ZDEEqf4OIS5LeUwq6Me9Eef-PJBmxN23-spko-xkU'
-
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZTVmYzBlMy00YWZjLTQxOWUtYmMyZi0wYmZkOTBlMzJiMzEiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcxMzI5NzkxMX0.vuIhp6TaRjZwJlN394JoGqHlxEBKJRKsWGyof0ny2X8"
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZTVmYzBlMy00YWZjLTQxOWUtYmMyZi0wYmZkOTBlMzJiMzEiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcxMzI5NzkxMX0.vuIhp6TaRjZwJlN394JoGqHlxEBKJRKsWGyof0ny2X8"
-
-
-    function load_character_info() 
+    async function load_turn_options()
     {
-        console.log("load_character_info()");
+        console.log("load_turn_options()");
 
-        var room_key = "{{ room.room_key }}";
-        var room_id = " {{ room.id }}";
-        var url = `/api/game/${room_id}/character/`;
+        var room_key = "{{room.room_key}}";
+        var room_id = "{{room.id}}";
+        var url = `/api/game/${room_id}/character/valid_moves/`;
 
         const token = document.cookie
         .split('; ')
@@ -135,25 +155,40 @@
             const response = await axios.post(url, null, {
               headers: {
                 'accept': 'application/json',
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${token}`
               }
             });
-            console.log(response.data);
-            const character_name = response.data["name"];
-            const character_location = response.data["location"];
-            //const character_cards = response.data["hand"];
-            document.getElementById("character_name").value = character_name;
-            document.getElementById("character_location").value = character_location;
+            
+
         } catch (error) {
-            console.log(`start_game axios.post got an error: ${error}`);
+            console.log(`load_turn_options axios.post got an error: ${error}`);
         }
-        
+
+        /*
+        const strings = ['Button 1', 'Button 2', 'Button 3', 'Button 4', 'Button 5'];
+
+        function createButtons() {
+            const buttonContainer = document.getElementById('buttonContainer');
+            // Clear existing buttons
+            buttonContainer.innerHTML = '';
+
+            // Create a button for each string in the array
+            strings.forEach(str => {
+                const button = document.createElement('button');
+                button.textContent = str;
+                button.addEventListener('click', () => {
+                    alert(`Button ${str} clicked!`);
+                });
+                buttonContainer.appendChild(button);
+            });
+        }
+        */
     }
-    */
 
 
     // Do everytime we load the page
     load_character_info();
+    load_turn_options();
 
    
 
