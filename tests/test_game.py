@@ -73,7 +73,7 @@ def test_suggestion(test_client, game, test_user_a_header, character_b):
     ).json()
 
     for location in response:
-        if "hallway" not in location["name"]:
+        if "-" not in location["name"]:
             location_id = location["id"]
             break
 
@@ -103,7 +103,7 @@ def test_accusation(test_client, game, test_user_a_header, character_b):
     ).json()
 
     for location in response:
-        if "hallway" not in location["name"]:
+        if "-" not in location["name"]:
             location_id = location["id"]
             break
 

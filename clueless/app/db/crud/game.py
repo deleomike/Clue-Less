@@ -1,6 +1,7 @@
 import math
 import uuid
 
+from copy import deepcopy
 from sqlmodel import select
 from typing import List, Union
 from uuid import UUID
@@ -19,15 +20,15 @@ class GameCRUD(BaseCRUD):
 
     DEFAULT_NAMES = ["Prof. Plum", "Mrs. Peacock", "Mr. Green", "Mrs. White", "Col. Mustard", "Miss Scarlet"]
     LOCATION_NAMES = [
-        "study",
-        "hall",
-        "lounge",
-        "dining_room",
-        "billiard_room",
-        "library",
-        "conservatory",
-        "ball_room",
-        "kitchen"
+        "Study",
+        "Hall",
+        "Lounge",
+        "Dining Room",
+        "Billiard Room",
+        "Library",
+        "Conservatory",
+        "Ball Room",
+        "Kitchen"
     ]
     WEAPON_NAMES = [
         "Candlestick",
@@ -58,12 +59,12 @@ class GameCRUD(BaseCRUD):
 
         assert (len(game.waiting_room.users) == len(character_names))
 
-        starting_location = game.locations[0]
+        starting_locations = [location for location in game.locations if "-" in location.name]
         for user, name in zip(game.waiting_room.users, character_names):
             create = CharacterCreate(
                 name=name,
                 user_id=user,
-                location_id=starting_location.id,
+                location_id=starting_locations.pop().id,
                 game_id=game.id
             )
 
@@ -72,9 +73,9 @@ class GameCRUD(BaseCRUD):
         return self.get(id)
 
     def _deal_cards(self, game_id: UUID):
-        locations, weapons, characters = self.LOCATION_NAMES, self.WEAPON_NAMES, self.DEFAULT_NAMES,
+        locations, weapons, characters = deepcopy(self.LOCATION_NAMES), deepcopy(self.WEAPON_NAMES), deepcopy(self.DEFAULT_NAMES)
         card_details = []
-
+#  TODO IF IS_PLAYING == FALSE, DON'T DEAL THEM CARDS!!
         import random
 
         random.shuffle(locations)
@@ -95,7 +96,7 @@ class GameCRUD(BaseCRUD):
         random.shuffle(characters_)
         ########
 
-        cards = [CardCreate(name=details[0], type=details[1], character_id=character.id)
+        cards = [CardCreate(name=details[0], type=details[1], owner_id=character.id)
                  for details, character in zip(card_details, characters_)]
 
         solution_cards = [CardCreate(name=name, type=type, game_id=game_id) for name, type in solution]
@@ -161,3 +162,8 @@ class GameCRUD(BaseCRUD):
         character = ccrud.get(character_id)
         character.location_id = location_id
         ccrud.update(character_id, )
+
+    def set_win(self, id: UUID, game_over: bool) -> GameReadWithLinks:
+        self.update(_id=id, game=GameUpdate(game_over=game_over))
+
+        return self.get(id)

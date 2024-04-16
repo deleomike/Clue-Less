@@ -5,7 +5,8 @@ from typing import List
 
 from clueless.app.db.user_schemas import UserRead
 from clueless.app.core.users import create_user, get_user_manager, fastapi_users, get_user
-from clueless.app.db.crud.room import RoomCRUD, Room, RoomCreate, RoomRead
+from clueless.app.db.crud.room import RoomCRUD, Room, RoomCreate, RoomRead, RoomUpdate
+from clueless.app.db.crud.game import GameCRUD, GameRead, GameCreate
 
 
 class RoomBuilder:
@@ -18,7 +19,8 @@ class RoomBuilder:
         self.dummy_data = dummy_data
         self.players: List[UserRead] = []
 
-        self.crud = RoomCRUD(session=session)
+        self.room_crud = RoomCRUD(session=session)
+        self.game_crud = GameCRUD(session=session)
 
 
 
@@ -53,7 +55,7 @@ class RoomBuilder:
             else:
                 self.players.append(self._prompt_user())
 
-    def create_room(self, name: str = "My Room") -> RoomRead:
+    def create_room_and_start(self, name: str = "My Room") -> GameRead:
 
         self._create_users_()
 
@@ -63,11 +65,19 @@ class RoomBuilder:
             host=self.players[0].id
         )
 
-        room = self.crud.create(room=create)
+        room = self.room_crud.create(room=create)
 
         for idx, player in enumerate(self.players):
             if idx == 0:
                 continue
-            self.crud.add_player(_id=room.id, player_id=player.id)
+            self.room_crud.add_player(_id=room.id, player_id=player.id)
 
-        return self.crud.get(room.id)
+        room = self.room_crud.get(room.id)
+
+        create = GameCreate(room_id=room.id)
+
+        game = self.game_crud.create(game=create)
+
+        self.room_crud.update(_id=room.id, room=RoomUpdate(is_started=True))
+
+        return game

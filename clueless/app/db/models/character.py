@@ -6,6 +6,7 @@ from typing import Optional, List
 from uuid import uuid4, UUID
 
 from clueless.app.db.models.base import BaseTable
+from clueless.app.db.models.CardCharacterLink import CardCharacterLink
 from clueless.app.db.models.room import Room, RoomRead
 from clueless.app.db.models.user import User
 
@@ -13,9 +14,12 @@ from clueless.app.db.models.user import User
 class CharacterBase(SQLModel):
     game_id: UUID = Field(default=None, foreign_key="game.id")
     location_id: UUID = Field(default=None, foreign_key="location.id")
-    user_id: str = Field(index=True)
+    user_id: Optional[str] = Field(index=True)
 
     name: str = Field(index=True)
+
+    is_playing: bool = Field(default=True, index=False)
+    is_won: bool = Field(default=False, index=False)
 
     class Config:
         arbitrary_types_allowed = True
@@ -32,7 +36,8 @@ class Character(CharacterBase, BaseTable, table=True):
     )
 
     hand: Optional[list["Card"]] = Relationship(
-        back_populates="character"
+        back_populates="characters",
+        link_model=CardCharacterLink
     )
 
     # TODO: Core game data goes here
@@ -47,4 +52,5 @@ class CharacterRead(CharacterBase):
 
 
 class CharacterUpdate(SQLModel):
-    pass
+    is_playing: Optional[bool] = None
+    is_won: Optional[bool] = None

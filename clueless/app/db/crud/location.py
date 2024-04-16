@@ -1,5 +1,6 @@
 import uuid
 
+from collections import defaultdict
 from sqlmodel import select
 from typing import List, Union
 from uuid import UUID
@@ -24,76 +25,96 @@ class LocationCRUD(BaseCRUD):
 
     def create_all_game_rooms(self, game_id):
         names = [
-            "study",
-            "hall",
-            "lounge",
-            "dining_room",
-            "billiard_room",
-            "library",
-            "conservatory",
-            "ball_room",
-            "kitchen"
+            "Study",
+            "Hall",
+            "Lounge",
+            "Dining Room",
+            "Billiard Room",
+            "Library",
+            "Conservatory",
+            "Ball Room",
+            "Kitchen"
         ]
 
-        names.extend([f"hallway{i}" for i in range(12)])
+        names.extend(["Study-Hall Hall",
+                      "Hall-Lounge Hall",
+                      "Study-Library Hall",
+                      "Hall-Billiard Room Hall",
+                      "Lounge-Dining Room Hall",
+                      "Library-Billiard Room Hall",
+                      "Billiard Room-Dining Room Hall",
+                      "Library-Conservatory Hall",
+                      "Billiard Room-Ball Room Hall",
+                      "Dining Room-Kitchen Hall",
+                      "Conservatory-Ball Room Hall",
+                      "Ball Room-Kitchen Hall"
+                      ])
+        # names.extend([f"hallway{i}" for i in range(12)])
 
         connections = {
-            "study":
+            "Study":
                 [
-                    "hallway0",
-                    "hallway2",
-                    "kitchen",
+                    "Study-Hall Hall",
+                    "Study-Library Hall",
+                    "Kitchen",
                 ],
-            "hall":
+            "Hall":
                 [
-                    "hallway0",
-                    "hallway1",
-                    "hallway3"
+                    "Study-Hall Hall",
+                    "Hall-Lounge Hall",
+                    "Hall-Billiard Room Hall"
                 ],
-            "lounge":
+            "Lounge":
                 [
-                    "hallway1",
-                    "hallway4",
-                    "conservatory"
+                    "Hall-Lounge Hall",
+                    "Lounge-Dining Room Hall",
+                    "Conservatory"
                 ],
-            "library":
+            "Library":
                 [
-                    "hallway5",
-                    "hallway2",
-                    "hallway7",
+                    "Library-Billiard Room Hall",
+                    "Study-Library Hall",
+                    "Library-Conservatory Hall",
                 ],
-            "billiard_room":
+            "Billiard Room":
                 [
-                    "hallway3",
-                    "hallway5",
-                    "hallway6",
-                    "hallway8"
+                    "Hall-Billiard Room Hall",
+                    "Library-Billiard Room Hall",
+                    "Billiard Room-Dining Room Hall",
+                    "Billiard Room-Ball Room Hall"
                 ],
-            "dining_room":
+            "Dining Room":
                 [
-                    "hallway4",
-                    "hallway6",
-                    "hallway9"
+                    "Lounge-Dining Room Hall",
+                    "Billiard Room-Dining Room Hall",
+                    "Dining Room-Kitchen Hall"
                 ],
-            "conservatory":
+            "Conservatory":
                 [
-                    "hallway7",
-                    "hallway10",
-                    "lounge",
+                    "Library-Conservatory Hall",
+                    "Conservatory-Ball Room Hall",
+                    "Lounge",
                 ],
-            "ball_room":
+            "Ball Room":
                 [
-                    "hallway8",
-                    "hallway10",
-                    "hallway11",
+                    "Billiard Room-Ball Room Hall",
+                    "Conservatory-Ball Room Hall",
+                    "Ball Room-Kitchen Hall",
                 ],
-            "kitchen":
+            "Kitchen":
                 [
-                    "hallway11",
-                    "hallway9",
-                    "study"
+                    "Ball Room-Kitchen Hall",
+                    "Dining Room-Kitchen Hall",
+                    "Study"
                 ]
         }
+
+        reverse_connections = defaultdict(set)
+
+        for name in connections:
+            connects = connections[name]
+            for other_name in connects:
+                reverse_connections[other_name].add(name)
 
         locations = {}
 
@@ -108,12 +129,20 @@ class LocationCRUD(BaseCRUD):
 
         for name in names:
             location = locations[name]
-            if "hallway" in name:
+            for reverse_connection in reverse_connections[name]:
+                # print(f"{reverse_connection}, {name}")
+                dest = locations[reverse_connection]
+
+                self.connect_location(location.id, dest.id)
+
+            if "-" in name:
                 continue
+
             for connection in connections[name]:
                 dest = locations[connection]
 
                 self.connect_location(location.id, dest.id)
+
 
     def create(self, location: LocationCreate) -> LocationRead:
 
