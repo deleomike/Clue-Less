@@ -16,11 +16,11 @@
         }
 
         .left {
-        width: 50%;
+        width: 60%;
         }
 
         .right {
-        width: 50%;
+        width: 40%;
         }
 
         /* Clear floats after the columns */
@@ -29,18 +29,142 @@
         display: table;
         clear: both;
         }
+
+
+        .gameboard_grid {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        td {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border: 1px solid black;
+        }
+
+
+        .cell_label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: 12px;
+            margin: 5px;
+        }
+
+
+        .circle {
+            position: absolute;
+            display:block;
+
+            top: 80%;
+            left: 20%;
+            transform: translate(-50%, -50%);
+            
+            height:20px;
+            width:20px;
+
+            border-radius: 50%;
+            background-color: purple;
+        }
+
     </style>
 </head>
 
 
 <body>
 
-    <h1> Clue-Less Game Board</h1>
+    <h1> Clue-Less</h1>
 
     <div class="row">
         <div class="column left" style="background-color:#aaa;">
-            <h2>Column 1</h2>
-            <p>Am going to add visual of the gameboard here...</p>
+            <h2>Game Board</h2>
+
+            <div class="gameboard_grid">
+            <table class="gameboard_table">
+                <tr>
+                    <td id="Study">
+                        <label class="cell_label" for="Study">Study</label><br>
+                    </td>
+                    <td id="Study-Hall Hall">
+                        <label class="cell_label" for="Study-Hall Hall">Study-Hall Hall</label><br>
+                    </td>
+                    <td id="Hall">
+                        <label class="cell_label" for="Hall">Hall</label><br>
+                    </td>
+                    <td id="Hall-Lounge Hall">
+                        <label class="cell_label" for="Hall-Lounge Hall">Hall-Lounge Hall</label><br>
+                    </td>
+                    <td id="Lounge">
+                        <label class="cell_label" for="Lounge">Lounge</label><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="Study-Library Hall">
+                        <label class="cell_label" for="Study-Library Hall">Study-Library Hall</label><br>
+                    </td>
+                    <td id="cell11"></td>
+                    <td id="Hall-Billiard Room Hall">
+                        <label class="cell_label" for="Hall-Billiard Room Hall">Hall-Billiard Room Hall</label><br>
+                    </td>
+                    <td id="cell13"></td>
+                    <td id="Lounge-Dining Room Hall">
+                        <label class="cell_label" for="Lounge-Dining Room Hall">Lounge-Dining Room Hall</label><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="Library">
+                        <label class="cell_label" for="Library">Library</label><br>
+                    </td>
+                    <td id="Library-Billiard Room Hall">
+                        <label class="cell_label" for="Library-Billiard Room Hall">Library-Billiard Room Hall</label><br>
+                    </td>
+                    <td id="Billiard Room">
+                        <label class="cell_label" for="Billiard Room">Billiard Room</label><br>
+                    </td>
+                    <td id="Billiard Room-Dining Room Hall">
+                        <label class="cell_label" for="Billiard Room-Dining Room Hall">Billiard Room-Dining Room Hall</label><br>
+                    </td>
+                    <td id="Dining Room">
+                        <label class="cell_label" for="Dining Room">Dining Room</label><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="Library-Conservatory Hall">
+                        <label class="cell_label" for="Library-Conservatory Hall">Library-Conservatory Hall</label><br>
+                    </td>
+                    <td id="cell31"></td>
+                    <td id="Billiard Room-Ball Room Hall">
+                        <label class="cell_label" for="Billiard Room-Ball Room Hall">Billiard Room-Ball Room Hall</label><br>
+                    </td>
+                    <td id="cell33"></td>
+                    <td id="Dining Room-Kitchen Hall">
+                        <label class="cell_label" for="Dining Room-Kitchen Hall">Dining Room-Kitchen Hall</label><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="Conservatory">
+                        <label class="cell_label" for="Conservatory">Conservatory</label><br>
+                    </td>
+                    <td id="Conservatory-Ball Room Hall">
+                        <label class="cell_label" for="Conservatory-Ball Room Hall">Conservatory-Ball Room Hall</label><br>
+                    </td>
+                    <td id="Ball Room">
+                        <label class="cell_label" for="Ball Room">Ball Room</label><br>
+                    </td>
+                    <td id="Ball Room-Kitchen Hall">
+                        <label class="cell_label" for="Ball Room-Kitchen Hall">Ball Room-Kitchen Hall</label><br>
+                    </td>
+                    <td id="Kitchen">
+                        <label class="cell_label" for="Kitchen">Kitchen</label><br>
+                    </td>
+                </tr>
+            </table>
+            </div>
+
+
         </div>
         <div class="column right" style="background-color:#bbb;">
             <h2 id="playerTurn">It is your turn!</h2>
@@ -78,9 +202,28 @@
 
 <script>
 
-    async function load_character_info()
+    function get_char_color(character_name)
     {
-        console.log("load_character_info()");
+        var char_color = "black";
+        switch(character_name){
+            case "Prof. Plum":
+                char_color = "purple";
+                break;
+            case "Mrs. Peacock":
+                char_color = "blue";
+                break;
+        }
+        return char_color;
+    }
+
+    async function load_other_character_info()
+    {
+
+    }
+
+    async function load_my_character_info()
+    {
+        console.log("load_my_character_info()");
 
         var room_key = "{{room.room_key}}";
         var room_id = "{{room.id}}";
@@ -116,6 +259,19 @@
                 bulletList.appendChild(li);
             });
 
+
+            // Update the character's circle color based on their name
+            console.log("loc: ",character_location.name);
+            console.log(document.getElementById(character_location.name));
+            const cell = document.getElementById(character_location.name);
+            console.log(cell)
+            const characterCircle = document.createElement('div');
+            characterCircle.className = 'circle';
+            characterCircle.style.backgroundColor = get_char_color(character_name);
+            //cell.innerHTML = ''; // Clear previous content
+            cell.appendChild(characterCircle);
+            
+
             // Update buttons of available moves during turn
             const button1 = document.getElementById('move_button');
             const button2 = document.getElementById('suggest_button');
@@ -133,13 +289,13 @@
 
 
         } catch (error) {
-            console.log(`load_character_info axios.post got an error: ${error}`);
+            console.log(`load_my_character_info axios.post got an error: ${error}`);
         }
     }
 
-    async function load_turn_options()
+    async function load_my_turn_options()
     {
-        console.log("load_turn_options()");
+        console.log("load_my_turn_options()");
 
         var room_key = "{{room.room_key}}";
         var room_id = "{{room.id}}";
@@ -158,10 +314,9 @@
                 'Authorization': `Bearer ${token}`
               }
             });
-            
-
+            console.log(response.data);
         } catch (error) {
-            console.log(`load_turn_options axios.post got an error: ${error}`);
+            console.log(`load_my_turn_options axios.post got an error: ${error}`);
         }
 
         /*
@@ -187,8 +342,18 @@
 
 
     // Do everytime we load the page
-    load_character_info();
-    load_turn_options();
+    load_my_character_info();
+    load_my_turn_options();
+
+
+    const drawCircle = true; // Set to true to draw a circle in each cell
+
+    if (drawCircle) {
+        const cell00 = document.getElementById('cell00');
+        const circle = document.createElement('span');
+        circle.classList.add('circle');
+        cell00.appendChild(circle);
+    }
 
    
 
