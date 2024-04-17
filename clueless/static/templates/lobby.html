@@ -67,8 +67,10 @@
               const room_key = response.data["room_key"];
               console.log('Created a new room: room_key = ',room_key);
               window.location.href = "/room/" + room_key;
+              return true;
           } catch (error) {
               console.log(`make_and_join_room axios.post got an error: ${error}`);
+              return false;
           }
       }
 
@@ -95,8 +97,10 @@
               console.log(response.data);
               console.log('Joined existing room: room_key = ',response.data["room_key"]);
               window.location.href = "/room/" + response.data["room_key"];
+              return true;
           } catch (error){
               console.log(`join_room axios.post got an error: ${error}`);
+              return false;
           }
 
       }

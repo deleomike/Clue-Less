@@ -50,8 +50,10 @@
                 });
                 console.log(response.data);
                 window.location.href = `/gameboard/${room_key}`;
+                return true;
             } catch (error) {
                 console.log(`start_game axios.post got an error: ${error}`);
+                return false;
             }
         }
 

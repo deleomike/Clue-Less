@@ -85,10 +85,12 @@
               document.cookie = '';
               document.cookie = `token=${token}`; //We won't always have the unique email in the basic script
               console.log(document.cookie);
-              window.location.href = "/lobby"
+              window.location.href = "/lobby";
+              return true;
           } catch (error) {
               console.log(`postLogin got an error: ${error}`);
               document.getElementById('login-error-msg').innerText = error.message || 'An error occurred';
+              return false;
           }
       }
 

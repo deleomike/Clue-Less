@@ -30,9 +30,11 @@
                 const token = response.data["access_token"];
                 console.log(`Logged in, setting cookie ${token}`);
                 document.cookie = `token=${token}`;
-                window.location.href = `/lobby`
+                window.location.href = `/lobby`;
+                return true;
             } catch (error) {
                 console.log(`loginUser axios.post got an error: ${error}`);
+                return false;
             }
         }
 
@@ -67,6 +69,8 @@
                 console.log(`loginUser got an error: ${error}`);
                 document.getElementById('register-error-msg').innerText = error.message || 'An error occurred';
             }
+
+            return true;
         }
 
     </script>
