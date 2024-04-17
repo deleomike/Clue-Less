@@ -191,21 +191,18 @@
             </div>
 
             <label id="user_prompt">What would you like to do?</label>
-            <div id="display_options" class="display_options"><br>
-                <!-- Dynamically change what is in this div based on user interaction -->
+            <div id="display_options" class="display_turn_options"><br>
                 <button id="move_button" style="display: none;" onclick='ask_move()'>Move to new location</button><br>
                 <button id="suggest_button" style="display: none;" onclick='ask_suggest()'>Make suggestion</button><br>
                 <button id="accuse_button" style="display: none;" onclick='ask_accusation()'>Make accusation</button>
             </div>
-            <!--
             <div id="display_move_options" class="display_move_options"><br>
                 <button id="do_move1" style="display: none;" onclick='do_move(1)'>Move</button><label id="local_1" style="display: none;"></label><br>
                 <button id="do_move2" style="display: none;" onclick='do_move(2)'>Move</button><label id="local_2" style="display: none;"></label><br>
                 <button id="do_move3" style="display: none;" onclick='do_move(3)'>Move</button><label id="local_3" style="display: none;"></label><br>
             </div>
-            -->
             <div id="display_accusation" class="display_accusation" style="display: none;"><br>
-                <label>Select Locatipn:</label>
+                <label>Select Location:</label>
                 <select class="dropdown-location">
                     <option value="location-1" >Study</option>
                     <option value="location-2">Hall</option>
@@ -235,8 +232,7 @@
                     <option value="character-5">Col. Mustard</option>
                     <option value="character-6">Miss Scarlet</option>
                  </select><br>
-                 <br>
-                 <button id="move_button" onclick='do_suggest()'>Submit Suggestion</button><br>
+                 <button id="move_button" onclick='do_accuse()'>Submit Suggestion</button><br>
             </div>
         </div>
         
@@ -260,84 +256,39 @@
     console.log("token: ",g_token);
 
     // Location IDs
-    let g_location_option1_name = null; 
-    let g_location_option2_name = null;
-    let g_location_option3_name = null;
-    let g_location_option1_id = null; 
-    let g_location_option2_id = null;
-    let g_location_option3_id = null;
+    let g_location_option1 = null; 
+    let g_location_option2 = null;
+    let g_location_option3 = null;
+
+    // Accusatino globals
+    let g_accuse_location = null;
+    let g_accuse_weapon = null;
+    let g_accuse_character = null;
 
     // curr player information
     let g_curr_location = null;
 
-    function display_move_options()
+
+    async function do_accuse()
     {
-        console.log('display_move_options()');
-        const options_div = document.getElementById('display_options');
-        options_div.innerHTML = ''; // clear everything in the div from before
-
-        // Update the prompt question
-        const prompt_label = document.getElementById('user_prompt');
-        prompt_label.innerHTML = "Where would you like to move to?";
-
-        // Update the interaction items
-        // Show move option buttons
-        if(g_location_option1_name){
-            const do_move1 = document.createElement('button');
-            do_move1.id = 'do_move1';
-            do_move1.textContent = 'Move';
-
-           
-
-            //do_move1.onclick = function() {do_move();};
-            //do_move1.addEventListener('click', function(){
-            //    do_move(1);
-            //});
-            //do_move1.onclick = function() { do_move(1); };
-            options_div.appendChild(do_move1);
-
-            document.getElementById("do_move1").onclick = function() {do_move(1)};
-            console.log(document.getElementById("do_move1").onclick);
-
-            const label_move1 = document.createElement('label');
-            label_move1.innerHTML = `  ${g_location_option1_name}`;
-            options_div.appendChild(label_move1);
-            options_div.innerHTML += '<br>';
+        console.log("do_accuse()");
+        var url = `/api/game/${g_room_id}/character/make_accusation}`;
+        
+        try{
+            const response = await axios.post(url, null, {
+              headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`
+              }
+            });
+            console.log(response.data);
+            // refresh page and start from the top
+            window.location.href = `/gameboard/${g_room_key}`;
+            return true;
+        } catch (error) {
+            console.log(`do_move axios.post got an error: ${error}`);
+            return false;
         }
-        if(g_location_option2_name){
-            const do_move2 = document.createElement('button');
-            do_move2.id = 'do_move2';
-            do_move2.textContent = 'Move';
-            do_move2.onclick = function () { do_move(2); };
-            options_div.appendChild(do_move2);
-            const label_move2 = document.createElement('label');
-            label_move2.innerHTML = `  ${g_location_option2_name}`;
-            options_div.appendChild(label_move2);
-            options_div.innerHTML += '<br>';
-        }
-        if(g_location_option3_name){
-            const do_move3 = document.createElement('button');
-            do_move3.id = 'do_move3';
-            do_move3.textContent = 'Move';
-            do_move3.onclick = function () { do_move(3); };
-            options_div.appendChild(do_move3);
-            const label_move3 = document.createElement('label');
-            label_move3.innerHTML = `  ${g_location_option3_name}`;
-            options_div.appendChild(label_move3);
-            options_div.innerHTML += '<br>';
-        }
-
-        return true;
-    }
-
-    function display_accusation_options()
-    {
-
-    }
-
-    function display_suggestion_options()
-    {
-
     }
 
 
@@ -347,7 +298,7 @@
 
         // Update prompt question
         const user_prompt_label = document.getElementById('user_prompt');
-        user_prompt_label.innerHTML = "Make a suggestion";
+        user_prompt_label.innerHTML = "Make an accusation:";
 
         // Hide turn & move option buttons
         const button1 = document.getElementById('move_button');
@@ -371,10 +322,9 @@
         move2_label.style.display = 'none';
         move3_label.style.display = 'none';
 
-        // Show suggestion 
-        const display_suggestion_div = document.getElementById('display_accusation');
-        display_suggestion_div.style.display = 'inline-block';
-        local_suggest.innerHTML = g_curr_location;
+        // Show accusation 
+        const display_accusation = document.getElementById('display_accusation');
+        display_accusation.style.display = 'inline-block';
 
         return true;
     }
@@ -387,13 +337,13 @@
 
         switch(option_num){
             case 1:
-                url = `/api/game/${g_room_id}/character/move/${g_location_option1_id}`;
+                url = `/api/game/${g_room_id}/character/move/${g_location_option1}`;
                 break;
             case 2:
-                url = `/api/game/${g_room_id}/character/move/${g_location_option2_id}`;
+                url = `/api/game/${g_room_id}/character/move/${g_location_option2}`;
                 break;
             case 3:
-                url = `/api/game/${g_room_id}/character/move/${g_location_option3_id}`;
+                url = `/api/game/${g_room_id}/character/move/${g_location_option3}`;
                 break;
         }
         
@@ -428,21 +378,54 @@
               }
             });
             console.log(response.data);
+            const moves_list = response.data;
 
+
+            // Update prompt question
+            const user_prompt_label = document.getElementById('user_prompt');
+            user_prompt_label.innerHTML = "Where would you like to move to?";
+
+            // Hide turn option buttons
+            const button1 = document.getElementById('move_button');
+            const button2 = document.getElementById('suggest_button');
+            const button3 = document.getElementById('accuse_button');
+            button1.style.display = 'none';
+            button2.style.display = 'none';
+            button3.style.display = 'none';
+
+            const move1_but = document.getElementById('do_move1');
+            const move2_but = document.getElementById('do_move2');
+            const move3_but = document.getElementById('do_move3');
+            move1_but.style.display = 'none';
+            move2_but.style.display = 'none';
+            move3_but.style.display = 'none';
+
+            const move1_label  = document.getElementById('local_1');
+            const move2_label  = document.getElementById('local_2');
+            const move3_label  = document.getElementById('local_3');
+            move1_label.style.display = 'none';
+            move2_label.style.display = 'none';
+            move3_label.style.display = 'none';
+
+            // Show move option buttons
             if(response.data[0]){
-                g_location_option1_name = response.data[0].name;
-                g_location_option1_id = response.data[0].id;
+                move1_but.style.display = 'inline-block';
+                move1_label.style.display = 'inline-block';
+                move1_label.innerHTML = response.data[0].name;
+                g_location_option1 = response.data[0].id;
             }
             if(response.data[1]){
-                g_location_option2_name = response.data[1].name;
-                g_location_option2_id = response.data[1].id;
+                move2_but.style.display = 'inline-block';
+                move2_label.style.display = 'inline-block';
+                move2_label.innerHTML = response.data[1].name;
+                g_location_option2 = response.data[1].id;
             }
             if(response.data[2]){
-                g_location_option3_name = response.data[2].name;
-                g_location_option3_id = response.data[2].id;
+                move3_but.style.display = 'inline-block';
+                move3_label.style.display = 'inline-block';
+                move3_label.innerHTML = response.data[2].name;
+                g_location_option3 = response.data[2].id;
             }
-
-            display_move_options();
             return true;
         } catch (error) {
             console.log(`ask_move axios.post got an error: ${error}`);
@@ -617,4 +600,75 @@
    
 
 </script>
+
+
+<!--
+
+
+    
+    <div>
+        <h1> Clue-Less Game Board</h1>
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                display: flex;
+            }
+            .left-column {
+                flex: 2;
+                background-color: lightblue;
+                padding: 20px;
+            }
+            .right-column {
+                flex: 3;
+                background-color: lightgreen;
+                padding: 20px;
+            }
+        </style>
+
+
+        </head>
+        <body>
+       <!-- <div class="grid" id="grid"></div> 
+        <div class="left-column">
+            <h2>Left Column</h2>
+            <p>This is the left column with a light blue background color.</p>
+            <!--
+
+            
+            <table>
+                <caption>5x5 Grid</caption>
+                <tbody>
+                    
+                    <tr>
+                        <td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
+                    </tr>
+                    <tr>
+                        <td>6</td><td>7</td><td>8</td><td>9</td><td>10</td>
+                    </tr>
+                    <tr>
+                        <td>11</td><td>12</td><td>13</td><td>14</td><td>15</td>
+                    </tr>
+                    <tr>
+                        <td>16</td><td>17</td><td>18</td><td>19</td><td>20</td>
+                    </tr>
+                    <tr>
+                        <td>21</td><td>22</td><td>23</td><td>24</td><td>25</td>
+                    </tr>
+                </tbody>
+            </table>
+        
+        </div>
+        <div class="right-column">
+            <h2>Right Column</h2>
+            <p>This is the right column with a light green background color.</p>
+            <!--<input type="text" id="textbox" readonly>
+        </div>
+       
+    </div>
+    <script>
+
+    </script>
+-->
 {% block body %}{% endblock %}
