@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.post("/", response_model=RoomRead)
-def create_room(room: RoomCreateUI,
+async def create_room(room: RoomCreateUI,
                 crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
                 user = Depends(current_active_user)):
     room = RoomCreate(name=room.name, host=user.id)
@@ -23,12 +23,12 @@ def create_room(room: RoomCreateUI,
 
 
 @router.get("/", response_model=List[RoomRead])
-def get_all(crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
+async def get_all(crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
     return crud.get_all()
 
 
 @router.get("/{_id}/", response_model=RoomRead)
-def get_room_info(_id: str,
+async def get_room_info(_id: str,
                   crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
     """
     Gets the room by either the alphanumeric room key or by the ID
@@ -40,7 +40,7 @@ def get_room_info(_id: str,
 
 
 @router.post("/{_id}/join/", response_model=RoomRead)
-def join_game(_id: str,
+async def join_game(_id: str,
                crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
                user = Depends(current_active_user)):
     """
@@ -55,7 +55,7 @@ def join_game(_id: str,
 
 
 @router.post("/{_id}/start/", response_model=GameReadWithLinks)
-def start_game(_id: str,
+async def start_game(_id: str,
                crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
                game_crud: GameCRUD = Depends(GameCRUD.as_dependency),
                user = Depends(current_active_user)):
@@ -77,7 +77,7 @@ def start_game(_id: str,
 
 
 @router.delete("/{_id}/")
-def delete_room(_id: str,
+async def delete_room(_id: str,
                 crud: RoomCRUD = Depends(RoomCRUD.as_dependency),
                 user = Depends(current_active_user)):
     """
