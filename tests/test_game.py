@@ -1,6 +1,16 @@
 import pytest
 
 from clueless.app.db.models.room import RoomRead
+from clueless.app.db.models.shared import GameReadWithLinks, CharacterReadLinks
+
+from tests.game_utils import (
+    get_character,
+    start_game,
+    move_character,
+    valid_moves,
+    make_suggestion,
+    make_accusation
+)
 
 
 
@@ -16,116 +26,90 @@ def full_Room(test_client, user_a_room, test_user_a, test_user_b, test_user_b_he
     return room
 
 @pytest.fixture
-def game(test_client, full_Room, test_user_a_header):
-    response = test_client.post(
-        f"/api/room/{full_Room['id']}/start",
-        headers=test_user_a_header
-    ).json()
-
-    return response
+def game(test_client, full_Room, test_user_a_header) -> GameReadWithLinks:
+    return start_game(room_id=full_Room["id"], test_client=test_client, headers=test_user_a_header)
 
 
 @pytest.fixture()
 def character_b(game, test_client, test_user_b_header):
-    response = test_client.get(
-        f"/api/game/{game['id']}/character/",
+    return get_character(
+        game_id=game.id,
+        test_client=test_client,
         headers=test_user_b_header
-    ).json()
-
-    return response
+    )
 
 
 def test_start_game(test_client, full_Room, test_user_a_header):
-    response = test_client.post(
-        f"/api/room/{full_Room['id']}/start",
-        headers=test_user_a_header
-    ).json()
+    game = start_game(test_client=test_client, room_id=full_Room["id"], headers=test_user_a_header)
 
-    assert response["room_id"] == full_Room["id"]
+    assert str(game.room_id) == full_Room["id"]
 
 
 def test_read_links(game):
-    assert len(game["locations"]) > 0
+    assert len(game.locations) > 0
 
     print("GAME: ", game)
 
 
 def test_move_player(test_client, game, test_user_a_header):
-    response = test_client.post(
-        f"/api/game/{game['id']}/character/valid_moves",
+    locations = valid_moves(
+        game_id=game.id,
+        test_client=test_client,
         headers=test_user_a_header
-    ).json()
+    )
 
-    first_location_id = response[0]["id"]
+    first_location_id = locations[0].id
 
-    response = test_client.post(
-        f"/api/game/{game['id']}/character/move/{first_location_id}",
-        headers=test_user_a_header
-    ).json()
+    character = move_character(
+        game_id=game.id,
+        test_client=test_client,
+        headers=test_user_a_header,
+        location_id=first_location_id
+    )
 
-    assert response["location_id"] == first_location_id
+    assert character.location_id == first_location_id
 
 
 def test_suggestion(test_client, game, test_user_a_header, character_b):
-    response = test_client.post(
-        f"/api/game/{game['id']}/character/valid_moves",
+    locations = valid_moves(
+        game_id=game.id,
+        test_client=test_client,
         headers=test_user_a_header
-    ).json()
+    )
 
-    for location in response:
-        if "-" not in location["name"]:
-            location_id = location["id"]
+    for location in locations:
+        if "-" not in location.name:
+            location_id = location.id
             break
 
-    response = test_client.post(
-        f"/api/game/{game['id']}/character/move/{location_id}",
-        headers=test_user_a_header
-    ).json()
-
-    assert response["location_id"] == location_id
-
-    response = test_client.post(
-        f"/api/game/{game['id']}/character/make_suggestion",
+    character = move_character(
+        game_id=game.id,
+        test_client=test_client,
         headers=test_user_a_header,
-        json={
-            "accused_player_id": character_b["id"],
-            "weapon": "candlestick",
-        }
-    ).json()
+        location_id=location_id
+    )
 
-    print(response)
+    assert character.location_id == location_id
+
+    response = make_suggestion(
+        game_id=game.id,
+        character_name=character_b.name,
+        weapon_name="candlestick",
+        test_client=test_client,
+        headers=test_user_a_header
+    )
 
 
 def test_accusation(test_client, game, test_user_a_header, character_b):
-    response = test_client.post(
-        f"/api/game/{game['id']}/character/valid_moves",
-        headers=test_user_a_header
-    ).json()
 
-    for location in response:
-        if "-" not in location["name"]:
-            location_id = location["id"]
-            break
-
-    response = test_client.post(
-        f"/api/game/{game['id']}/character/move/{location_id}",
-        headers=test_user_a_header
-    ).json()
-
-    assert response["location_id"] == location_id
-
-    response = test_client.post(
-        f"/api/game/{game['id']}/character/make_accusation",
+    win = make_accusation(
+        game_id=game.id,
         headers=test_user_a_header,
-        json={
-            "accused_player_id": character_b["id"],
-            "character": character_b["name"],
-            "room": location["name"],
-            "weapon": "candlestick",
-        }
-    ).json()
-
-    print(response)
+        weapon_name="candlestick",
+        room_name="study",
+        character_name=character_b.name,
+        test_client=test_client
+    )
 
 
 
