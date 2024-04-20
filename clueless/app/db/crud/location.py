@@ -130,7 +130,7 @@ class LocationCRUD(BaseCRUD):
         for name in names:
             location = locations[name]
             for reverse_connection in reverse_connections[name]:
-                print(f"{reverse_connection}, {name}")
+                # print(f"{reverse_connection}, {name}")
                 dest = locations[reverse_connection]
 
                 self.connect_location(location.id, dest.id)

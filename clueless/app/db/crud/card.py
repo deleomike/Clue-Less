@@ -65,6 +65,9 @@ class CardCRUD(BaseCRUD):
     def link_to_character(self, _id: UUID, character):
         card = self.get(_id)
 
+        if character in card.characters:
+            return
+
         card.characters.append(character)
 
         self.session.add(card)

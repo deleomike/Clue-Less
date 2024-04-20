@@ -96,6 +96,7 @@ class GameCRUD(BaseCRUD):
         random.shuffle(characters_)
         ########
 
+
         cards = [CardCreate(name=details[0], type=details[1], owner_id=character.id)
                  for details, character in zip(card_details, characters_)]
 

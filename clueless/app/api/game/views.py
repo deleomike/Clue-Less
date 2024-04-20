@@ -11,18 +11,19 @@ from clueless.app.core.game.GameDBController import GameDBController
 from clueless.app.db.crud.game import GameCRUD
 from clueless.app.db import get_session
 from clueless.app.core.users import current_active_user
+from clueless.app.core.schemas.game import suggestion_response, SuggestionRequest, AccusationRequest
 
 
 router = APIRouter()
 
 
 @router.get("/", response_model=List[GameRead])
-def get_all(crud: GameCRUD = Depends(GameCRUD.as_dependency)):
+async def get_all(crud: GameCRUD = Depends(GameCRUD.as_dependency)):
     return crud.get_all()
 
 
 @router.get("/{_id}/", response_model=GameReadWithLinks)
-def get_game_info(_id: UUID,
+async def get_game_info(_id: UUID,
                   crud: GameCRUD = Depends(GameCRUD.as_dependency)):
     """
     Gets the game by either the alphanumeric game key or by the ID
@@ -34,7 +35,7 @@ def get_game_info(_id: UUID,
 
 
 @router.get("/{_id}/character/", response_model=CharacterReadLinks)
-def get_character(_id: UUID,
+async def get_character(_id: UUID,
                   crud: GameCRUD = Depends(GameCRUD.as_dependency),
                   user = Depends(current_active_user)):
     """
@@ -48,7 +49,7 @@ def get_character(_id: UUID,
 
 
 @router.post("/{_id}/character/valid_moves/", response_model=List[LocationRead])
-def valid_moves(_id: UUID,
+async def valid_moves(_id: UUID,
                 crud: GameCRUD = Depends(GameCRUD.as_dependency),
                 user = Depends(current_active_user)):
     """
@@ -66,7 +67,7 @@ def valid_moves(_id: UUID,
 
 
 @router.post("/{_id}/character/move/{location_id}", response_model=CharacterReadLinks)
-def move_character(_id: UUID,
+async def move_character(_id: UUID,
                   location_id: UUID,
                   crud: GameCRUD = Depends(GameCRUD.as_dependency),
                   user = Depends(current_active_user)):
@@ -87,11 +88,10 @@ def move_character(_id: UUID,
 
 
 @router.post("/{_id}/character/make_suggestion", response_model=CardRead)
-def make_suggestion(_id: UUID,
-                    accused_player_id: UUID,
-                    weapon: str,
-                    crud: GameCRUD = Depends(GameCRUD.as_dependency),
-                    user = Depends(current_active_user)):
+async def make_suggestion(_id: UUID,
+                          request: SuggestionRequest,
+                          crud: GameCRUD = Depends(GameCRUD.as_dependency),
+                          user = Depends(current_active_user)):
     """
     Make a suggestion, teleports the suggested player
 
@@ -105,16 +105,20 @@ def make_suggestion(_id: UUID,
     controller = GameDBController(game_id=_id, session=crud.session)
     character = controller.get_character_info(user_id=user.id)
 
-    return controller.make_suggestion(current_player=character.id, accused_id=accused_player_id, weapon=weapon)
+    card = controller.make_suggestions(
+        current_player_id=character.id,
+        character_name=request.character_name,
+        weapon_name=request.weapon_name
+    )
+
+    return card
 
 
-@router.post("/{_id}/character/make_accusation", response_model=CardRead)
-def make_accusation(_id: UUID,
-                    character: str,
-                    weapon: str,
-                    room: str,
-                    crud: GameCRUD = Depends(GameCRUD.as_dependency),
-                    user = Depends(current_active_user)):
+@router.post("/{_id}/character/make_accusation")
+async def make_accusation(_id: UUID,
+                          request: AccusationRequest,
+                          crud: GameCRUD = Depends(GameCRUD.as_dependency),
+                          user = Depends(current_active_user)):
     """
     Makes an accusation
 
@@ -129,16 +133,18 @@ def make_accusation(_id: UUID,
     controller = GameDBController(game_id=_id, session=crud.session)
     character_m = controller.get_character_info(user_id=user.id)
 
-    return controller.make_accusation(
-        current_player=character_m.id,
-        player_name=character,
-        room_name=room,
-        weapon=weapon
-    )
+    win = controller.make_accusation(
+            current_player_id=character_m.id,
+            player_name=request.character_name,
+            room_name=request.room_name,
+            weapon=request.weapon_name
+        )
+
+    return {"win": win}
 
 
 @router.delete("/{_id}/")
-def delete_game(_id: str,
+async def delete_game(_id: str,
                 crud: GameCRUD = Depends(GameCRUD.as_dependency),
                 user = Depends(current_active_user)):
     """
