@@ -106,7 +106,7 @@ async def make_suggestion(_id: UUID,
     character = controller.get_character_info(user_id=user.id)
 
     card = controller.make_suggestions(
-        current_player_id=character.id,
+        current_character_id=character.id,
         character_name=request.character_name,
         weapon_name=request.weapon_name
     )
@@ -157,6 +157,22 @@ async def is_my_turn(_id: UUID,
     return {
         "is_turn": controller.is_my_turn(user_id=user.id),
         "character_turn_id": controller.get_current_turn().id
+    }
+
+
+@router.get("/{_id}/solution/")
+async def solution(_id: UUID,
+                     crud: GameCRUD = Depends(GameCRUD.as_dependency),
+                     user = Depends(current_active_user)):
+    """
+    Checks if it is your turn
+
+    :return:
+    """
+    controller = GameDBController(game_id=_id, session=crud.session)
+
+    return {
+        card.type: card.name for card in controller.full_state.solution
     }
 
 

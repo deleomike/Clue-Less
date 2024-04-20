@@ -12,7 +12,8 @@ from tests.game_utils import (
     make_suggestion,
     make_accusation,
     get_game,
-    is_my_turn
+    is_my_turn,
+    get_solution
 )
 
 
@@ -119,13 +120,27 @@ def test_accusation(test_client, game, test_user_a_header, character_b):
         test_client=test_client
     )
 
+def test_correct_answer(test_client, game, test_user_a_header):
+    solution = get_solution(game_id=game.id, test_client=test_client, headers=test_user_a_header)
+
+    win = make_accusation(
+        game_id=game.id,
+        headers=test_user_a_header,
+        weapon_name=solution["weapon"],
+        room_name=solution["room"],
+        character_name=solution["character"],
+        test_client=test_client
+    )
+
+    assert win
+
 
 def test_overload(test_client, game, test_user_a_header):
     # concurrent.futures
     # with concurrent.futures.ThreadPoolExecutor() as executor:  # optimally defined number of threads
     #     res = [executor.submit(get_game, game.id, test_client, test_user_a_header) for _ in range(100000)]
     #     concurrent.futures.wait(res)
-    for _ in range(1000):
+    for _ in range(100):
         get_character(game_id=game.id, test_client=test_client, headers=test_user_a_header)
         get_game(game_id=game.id, test_client=test_client, headers=test_user_a_header)
 

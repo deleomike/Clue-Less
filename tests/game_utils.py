@@ -66,7 +66,7 @@ def make_suggestion(
         weapon_name,
         test_client: TestClient,
         headers: Dict
-) -> suggestion_response:
+) -> CardRead:
 
     response = test_client.post(
         f"/api/game/{game_id}/character/make_suggestion",
@@ -78,6 +78,20 @@ def make_suggestion(
     ).json()
 
     return CardRead.model_validate(response)
+
+
+def get_solution(
+        game_id,
+        test_client: TestClient,
+        headers: Dict
+) -> Dict[str, str]:
+
+    response = test_client.get(
+        f"/api/game/{game_id}/solution",
+        headers=headers,
+    ).json()
+
+    return response
 
 
 def make_accusation(
