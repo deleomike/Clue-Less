@@ -202,38 +202,42 @@
                 <button id="do_move3" style="display: none;" onclick='do_move(3)'>Move</button><label id="local_3" style="display: none;"></label><br>
             </div>
             <div id="display_accusation" class="display_accusation" style="display: none;"><br>
-                <label>Select Location:</label>
-                <select class="dropdown-location">
-                    <option value="location-1" >Study</option>
-                    <option value="location-2">Hall</option>
-                    <option value="location-3">Lounge</option>
-                    <option value="location-4">Library</option>
-                    <option value="location-5">Billiard Room</option>
-                    <option value="location-6">Dining Room</option>
-                    <option value="location-7">Conservatory</option>
-                    <option value="location-8">Ball Room</option>
-                    <option value="location-9">Kitchen</option>
+                <label id="acuse_loc_label" style="display: none;">Select Location:</label>
+                <select id="acuse_location" class="dropdown-location" style="display: none;">
+                    <option value="Study" >Study</option>
+                    <option value="Hall">Hall</option>
+                    <option value="Lounge">Lounge</option>
+                    <option value="Library">Library</option>
+                    <option value="Billiard Room">Billiard Room</option>
+                    <option value="Dining Room">Dining Room</option>
+                    <option value="Conservatory">Conservatory</option>
+                    <option value="Ball Room">Ball Room</option>
+                    <option value="Kitchen">Kitchen</option>
                  </select><br>
                 <label>Select Weapon:</label>
-                <select class="dropdown-weapon">
-                    <option value="weapon-1" >Candlestick</option>
-                    <option value="weapon-2">Dagger</option>
-                    <option value="weapon-3">Lead Pipe</option>
-                    <option value="weapon-4">Revolver</option>
-                    <option value="weapon-5">Rope</option>
-                    <option value="weapon-6">Wrench</option>
+                <select id="acuse_weapon" class="dropdown-weapon">
+                    <option value="Candlestick" >Candlestick</option>
+                    <option value="Dagger">Dagger</option>
+                    <option value="Lead Pipe">Lead Pipe</option>
+                    <option value="Revolver">Revolver</option>
+                    <option value="Rope">Rope</option>
+                    <option value="Wrench">Wrench</option>
                  </select><br>
                  <label>Select Character:</label>
-                 <select class="dropdown-character">
-                    <option value="character-1">Prof. Plum</option>
-                    <option value="character-2">Mrs. Peacock</option>
-                    <option value="character-3">Mr. Green</option>
-                    <option value="character-4">Mrs. White</option>
-                    <option value="character-5">Col. Mustard</option>
-                    <option value="character-6">Miss Scarlet</option>
+                 <select id="acuse_char" class="dropdown-character">
+                    <option value="Prof. Plum">Prof. Plum</option>
+                    <option value="Mrs. Peacock">Mrs. Peacock</option>
+                    <option value="Mr. Green">Mr. Green</option>
+                    <option value="Mrs. White">Mrs. White</option>
+                    <option value="Col. Mustard">Col. Mustard</option>
+                    <option value="Miss Scarlet">Miss Scarlet</option>
                  </select><br>
-                 <button id="submit_accuse" onclick='do_accuse()'>Submit Accusation</button><br>
+                 <button id="submit_accuse" onclick='do_accuse()' style="display: none;">Submit Accusation</button><br>
+                 <button id="submit_suggest" onclick='do_suggest()' style="display: none;">Submit Suggestion</button><br>
             </div>
+            <label id="turn_result"></label>
+            <br>
+            <button id="end_turn" onclick='end_turn()' style="display: none;">End my turn!</button><br>
         </div>
         
 
@@ -253,7 +257,8 @@
     .split('; ')
     .find(row => row.startsWith('token='))
     .split('=')[1];
-    console.log("token: ",g_token);
+    console.log("token");
+    console.log(g_token);
 
     // Location IDs
     let g_location_option1 = null; 
@@ -268,22 +273,145 @@
     // curr player information
     let g_curr_location = null;
 
+    // Suggestion selections
+    let g_sug_weapon = null;
+    let g_sug_char = null;
+    let g_sug_room = null;
 
-    async function do_accuse()
+    async function end_turn()
     {
-        console.log("do_accuse()");
-        var url = `/api/game/${g_room_id}/character/make_accusation}`;
+        console.log("end_turn()");
+
+    }
+
+    async function do_suggest()
+    {
+        console.log("do_suggest()");
+        var url = `/api/game/${g_room_id}/character/make_suggestion`;
+
+        // Accusation selections
+        let acuse_weapon = document.getElementById('acuse_weapon').value;
+        let acuse_char = document.getElementById('acuse_char').value;
+        console.log(acuse_weapon);
+        console.log(acuse_char);
+
+        const params = new URLSearchParams();
+        params.append('weapon_name', acuse_weapon);
+        params.append('character_name', acuse_char);
+
+        console.log(g_token);
         
         try{
-            const response = await axios.post(url, null, {
+            const response = await axios.post(url, params, {
               headers: {
                 'accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
                 'Authorization': `Bearer ${g_token}`
               }
             });
             console.log(response.data);
-            // refresh page and start from the top
-            window.location.href = `/gameboard/${g_room_key}`;
+
+            // TODO: Show results
+            const result_txt = document.getElementById('turn_result');
+            result_txt.innerHTML = "You just made a suggestion";
+
+            // Display end turn button
+            const end_turn_but = document.getElementById('end_turn');
+            end_turn_but.style.display = 'inline-block';
+
+            // window.location.href = `/gameboard/${g_room_key}`;
+            return true;
+        } catch (error) {
+            console.log(`do_suggest axios.post got an error: ${error}`);
+            return false;
+        }
+    }
+
+
+    async function ask_suggest()
+    {
+        console.log("ask_suggest()");
+
+        // Update prompt question
+        const user_prompt_label = document.getElementById('user_prompt');
+        user_prompt_label.innerHTML = "Make a suggestion:";
+
+        // Hide turn & move option buttons
+        const button1 = document.getElementById('move_button');
+        const button2 = document.getElementById('suggest_button');
+        const button3 = document.getElementById('accuse_button');
+        button1.style.display = 'none';
+        button2.style.display = 'none';
+        button3.style.display = 'none';
+
+        const move1_but = document.getElementById('do_move1');
+        const move2_but = document.getElementById('do_move2');
+        const move3_but = document.getElementById('do_move3');
+        move1_but.style.display = 'none';
+        move2_but.style.display = 'none';
+        move3_but.style.display = 'none';
+
+        const move1_label  = document.getElementById('local_1');
+        const move2_label  = document.getElementById('local_2');
+        const move3_label  = document.getElementById('local_3');
+        move1_label.style.display = 'none';
+        move2_label.style.display = 'none';
+        move3_label.style.display = 'none';
+
+        // Show suggestion prompts 
+        const display_accusation = document.getElementById('display_accusation');
+        const acuse_location = document.getElementById('acuse_location');
+        const submit_button = document.getElementById('submit_suggest');
+        const loc_label = document.getElementById('acuse_loc_label');
+        display_accusation.style.display = 'inline-block';
+        acuse_location.style.display = 'none';
+        submit_button.style.display = 'inline-block';
+        loc_label.style.display = 'none';
+
+        return true;
+    }
+
+    async function do_accuse()
+    {
+        console.log("do_accuse()");
+        var url = `/api/game/${g_room_id}/character/make_accusation`;
+
+        // Accusation selections
+        let acuse_weapon = document.getElementById('acuse_weapon').value;
+        let acuse_char = document.getElementById('acuse_char').value;
+        let acuse_room = document.getElementById('acuse_location').value;
+        console.log(acuse_weapon);
+        console.log(acuse_char);
+        console.log(acuse_room);
+
+        const params = new URLSearchParams();
+        params.append('weapon_name', acuse_weapon);
+        params.append('character_name', acuse_char);
+        params.append('room_name', acuse_room);
+
+        console.log(g_token);
+        console.log(`Bearer ${g_token}`);
+        
+
+        try{
+            const response = await axios.post(url, params, {
+              headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${g_token}`
+              }
+            });
+            console.log(response.data);
+
+            // TODO: Show results
+            const result_txt = document.getElementById('turn_result');
+            result_txt.innerHTML = "You just made an accusation";
+
+            // Display end turn button
+            const end_turn_but = document.getElementById('end_turn');
+            end_turn_but.style.display = 'inline-block';
+
+            // window.location.href = `/gameboard/${g_room_key}`;
             return true;
         } catch (error) {
             console.log(`do_move axios.post got an error: ${error}`);
@@ -324,7 +452,14 @@
 
         // Show accusation 
         const display_accusation = document.getElementById('display_accusation');
+        const submit_button = document.getElementById('submit_accuse');
+        const acuse_location = document.getElementById('acuse_location');
+        const loc_label = document.getElementById('acuse_loc_label');
         display_accusation.style.display = 'inline-block';
+        submit_button.style.display = 'inline-block';
+        acuse_location.style.display = 'inline-block';
+        loc_label.style.display = 'inline-block';
+        
 
         return true;
     }
@@ -334,6 +469,8 @@
     {
         console.log("do_move()");
         var url = '';
+
+        console.log(g_token);
 
         switch(option_num){
             case 1:
@@ -452,7 +589,7 @@
         console.log("place_all_characters()");
         var url = `/api/game/${g_game_id}/`;
         console.log(url);
-
+        
         try{
             const response = await axios.get(url, null, {
               headers: {
@@ -466,18 +603,18 @@
             console.log(location_list);
 
             for (let i = 0; i < location_list.length; i++) {
-                console.log("-------");
-                console.log(location_list[i].name);
+                //console.log("-------");
+                //console.log(location_list[i].name);
                 for (let j = 0; j < location_list[i].characters.length; j++){
-                    console.log(location_list[i].characters[j].name);
+                    //console.log(location_list[i].characters[j].name);
 
-                        // Update the character's circle color and location
-                        const cell = document.getElementById(location_list[i].name);
-                        const characterCircle = document.createElement('div');
-                        characterCircle.className = 'circle';
-                        characterCircle.style.backgroundColor = get_char_color(location_list[i].characters[j].name);
-                        //cell.innerHTML = ''; // Clear previous content
-                        cell.appendChild(characterCircle);
+                    // Update the character's circle color and location
+                    const cell = document.getElementById(location_list[i].name);
+                    const characterCircle = document.createElement('div');
+                    characterCircle.className = 'circle';
+                    characterCircle.style.backgroundColor = get_char_color(location_list[i].characters[j].name);
+                    //cell.innerHTML = ''; // Clear previous content
+                    cell.appendChild(characterCircle);
                         
                 }
             }
@@ -493,6 +630,8 @@
     {
         console.log("load_my_character_info()");
         var url = `/api/game/${g_room_id}/character/`;
+
+        console.log(g_token);
 
         try {
             const response = await axios.get(url, {
