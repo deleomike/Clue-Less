@@ -87,7 +87,7 @@ async def move_character(_id: UUID,
 
 
 
-@router.post("/{_id}/character/make_suggestion", response_model=CardRead)
+@router.post("/{_id}/character/make_suggestion", response_model=List[CardRead])
 async def make_suggestion(_id: UUID,
                           request: SuggestionRequest,
                           crud: GameCRUD = Depends(GameCRUD.as_dependency),
@@ -111,7 +111,11 @@ async def make_suggestion(_id: UUID,
         weapon_name=request.weapon_name
     )
 
-    return card
+    res = []
+    if card is not None:
+        res.append(card)
+
+    return res
 
 
 @router.post("/{_id}/character/make_accusation")

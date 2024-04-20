@@ -77,7 +77,9 @@ def make_suggestion(
         }
     ).json()
 
-    return CardRead.model_validate(response)
+    for card in response:
+        return CardRead.model_validate(card)
+
 
 
 def get_solution(

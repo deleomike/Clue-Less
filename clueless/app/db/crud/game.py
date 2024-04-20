@@ -57,15 +57,22 @@ class GameCRUD(BaseCRUD):
         if character_names is None:
             character_names = self.DEFAULT_NAMES[:len(game.waiting_room.users)]
 
-        assert (len(game.waiting_room.users) == len(character_names))
+        user_ids = ["" for _ in character_names]
+        for i, user_id in enumerate(game.waiting_room.users):
+            user_ids[i] = user_id
+
+        assert (len(user_ids) == len(character_names))
+
+        print("USER IDS: ", user_ids)
 
         starting_locations = [location for location in game.locations if "-" in location.name]
-        for user, name in zip(game.waiting_room.users, character_names):
+        for user, name in zip(user_ids, character_names):
             create = CharacterCreate(
                 name=name,
                 user_id=user,
                 location_id=starting_locations.pop().id,
-                game_id=game.id
+                game_id=game.id,
+                is_playing=(user!="") # False if user is ""
             )
 
             ccrud.create(character=create)
@@ -126,7 +133,7 @@ class GameCRUD(BaseCRUD):
 
         self._deal_cards(game_id=db_game.id)
 
-        self.set_turn(db_game.id, db_game.characters[0].id)
+        self.set_turn(db_game.id, self.players(id=db_game.id)[0].id)
 
         return self.get(_id=db_game.id)
 
@@ -202,8 +209,9 @@ class GameCRUD(BaseCRUD):
 
         current_player_index = self.get_player_idx(id, current_player_id=current_player_id)
 
-        in_order_players = deepcopy(self.players[current_player_index:])
-        in_order_players.extend(self.players[:current_player_index])
+        players = self.players(id=id)
+        in_order_players = players[current_player_index:]
+        in_order_players.extend(players[:current_player_index])
 
         for player in in_order_players:
             if player.id == current_player_id:

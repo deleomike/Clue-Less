@@ -201,14 +201,17 @@ class GameDBController:
         :return:
         """
 
-        if not self.is_character_turn(character_id):
-            raise HTTPException(status_code=500, detail="Not the character's turn")
+        if self.full_state.game_over:
+            raise HTTPException(status_code=500, detail="Game is over")
 
         if validate:
             valid = self.is_valid_location_move(character_id=character_id, location_id=location_id)
 
             if not valid:
                 raise Exception("Invalid move for character.")
+
+            if not self.is_character_turn(character_id):
+                raise HTTPException(status_code=500, detail="Not the character's turn")
 
         self.character_crud.change_room(id=character_id, location_id=location_id)
 
@@ -226,12 +229,15 @@ class GameDBController:
         if not self.is_character_turn(current_character_id):
             raise HTTPException(status_code=500, detail="Not the character's turn")
 
+        if self.full_state.game_over:
+            raise HTTPException(status_code=500, detail="Game is over")
+
         current_player = self.character_crud.get_with_link(current_character_id)
 
         chosen_character = self.get_character_by_name(character_name=character_name)
 
         if "-" in current_player.location.name:
-            raise Exception("Cannot make a suggestion from a hallway")
+            raise HTTPException(status_code=500, detail="Cannot make a suggestion from a hallway")
 
         # teleport the character
         self.move_player(character_id=chosen_character.id, location_id=current_player.location_id, validate=False)
@@ -248,6 +254,8 @@ class GameDBController:
                 )
                 if card is not None:
                     return card
+
+        self.game_crud.increment_turn(self.id)
 
 
     def make_suggestion(self, current_player: UUID, accused_id: UUID, character_name: str, weapon_name: str) -> CardRead:
@@ -323,6 +331,9 @@ class GameDBController:
         :param weapon:
         :return:
         """
+        if self.full_state.game_over:
+            raise HTTPException(status_code=500, detail="Game is over")
+
         current_player = self.character_crud.get_with_link(current_player_id)
 
         won = self.is_solution(character=player_name, weapon=weapon, location=room_name)
@@ -333,5 +344,7 @@ class GameDBController:
         else:
             # TODO set player to having lost
             self._set_player_lost(character_id=current_player_id)
+
+        self.game_crud.increment_turn(self.id)
 
         return won
