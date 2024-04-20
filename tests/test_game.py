@@ -1,4 +1,5 @@
 import pytest
+import concurrent
 
 from clueless.app.db.models.room import RoomRead
 from clueless.app.db.models.shared import GameReadWithLinks, CharacterReadLinks
@@ -9,7 +10,8 @@ from tests.game_utils import (
     move_character,
     valid_moves,
     make_suggestion,
-    make_accusation
+    make_accusation,
+    get_game
 )
 
 
@@ -112,6 +114,14 @@ def test_accusation(test_client, game, test_user_a_header, character_b):
     )
 
 
+def test_overload(test_client, game, test_user_a_header):
+    # concurrent.futures
+    # with concurrent.futures.ThreadPoolExecutor() as executor:  # optimally defined number of threads
+    #     res = [executor.submit(get_game, game.id, test_client, test_user_a_header) for _ in range(100000)]
+    #     concurrent.futures.wait(res)
+    for _ in range(1000):
+        get_character(game_id=game.id, test_client=test_client, headers=test_user_a_header)
+        get_game(game_id=game.id, test_client=test_client, headers=test_user_a_header)
 
 
 

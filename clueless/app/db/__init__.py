@@ -9,13 +9,26 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 async_sqlite_url = f"sqlite+aiosqlite:///{sqlite_file_name}"
 
 connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, echo=False, connect_args=connect_args)
+engine = create_engine(
+    sqlite_url,
+    echo=False,
+    connect_args=connect_args,
+    pool_pre_ping=True,
+    # pool_size=30,
+    # max_overflow=120
+)
 async_engine = create_async_engine(async_sqlite_url, echo=False, connect_args=connect_args)
 
 async_session_maker = sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
-        yield session
+        try:
+            yield session
+        except:
+            session.rollback()
+        finally:
+            print("----Closing ASYNC Session-----")
+            session.close()
 
 
 async def alchemy_create_db_and_tables():
@@ -50,5 +63,25 @@ def create_db_and_tables():
 
 def get_session():
     with Session(engine) as session:
-        yield session
+        try:
+            yield session
+        except:
+            session.rollback()
+        finally:
+            print("----Closing session----")
+            session.close()
 
+
+class CustomSessionManager:
+    def __init__(self):
+        self.session = Session(engine)
+
+    def __enter__(self):
+        return self.session
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.session.close()
+
+    @classmethod
+    def as_yield(cls):
+        yield cls()

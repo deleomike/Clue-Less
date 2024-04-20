@@ -23,6 +23,14 @@ def start_game(room_id, test_client: TestClient, headers: Dict) -> GameReadWithL
     return GameReadWithLinks.model_validate(response)
 
 
+def get_game(game_id, test_client: TestClient, headers: Dict) -> GameReadWithLinks:
+    response = test_client.get(
+        f"/api/game/{game_id}",
+        headers=headers
+    ).json()
+
+    return GameReadWithLinks.model_validate(response)
+
 def valid_moves(game_id, test_client: TestClient, headers: Dict) -> List[LocationRead]:
     response = test_client.post(
         f"/api/game/{game_id}/character/valid_moves",

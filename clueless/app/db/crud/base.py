@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from uuid import UUID
 from sqlmodel import Session
 
-from clueless.app.db import get_session
+from clueless.app.db import get_session, get_async_session, CustomSessionManager
 from clueless.app.db import engine
 
 
@@ -12,8 +12,12 @@ class BaseCRUD(ABC):
         self.session = session
 
     @classmethod
-    def as_dependency(cls):
-        yield cls(session=Session(engine))
+    async def as_dependency(cls):
+        # # session = next(get_session())
+        # session = get_async_session()
+        with CustomSessionManager() as SM:
+            print(SM.__dict__)
+            yield cls(session=SM)
 
     @abstractmethod
     def get(self, _id: UUID):
