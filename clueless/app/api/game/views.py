@@ -143,6 +143,23 @@ async def make_accusation(_id: UUID,
     return {"win": win}
 
 
+@router.get("/{_id}/character/is_my_turn")
+async def is_my_turn(_id: UUID,
+                     crud: GameCRUD = Depends(GameCRUD.as_dependency),
+                     user = Depends(current_active_user)):
+    """
+    Checks if it is your turn
+
+    :return:
+    """
+    controller = GameDBController(game_id=_id, session=crud.session)
+
+    return {
+        "is_turn": controller.is_my_turn(user_id=user.id),
+        "character_turn_id": controller.get_current_turn().id
+    }
+
+
 @router.delete("/{_id}/")
 async def delete_game(_id: str,
                 crud: GameCRUD = Depends(GameCRUD.as_dependency),

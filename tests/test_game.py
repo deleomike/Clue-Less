@@ -11,7 +11,8 @@ from tests.game_utils import (
     valid_moves,
     make_suggestion,
     make_accusation,
-    get_game
+    get_game,
+    is_my_turn
 )
 
 
@@ -51,6 +52,11 @@ def test_read_links(game):
     assert len(game.locations) > 0
 
     print("GAME: ", game)
+
+
+def test_is_my_turn(test_client, game, test_user_a_header):
+    turn, id = is_my_turn(game_id=game.id, test_client=test_client, headers=test_user_a_header)
+    assert turn
 
 
 def test_move_player(test_client, game, test_user_a_header):

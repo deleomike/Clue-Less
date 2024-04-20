@@ -72,6 +72,14 @@ class GameDBController:
     def all_characters(self) -> List[CharacterReadLinks]:
         return self.full_state.characters
 
+    def get_current_turn(self) -> CharacterReadLinks:
+        return self.character_crud.get_with_link(self.full_state.character_turn_id)
+
+    def is_my_turn(self, user_id: UUID):
+        character = self.get_character_info(user_id=user_id)
+
+        return character.id == self.get_current_turn().id
+
     def get_character_by_name(self, character_name) -> CharacterRead:
         characters = self.all_characters
 

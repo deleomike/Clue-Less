@@ -20,6 +20,7 @@ class CharacterBase(SQLModel):
 
     is_playing: bool = Field(default=True, index=False)
     is_won: bool = Field(default=False, index=False)
+    # is_turn: bool = Field(default=False, index=False)
 
     class Config:
         arbitrary_types_allowed = True
@@ -54,3 +55,4 @@ class CharacterRead(CharacterBase):
 class CharacterUpdate(SQLModel):
     is_playing: Optional[bool] = None
     is_won: Optional[bool] = None
+    # is_turn: Optional[bool] = None
