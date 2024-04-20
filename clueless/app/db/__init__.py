@@ -25,10 +25,9 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         try:
             yield session
         except:
-            session.rollback()
+            await session.rollback()
         finally:
-            print("----Closing ASYNC Session-----")
-            session.close()
+            await session.close()
 
 
 async def alchemy_create_db_and_tables():
@@ -68,7 +67,6 @@ def get_session():
         except:
             session.rollback()
         finally:
-            print("----Closing session----")
             session.close()
 
 
