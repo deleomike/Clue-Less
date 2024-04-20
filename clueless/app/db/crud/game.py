@@ -213,6 +213,8 @@ class GameCRUD(BaseCRUD):
         in_order_players = players[current_player_index:]
         in_order_players.extend(players[:current_player_index])
 
+        print("IN ORDER PLAYERS: ", in_order_players)
+
         for player in in_order_players:
             if player.id == current_player_id:
                 continue

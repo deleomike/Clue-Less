@@ -334,17 +334,14 @@ class GameDBController:
         if self.full_state.game_over:
             raise HTTPException(status_code=500, detail="Game is over")
 
-        current_player = self.character_crud.get_with_link(current_player_id)
-
         won = self.is_solution(character=player_name, weapon=weapon, location=room_name)
 
         if won:
             # TODO: set game to winning
             self._set_player_won(character_id=current_player_id)
         else:
+            self.game_crud.increment_turn(self.id)
             # TODO set player to having lost
             self._set_player_lost(character_id=current_player_id)
-
-        self.game_crud.increment_turn(self.id)
 
         return won

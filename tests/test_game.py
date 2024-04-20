@@ -178,14 +178,14 @@ def test_correct_answer(test_client, game, test_user_a_header):
     assert win
 
 
-# def test_overload(test_client, game, test_user_a_header):
-#     # concurrent.futures
-#     # with concurrent.futures.ThreadPoolExecutor() as executor:  # optimally defined number of threads
-#     #     res = [executor.submit(get_game, game.id, test_client, test_user_a_header) for _ in range(100000)]
-#     #     concurrent.futures.wait(res)
-#     for _ in range(100):
-#         get_character(game_id=game.id, test_client=test_client, headers=test_user_a_header)
-#         get_game(game_id=game.id, test_client=test_client, headers=test_user_a_header)
+def test_overload(test_client, game, test_user_a_header):
+    # concurrent.futures
+    # with concurrent.futures.ThreadPoolExecutor() as executor:  # optimally defined number of threads
+    #     res = [executor.submit(get_game, game.id, test_client, test_user_a_header) for _ in range(100000)]
+    #     concurrent.futures.wait(res)
+    for _ in range(100):
+        get_character(game_id=game.id, test_client=test_client, headers=test_user_a_header)
+        get_game(game_id=game.id, test_client=test_client, headers=test_user_a_header)
 
 
 
