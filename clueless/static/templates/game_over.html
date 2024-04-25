@@ -1,107 +1,14 @@
 
-   
-    <div>
-        <h1>Login:</h1>
-        <form id="loginForm", onsubmit="postLogin(); return false;">
-            <label for="login-email">Email:</label>
-            <input type="text" id="login-email" name="login-email"><br>
-            <label for="login-password">Password:</label>
-            <input type="text" id="login-password" name="login-password"><br>
-            <button type="submit">Login</button>
-        </form>
-        <p id="login-error-msg"></p>
+{% include "base_layout.html" %}
+
+    <div style="text-align: center;">
+        <h2>Game Over</h2>
+        {% if if_win %}
+        <h1>Congratulations! You won!</h1>
+        {% else %}
+        <h1>Sorry, you lost.</h1>
+        {% endif %}
     </div>
-    <script>
-
-      /*
-        function getCookie(c_name)
-        {
-            var i,x,y,ARRcookies=document.cookie.split(";");
-        
-            console.log('ARRcookies.length = ',ARRcookies.length)
-            for (i=0;i<ARRcookies.length;i++)
-            {
-                x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
-                y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
-                x=x.replace(/^\s+|\s+$/g,"");
-
-                console.log(`ARRcookies[${i}]=${ARRcookies[i]}`);
-
-                if (x==c_name)
-                {
-                    return unescape(y);
-                }
-             }
-        }
-
-        function verify(token){
-            console.log("verify()");
-            const url = "/api/auth/whoami";
-      
-            //token = getCookie("token")
-      
-            console.log("Verify says token is =",token)
-      
-            axios.get(url, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              }
-            })
-              .then((response) => {
-                console.log(response.data);
-                console.log("Verified")      
-                window.location.href = "/select_room"
-                return true;
-                
-              })
-              .catch(function(error) {
-                console.log(error)
-                console.log("Not logged in")
-                return false;
-              });
-        }
-        */
-
-      async function postLogin(){
-          event.preventDefault(); // Prevent the form from submitting normally
-          console.log("postLogin()");
-          const url = "/api/auth/jwt/login";
-
-          const email = document.getElementById('login-email').value;
-          const password = document.getElementById('login-password').value;
-        
-          const params = new URLSearchParams();
-          params.append('username', email);
-          params.append('password', password);
-          params.append('grant_type', '');
-          params.append('client_secret', '');
-          params.append('scope', '');
-
-          try {
-              const response = await axios.post(url, params);
-              console.log(response.data);
-              const token = response.data["access_token"];
-              console.log(`Logged in, setting cookie ${token}`);
-              document.cookie = '';
-              document.cookie = `token=${token}`; //We won't always have the unique email in the basic script
-              console.log(document.cookie);
-              window.location.href = "/lobby";
-              return true;
-          } catch (error) {
-              console.log(`postLogin got an error: ${error}`);
-              document.getElementById('login-error-msg').innerText = error.message || 'An error occurred';
-              return false;
-          }
-      }
 
 
-        //const cookie_token = getCookie("token")
-        //verify(cookie_token)
-        
-        
-
-        //document.getElementById("loginForm").addEventListener("submit", postLogin);
-
-        
-    </script>
 {% block body %}{% endblock %}

@@ -174,7 +174,7 @@
 
         </div>
         <div class="column right" style="background-color:#bbb;">
-            <h2 id="playerTurn">It is your turn!</h2>
+            <h2 id="playerTurn">Welcome!</h2>
 
             <div class="dispaly_char_info">
                 <label>Character Name:</label>
@@ -235,9 +235,9 @@
                  <button id="submit_accuse" onclick='do_accuse()' style="display: none;">Submit Accusation</button><br>
                  <button id="submit_suggest" onclick='do_suggest()' style="display: none;">Submit Suggestion</button><br>
             </div>
+            <br>
             <label id="turn_result"></label>
             <br>
-            <button id="end_turn" onclick='end_turn()' style="display: none;">End my turn!</button><br>
         </div>
         
 
@@ -262,6 +262,8 @@
     console.log("token");
     console.log(g_token);
 
+    let is_my_turn = false;
+
     // Location IDs
     let g_location_option1 = null; 
     let g_location_option2 = null;
@@ -280,13 +282,13 @@
     let g_sug_char = null;
     let g_sug_room = null;
 
-    async function end_turn()
+    function end_turn()
     {
         console.log("end_turn()");
 
     }
 
-    async function do_suggest()
+    function do_suggest()
     {
         console.log("do_suggest()");
         var url = `/api/game/${g_game_id}/character/make_suggestion`;
@@ -297,37 +299,33 @@
         console.log(acuse_weapon);
         console.log(acuse_char);
         
-        try{
-            const response = await axios.post(url, {
-                "weapon_name": `${acuse_weapon}`,
-                "character_name": `${acuse_char}`,
-            }, {
-                headers: {
-                    'accept': 'application/json',
-                    'Authorization': `Bearer ${g_token}`,
-                    'Content-Type': 'application/json'
-                }
-            });   
+        return axios.post(url, {
+            "weapon_name": `${acuse_weapon}`,
+            "character_name": `${acuse_char}`,
+        }, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
             console.log(response.data);
-
+    
             // TODO: Show results
             const result_txt = document.getElementById('turn_result');
-            result_txt.innerHTML = "You just made a suggestion";
-
-            // Display end turn button
-            const end_turn_but = document.getElementById('end_turn');
-            end_turn_but.style.display = 'inline-block';
-
-            // window.location.href = `/gameboard/${g_room_key}`;
+            result_txt.innerHTML = `A player showed you the ${response.data[0].name} card!`;
+            //window.location.href = `/gameboard/${g_room_key}`;
             return true;
-        } catch (error) {
+        })
+        .catch(error => {
             console.log(`do_suggest axios.post got an error: ${error}`);
             return false;
-        }
+        });
     }
 
 
-    async function ask_suggest()
+    function ask_suggest()
     {
         console.log("ask_suggest()");
 
@@ -370,7 +368,7 @@
         return true;
     }
 
-    async function do_accuse()
+    function do_accuse()
     {
         console.log("do_accuse()");
         var url = `/api/game/${g_game_id}/character/make_accusation`;
@@ -383,40 +381,31 @@
         console.log(acuse_char);
         console.log(acuse_room);
 
-        console.log(g_token);
-
-        try{
-            const response = await axios.post(url, {
-                "weapon_name": `${acuse_weapon}`,
-                "character_name": `${acuse_char}`,
-                "room_name": `${acuse_room}`
-            }, {
-                headers: {
-                    'accept': 'application/json',
-                    'Authorization': `Bearer ${g_token}`,
-                    'Content-Type': 'application/json'
-                }
-            });    
+        return axios.post(url, {
+            "weapon_name": `${acuse_weapon}`,
+            "character_name": `${acuse_char}`,
+            "room_name": `${acuse_room}`
+        }, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
             console.log(response.data);
-
-            // TODO: Show results
-            const result_txt = document.getElementById('turn_result');
-            result_txt.innerHTML = "You just made an accusation";
-
-            // Display end turn button
-            const end_turn_but = document.getElementById('end_turn');
-            end_turn_but.style.display = 'inline-block';
-
-            // window.location.href = `/gameboard/${g_room_key}`;
+            // navigate to end of game page
+            window.location.href = `/game_over/${response.data.win}`;
             return true;
-        } catch (error) {
+        })
+        .catch(error => {
             console.log(`do_accuse axios.post got an error: ${error}`);
             return false;
-        }
+        });
     }
 
 
-    async function ask_accusation()
+    function ask_accusation()
     {
         console.log("ask_accusation()");
 
@@ -455,18 +444,15 @@
         submit_button.style.display = 'inline-block';
         acuse_location.style.display = 'inline-block';
         loc_label.style.display = 'inline-block';
-        
 
         return true;
     }
 
 
-    async function do_move(option_num)
+    function do_move(option_num)
     {
         console.log("do_move()");
         var url = '';
-
-        console.log(g_token);
 
         switch(option_num){
             case 1:
@@ -480,44 +466,44 @@
                 break;
         }
         
-        try{
-            const response = await axios.post(url, null, {
-              headers: {
+        return axios.post(url, null, {
+            headers: {
                 'accept': 'application/json',
                 'Authorization': `Bearer ${g_token}`
-              }
-            });
+            }
+        })
+        .then(response => {
             console.log(response.data);
             // refresh page and start from the top
             window.location.href = `/gameboard/${g_room_key}`;
             return true;
-        } catch (error) {
+        })
+        .catch(error => {
             console.log(`do_move axios.post got an error: ${error}`);
             return false;
-        }
-
+        });
     }
 
-    async function ask_move()
+    function ask_move()
     {
         console.log("ask_move()");
         var url = `/api/game/${g_room_id}/character/valid_moves/`;
 
-        try{
-            const response = await axios.post(url, null, {
-              headers: {
+        return axios.post(url, null, {
+            headers: {
                 'accept': 'application/json',
                 'Authorization': `Bearer ${g_token}`
-              }
-            });
+            }
+        })
+        .then(response => {
             console.log(response.data);
             const moves_list = response.data;
-
-
+    
+    
             // Update prompt question
             const user_prompt_label = document.getElementById('user_prompt');
             user_prompt_label.innerHTML = "Where would you like to move to?";
-
+    
             // Hide turn option buttons
             const button1 = document.getElementById('move_button');
             const button2 = document.getElementById('suggest_button');
@@ -525,21 +511,21 @@
             button1.style.display = 'none';
             button2.style.display = 'none';
             button3.style.display = 'none';
-
+    
             const move1_but = document.getElementById('do_move1');
             const move2_but = document.getElementById('do_move2');
             const move3_but = document.getElementById('do_move3');
             move1_but.style.display = 'none';
             move2_but.style.display = 'none';
             move3_but.style.display = 'none';
-
+    
             const move1_label  = document.getElementById('local_1');
             const move2_label  = document.getElementById('local_2');
             const move3_label  = document.getElementById('local_3');
             move1_label.style.display = 'none';
             move2_label.style.display = 'none';
             move3_label.style.display = 'none';
-
+    
             // Show move option buttons
             if(response.data[0]){
                 move1_but.style.display = 'inline-block';
@@ -560,10 +546,11 @@
                 g_location_option3 = response.data[2].id;
             }
             return true;
-        } catch (error) {
+        })
+        .catch(error => {
             console.log(`ask_move axios.post got an error: ${error}`);
             return false;
-        }
+        });
     }
     
     function get_char_color(character_name)
@@ -576,87 +563,145 @@
             case "Mrs. Peacock":
                 char_color = "blue";
                 break;
+            case "Mr. Green":
+                char_color = "green";
+                break;
+            case "Col. Mustard":
+                char_color = "yellow";
+                break;
+            case "Miss Scarlet":
+                char_color = "red";
+                break;
+            case "Mrs. White":
+                char_color = "grey";
+                break;
         }
         return char_color;
     }
 
-    async function place_all_characters()
+    function place_all_characters()
     {
         console.log("place_all_characters()");
         var url = `/api/game/${g_game_id}/`;
-        console.log(url);
         
-        try{
-            const response = await axios.get(url, null, {
-              headers: {
+        return axios.get(url, {
+            headers: {
                 'accept': 'application/json',
-              }
-            });
+            }
+        })
+        .then(response => {
             console.log(response.data);
-
+    
             // Go through the list of locations and display any chars there
             const location_list = response.data["locations"];
             console.log(location_list);
-
+    
             for (let i = 0; i < location_list.length; i++) {
-                //console.log("-------");
-                //console.log(location_list[i].name);
                 for (let j = 0; j < location_list[i].characters.length; j++){
-                    //console.log(location_list[i].characters[j].name);
-
                     // Update the character's circle color and location
                     const cell = document.getElementById(location_list[i].name);
                     const characterCircle = document.createElement('div');
                     characterCircle.className = 'circle';
                     characterCircle.style.backgroundColor = get_char_color(location_list[i].characters[j].name);
-                    //cell.innerHTML = ''; // Clear previous content
                     cell.appendChild(characterCircle);
-                        
                 }
             }
             return true;
-        } catch (error) {
-            console.log(`load_other_character_info axios.post got an error: ${error}`);
+        })
+        .catch(error => {
+            console.log(`place_all_characters axios.get got an error: ${error}`);
             alert(error.message);
             throw error;
-        }
+        });
     }
 
-    async function load_my_character_info()
+    function load_my_character_info()
     {
         console.log("load_my_character_info()");
         var url = `/api/game/${g_room_id}/character/`;
 
-        console.log(g_token);
-
-        try {
-            const response = await axios.get(url, {
-              headers: {
+        return axios.get(url, {
+            headers: {
                 'accept': 'application/json',
                 'Authorization': `Bearer ${g_token}`
-              }
-            });
+            }
+        })
+        .then(response => {
             console.log(response.data);
-
+    
             // Update character display information
             const game_id = response.data["game_id"];
             g_game_id = game_id;
             place_all_characters();
-
+    
             const character_name = response.data["name"];
             const character_location = response.data["location"];
             const character_cards = response.data["hand"];
-
+    
             document.getElementById("character_name").value = character_name;
             document.getElementById("character_location").value = character_location.name;
             g_curr_location = character_location.name;
-
+    
             const bulletList = document.getElementById('character_cards');
+            bulletList.innerHTML = ''; // Clear previous content
             character_cards.forEach(function (card_obj) {
                 const li = document.createElement('li');
                 li.textContent = card_obj.name;
                 bulletList.appendChild(li);
             });
+            return true;
+        })
+        .catch(error => {
+            console.log(`load_my_character_info axios.get got an error: ${error}`);
+            alert(error.message);
+            throw error;
+        });
+    }
+
+    function check_if_my_turn()
+    {
+        console.log("check_if_my_turn()");
+        var url = `/api/game/${g_game_id}/character/is_my_turn`;
+        
+        return axios.get(url, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`
+            }
+        })
+        .then(response => {
+            console.log(response.data);
+            is_my_turn = response.data.is_turn;
+            console.log(is_my_turn);
+            return true;
+        })
+        .catch(error => {
+            console.log(`check_if_my_turn axios.get got an error: ${error}`);
+            alert(error.message);
+            throw error;
+        });
+    }
+
+    function load_my_turn_options()
+    {
+        console.log("load_my_turn_options()");
+        var url = `/api/game/${g_room_id}/character/valid_moves/`;
+
+        console.log(g_token);
+
+
+        
+        return axios.post(url, null, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`
+            }
+        })
+        .then(response => {
+            console.log(response.data);
+
+            const player_turn_label = document.getElementById('playerTurn');
+            player_turn_label.innerHTML = "It is your turn!";
 
             // Update display and buttons of available moves during turn
             const user_prompt_label = document.getElementById('user_prompt');
@@ -665,7 +710,7 @@
             const button2 = document.getElementById('suggest_button');
             const button3 = document.getElementById('accuse_button');
 
-            if (character_location.name.indexOf("-") == -1) { // currently in room
+            if (g_curr_location.indexOf("-") == -1) { // currently in room
                 button1.style.display = 'inline-block';
                 button1.innerHTML = "Move to hallway"
                 button2.style.display = 'inline-block';
@@ -677,45 +722,39 @@
                 button2.style.display = 'none';
                 button3.style.display = 'inline-block';
             }
-
             return true;
-        } catch (error) {
-            console.log(`load_my_character_info axios.post got an error: ${error}`);
-            alert(error.message);
-            throw error;
-        }
-    }
-
-    async function load_my_turn_options()
-    {
-        console.log("load_my_turn_options()");
-        var url = `/api/game/${g_room_id}/character/valid_moves/`;
-
-        console.log(g_token);
-        
-        try{
-            const response = await axios.post(url, null, {
-              headers: {
-                'accept': 'application/json',
-                'Authorization': `Bearer ${g_token}`
-              }
-            });
-            console.log(response.data);
-            return true;
-        } catch (error) {
+        })
+        .catch(error => {
             console.log(`load_my_turn_options axios.post got an error: ${error}`);
             return false;
-        }
+        });
+    }
+
+    function load_not_my_turn()
+    {
+        console.log("load_not_my_turn()");
+
+        const player_turn_label = document.getElementById('playerTurn');
+        player_turn_label.innerHTML = "It is not your turn!";
+
+        // Update display and buttons of available moves during turn
+        const user_prompt_label = document.getElementById('user_prompt');
+        user_prompt_label.innerHTML = "Please wait...";
 
     }
 
 
     // Do everytime we load the page
-    //load_other_character_info();
-    load_my_character_info();
-    load_my_turn_options();
-   
-
+    load_my_character_info().then(async () => {
+        await check_if_my_turn();
+        if(is_my_turn){
+            console.log("Yes it is my turn!");
+            load_my_turn_options();
+        } else {
+            console.log("No it is not my turn!");
+            load_not_my_turn();
+        }
+    });
    
 
 </script>

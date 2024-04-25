@@ -28,8 +28,8 @@ class CharacterCRUD(BaseCRUD):
         return cards
 
     def get_by_user_id(self, user_id: str) -> CharacterReadLinks:
-        characters = self.session.exec(select(Character).where(Character.user_id==user_id)).one_or_none()
-        return characters
+        characters = self.session.exec(select(Character).where(Character.user_id==user_id)).all()
+        return characters[0]
 
     def get_all(self) -> List[CharacterRead]:
         characters = self.session.exec(select(Character)).all()

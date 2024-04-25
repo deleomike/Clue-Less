@@ -61,4 +61,6 @@ def display_gameboard(_id: str, request: Request, crud: RoomCRUD = Depends(RoomC
   room = crud.get_by_id_or_key(_id=_id)
   return templates.TemplateResponse("gameboard.html", {"request": request, "room": room, "settings": settings})
 
-
+@router.get("/game_over/{if_win}")
+def lobby(request: Request, if_win: bool):
+  return templates.TemplateResponse("game_over.html", {"request": request, "if_win": if_win, "settings": settings})
