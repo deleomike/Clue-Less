@@ -45,7 +45,7 @@ class Game(GameBase, BaseTable, table=True):
         back_populates="game"
     )
 
-    # character_turn_id: Optional[UUID] = Field(default=None, foreign_key="character.id")
+    character_turn_id: Optional[UUID] = Field(default=None)
 
     # TODO: Core game data goes here
 
@@ -57,8 +57,10 @@ class GameCreate(GameBase):
 class GameRead(GameBase):
     id: UUID
     waiting_room: RoomRead | None = None
+    character_turn_id: Optional[UUID] = None
     # character_turn_id: UUID = None
 
 
 class GameUpdate(SQLModel):
     game_over: Optional[bool] = None
+    character_turn_id: Optional[UUID] = None

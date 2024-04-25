@@ -11,7 +11,7 @@ from clueless.app.db.crud.base import BaseCRUD
 from clueless.app.db.crud.room import RoomCRUD
 from clueless.app.db.crud.location import LocationCRUD, LocationCreate
 from clueless.app.db.models.game import GameBase, Game, GameRead, GameCreate, GameUpdate
-from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate
+from clueless.app.db.crud.character import CharacterCRUD, CharacterCreate, CharacterRead, CharacterUpdate
 from clueless.app.db.crud.card import CardCRUD, CardCreate
 from clueless.app.db.models.shared import GameReadWithLinks
 
@@ -57,15 +57,22 @@ class GameCRUD(BaseCRUD):
         if character_names is None:
             character_names = self.DEFAULT_NAMES[:len(game.waiting_room.users)]
 
-        assert (len(game.waiting_room.users) == len(character_names))
+        user_ids = ["" for _ in character_names]
+        for i, user_id in enumerate(game.waiting_room.users):
+            user_ids[i] = user_id
+
+        assert (len(user_ids) == len(character_names))
+
+        print("USER IDS: ", user_ids)
 
         starting_locations = [location for location in game.locations if "-" in location.name]
-        for user, name in zip(game.waiting_room.users, character_names):
+        for user, name in zip(user_ids, character_names):
             create = CharacterCreate(
                 name=name,
                 user_id=user,
                 location_id=starting_locations.pop().id,
-                game_id=game.id
+                game_id=game.id,
+                is_playing=(user!="") # False if user is ""
             )
 
             ccrud.create(character=create)
@@ -126,6 +133,8 @@ class GameCRUD(BaseCRUD):
 
         self._deal_cards(game_id=db_game.id)
 
+        self.set_turn(db_game.id, self.players(id=db_game.id)[0].id)
+
         return self.get(_id=db_game.id)
 
     def delete(self, _id: UUID) -> GameRead:
@@ -168,3 +177,46 @@ class GameCRUD(BaseCRUD):
         self.update(_id=id, game=GameUpdate(game_over=game_over))
 
         return self.get(id)
+
+    def players(self, id: UUID) -> List[CharacterRead]:
+        game = self.get(id)
+        return [character for character in game.characters if character.is_playing]
+
+    def set_turn(self, id: UUID, character_id: UUID) -> GameReadWithLinks:
+        self.update(_id=id, game=GameUpdate(character_turn_id=character_id))
+
+        # char_crud = CharacterCRUD(session=self.session)
+        #
+        # char_crud.update(CharacterUpdate(is_turn=True))
+
+        return self.get(id)
+
+    def increment_turn(self, id: UUID):
+        game = self.get(id)
+
+        next_player = self.get_next_player(id=id, current_player_id=game.character_turn_id)
+
+        self.set_turn(id, next_player.id)
+
+    def get_player_idx(self, id: UUID, current_player_id: UUID):
+        for player_idx, player in enumerate(self.players(id)):
+            if player.id == current_player_id:
+                return player_idx
+
+    def get_next_player(self, id: UUID, current_player_id: UUID) -> CharacterRead:
+
+        from copy import deepcopy
+
+        current_player_index = self.get_player_idx(id, current_player_id=current_player_id)
+
+        players = self.players(id=id)
+        in_order_players = players[current_player_index:]
+        in_order_players.extend(players[:current_player_index])
+
+        print("IN ORDER PLAYERS: ", in_order_players)
+
+        for player in in_order_players:
+            if player.id == current_player_id:
+                continue
+
+            return player

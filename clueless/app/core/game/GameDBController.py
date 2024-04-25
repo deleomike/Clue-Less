@@ -72,6 +72,18 @@ class GameDBController:
     def all_characters(self) -> List[CharacterReadLinks]:
         return self.full_state.characters
 
+    def get_current_turn(self) -> CharacterReadLinks:
+        return self.character_crud.get_with_link(self.full_state.character_turn_id)
+
+    def is_my_turn(self, user_id: UUID) -> bool:
+        character = self.get_character_info(user_id=user_id)
+
+        return character.id == self.get_current_turn().id
+
+    def is_character_turn(self, character_id: UUID) -> bool:
+
+        return character_id == self.get_current_turn().id
+
     def get_character_by_name(self, character_name) -> CharacterRead:
         characters = self.all_characters
 
@@ -188,18 +200,25 @@ class GameDBController:
         :param validate:
         :return:
         """
+
+        if self.full_state.game_over:
+            raise HTTPException(status_code=500, detail="Game is over")
+
         if validate:
             valid = self.is_valid_location_move(character_id=character_id, location_id=location_id)
 
             if not valid:
                 raise Exception("Invalid move for character.")
 
+            if not self.is_character_turn(character_id):
+                raise HTTPException(status_code=500, detail="Not the character's turn")
+
         self.character_crud.change_room(id=character_id, location_id=location_id)
 
         return self.character_crud.get_with_link(character_id)
 
 
-    def make_suggestions(self, current_player_id: UUID, character_name: str, weapon_name: str) -> CardRead:
+    def make_suggestions(self, current_character_id: UUID, character_name: str, weapon_name: str) -> CardRead:
         """
         Go round the table and make suggestions
         :param current_player:
@@ -207,28 +226,36 @@ class GameDBController:
         :param weapon_name:
         :return:
         """
-        current_player = self.character_crud.get_with_link(current_player_id)
+        if not self.is_character_turn(current_character_id):
+            raise HTTPException(status_code=500, detail="Not the character's turn")
+
+        if self.full_state.game_over:
+            raise HTTPException(status_code=500, detail="Game is over")
+
+        current_player = self.character_crud.get_with_link(current_character_id)
 
         chosen_character = self.get_character_by_name(character_name=character_name)
 
         if "-" in current_player.location.name:
-            raise Exception("Cannot make a suggestion from a hallway")
+            raise HTTPException(status_code=500, detail="Cannot make a suggestion from a hallway")
 
         # teleport the character
         self.move_player(character_id=chosen_character.id, location_id=current_player.location_id, validate=False)
 
         for player in self.players:
-            if player.id == current_player_id:
+            if player.id == current_character_id:
                 continue
             else:
                 card = self.make_suggestion(
-                    current_player=current_player_id,
+                    current_player=current_character_id,
                     accused_id=player.id,
                     character_name=character_name,
                     weapon_name=weapon_name
                 )
                 if card is not None:
                     return card
+
+        self.game_crud.increment_turn(self.id)
 
 
     def make_suggestion(self, current_player: UUID, accused_id: UUID, character_name: str, weapon_name: str) -> CardRead:
@@ -304,7 +331,8 @@ class GameDBController:
         :param weapon:
         :return:
         """
-        current_player = self.character_crud.get_with_link(current_player_id)
+        if self.full_state.game_over:
+            raise HTTPException(status_code=500, detail="Game is over")
 
         won = self.is_solution(character=player_name, weapon=weapon, location=room_name)
 
@@ -312,6 +340,7 @@ class GameDBController:
             # TODO: set game to winning
             self._set_player_won(character_id=current_player_id)
         else:
+            self.game_crud.increment_turn(self.id)
             # TODO set player to having lost
             self._set_player_lost(character_id=current_player_id)
 
