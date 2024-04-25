@@ -14,6 +14,7 @@ from clueless.app.db.models.user import User
 class CardBase(SQLModel):
     game_id: Optional[UUID] = Field(default=None, foreign_key="game.id")
     owner_id: Optional[UUID] = Field(default=None, foreign_key="character.id")
+    owner_name: Optional[str] = Field(default=None, foreign_key="character.name")
 
     name: str = Field(index=True)
     type: str = Field(index=True)
