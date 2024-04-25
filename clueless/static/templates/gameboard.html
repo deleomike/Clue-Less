@@ -253,6 +253,8 @@
     let g_game_id = null;
     let g_room_id = "{{room.id}}";
     let g_room_key = "{{room.room_key}}";
+    console.log(g_room_id);
+    console.log(g_room_key);
     let g_token = document.cookie
     .split('; ')
     .find(row => row.startsWith('token='))
@@ -287,28 +289,25 @@
     async function do_suggest()
     {
         console.log("do_suggest()");
-        var url = `/api/game/${g_room_id}/character/make_suggestion`;
+        var url = `/api/game/${g_game_id}/character/make_suggestion`;
 
         // Accusation selections
         let acuse_weapon = document.getElementById('acuse_weapon').value;
         let acuse_char = document.getElementById('acuse_char').value;
         console.log(acuse_weapon);
         console.log(acuse_char);
-
-        const params = new URLSearchParams();
-        params.append('weapon_name', acuse_weapon);
-        params.append('character_name', acuse_char);
-
-        console.log(g_token);
         
         try{
-            const response = await axios.post(url, params, {
-              headers: {
-                'accept': 'application/json',
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': `Bearer ${g_token}`
-              }
-            });
+            const response = await axios.post(url, {
+                "weapon_name": `${acuse_weapon}`,
+                "character_name": `${acuse_char}`,
+            }, {
+                headers: {
+                    'accept': 'application/json',
+                    'Authorization': `Bearer ${g_token}`,
+                    'Content-Type': 'application/json'
+                }
+            });   
             console.log(response.data);
 
             // TODO: Show results
@@ -374,7 +373,7 @@
     async function do_accuse()
     {
         console.log("do_accuse()");
-        var url = `/api/game/${g_room_id}/character/make_accusation`;
+        var url = `/api/game/${g_game_id}/character/make_accusation`;
 
         // Accusation selections
         let acuse_weapon = document.getElementById('acuse_weapon').value;
@@ -384,23 +383,20 @@
         console.log(acuse_char);
         console.log(acuse_room);
 
-        const params = new URLSearchParams();
-        params.append('weapon_name', acuse_weapon);
-        params.append('character_name', acuse_char);
-        params.append('room_name', acuse_room);
-
         console.log(g_token);
-        console.log(`Bearer ${g_token}`);
-        
 
         try{
-            const response = await axios.post(url, params, {
-              headers: {
-                'accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${g_token}`
-              }
-            });
+            const response = await axios.post(url, {
+                "weapon_name": `${acuse_weapon}`,
+                "character_name": `${acuse_char}`,
+                "room_name": `${acuse_room}`
+            }, {
+                headers: {
+                    'accept': 'application/json',
+                    'Authorization': `Bearer ${g_token}`,
+                    'Content-Type': 'application/json'
+                }
+            });    
             console.log(response.data);
 
             // TODO: Show results
@@ -414,7 +410,7 @@
             // window.location.href = `/gameboard/${g_room_key}`;
             return true;
         } catch (error) {
-            console.log(`do_move axios.post got an error: ${error}`);
+            console.log(`do_accuse axios.post got an error: ${error}`);
             return false;
         }
     }
@@ -474,13 +470,13 @@
 
         switch(option_num){
             case 1:
-                url = `/api/game/${g_room_id}/character/move/${g_location_option1}`;
+                url = `/api/game/${g_game_id}/character/move/${g_location_option1}`;
                 break;
             case 2:
-                url = `/api/game/${g_room_id}/character/move/${g_location_option2}`;
+                url = `/api/game/${g_game_id}/character/move/${g_location_option2}`;
                 break;
             case 3:
-                url = `/api/game/${g_room_id}/character/move/${g_location_option3}`;
+                url = `/api/game/${g_game_id}/character/move/${g_location_option3}`;
                 break;
         }
         
@@ -695,6 +691,8 @@
         console.log("load_my_turn_options()");
         var url = `/api/game/${g_room_id}/character/valid_moves/`;
 
+        console.log(g_token);
+        
         try{
             const response = await axios.post(url, null, {
               headers: {
