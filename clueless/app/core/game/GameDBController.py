@@ -215,6 +215,13 @@ class GameDBController:
 
         self.character_crud.change_room(id=character_id, location_id=location_id)
 
+        if validate:
+            character = self.character_crud.get_with_link(character_id)
+
+            if "-" in character.location:
+                # hallway end turn
+                self.game_crud.increment_turn(self.id)
+
         return self.character_crud.get_with_link(character_id)
 
 
