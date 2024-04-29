@@ -12,16 +12,18 @@
         .column {
             float: left;
             padding: 10px;
-            height: 800px; /* Should be removed. Only for demonstration */
+            height: 800px;
         }
 
         .left {
-        width: 60%;
+            width: 60%;
+            text-align: center;
         }
 
         .right {
-        width: 40%;
+            width: 40%;
         }
+
 
         /* Clear floats after the columns */
         .row:after {
@@ -70,94 +72,98 @@
             background-color: purple;
         }
 
+        img {
+            width: 100vw;
+            height: 200px;
+        }
+
     </style>
 </head>
 
 
 <body>
-
-    <h1> Clue-Less</h1>
+    <img src="/images/NameBanner" alt="ClueLess">
 
     <div class="row">
-        <div class="column left" style="background-color:#aaa;">
+        <div class="column left" style="background-color:#DBD3C9;">
             <h2>Game Board</h2>
 
             <div class="gameboard_grid">
             <table class="gameboard_table">
                 <tr>
-                    <td id="Study">
+                    <td id="Study" style="background-color:#9D876C;">
                         <label class="cell_label" for="Study">Study</label><br>
                     </td>
-                    <td id="Study-Hall Hall">
+                    <td id="Study-Hall Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Study-Hall Hall">Study-Hall Hall</label><br>
                     </td>
-                    <td id="Hall">
+                    <td id="Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Hall">Hall</label><br>
                     </td>
-                    <td id="Hall-Lounge Hall">
+                    <td id="Hall-Lounge Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Hall-Lounge Hall">Hall-Lounge Hall</label><br>
                     </td>
-                    <td id="Lounge">
+                    <td id="Lounge" style="background-color:#9D876C;">
                         <label class="cell_label" for="Lounge">Lounge</label><br>
                     </td>
                 </tr>
                 <tr>
-                    <td id="Study-Library Hall">
+                    <td id="Study-Library Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Study-Library Hall">Study-Library Hall</label><br>
                     </td>
                     <td id="cell11"></td>
-                    <td id="Hall-Billiard Room Hall">
+                    <td id="Hall-Billiard Room Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Hall-Billiard Room Hall">Hall-Billiard Room Hall</label><br>
                     </td>
                     <td id="cell13"></td>
-                    <td id="Lounge-Dining Room Hall">
+                    <td id="Lounge-Dining Room Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Lounge-Dining Room Hall">Lounge-Dining Room Hall</label><br>
                     </td>
                 </tr>
                 <tr>
-                    <td id="Library">
+                    <td id="Library" style="background-color:#9D876C;">
                         <label class="cell_label" for="Library">Library</label><br>
                     </td>
-                    <td id="Library-Billiard Room Hall">
+                    <td id="Library-Billiard Room Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Library-Billiard Room Hall">Library-Billiard Room Hall</label><br>
                     </td>
-                    <td id="Billiard Room">
+                    <td id="Billiard Room" style="background-color:#9D876C;">
                         <label class="cell_label" for="Billiard Room">Billiard Room</label><br>
                     </td>
-                    <td id="Billiard Room-Dining Room Hall">
+                    <td id="Billiard Room-Dining Room Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Billiard Room-Dining Room Hall">Billiard Room-Dining Room Hall</label><br>
                     </td>
-                    <td id="Dining Room">
+                    <td id="Dining Room" style="background-color:#9D876C;">
                         <label class="cell_label" for="Dining Room">Dining Room</label><br>
                     </td>
                 </tr>
                 <tr>
-                    <td id="Library-Conservatory Hall">
+                    <td id="Library-Conservatory Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Library-Conservatory Hall">Library-Conservatory Hall</label><br>
                     </td>
                     <td id="cell31"></td>
-                    <td id="Billiard Room-Ball Room Hall">
+                    <td id="Billiard Room-Ball Room Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Billiard Room-Ball Room Hall">Billiard Room-Ball Room Hall</label><br>
                     </td>
                     <td id="cell33"></td>
-                    <td id="Dining Room-Kitchen Hall">
+                    <td id="Dining Room-Kitchen Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Dining Room-Kitchen Hall">Dining Room-Kitchen Hall</label><br>
                     </td>
                 </tr>
                 <tr>
-                    <td id="Conservatory">
+                    <td id="Conservatory" style="background-color:#9D876C;">
                         <label class="cell_label" for="Conservatory">Conservatory</label><br>
                     </td>
-                    <td id="Conservatory-Ball Room Hall">
+                    <td id="Conservatory-Ball Room Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Conservatory-Ball Room Hall">Conservatory-Ball Room Hall</label><br>
                     </td>
-                    <td id="Ball Room">
+                    <td id="Ball Room" style="background-color:#9D876C;">
                         <label class="cell_label" for="Ball Room">Ball Room</label><br>
                     </td>
-                    <td id="Ball Room-Kitchen Hall">
+                    <td id="Ball Room-Kitchen Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Ball Room-Kitchen Hall">Ball Room-Kitchen Hall</label><br>
                     </td>
-                    <td id="Kitchen">
+                    <td id="Kitchen" style="background-color:#9D876C;">
                         <label class="cell_label" for="Kitchen">Kitchen</label><br>
                     </td>
                 </tr>
@@ -166,7 +172,7 @@
 
 
         </div>
-        <div class="column right" style="background-color:#bbb;">
+        <div class="column right" style="background-color:#FAD4D8;">
             <h2 id="playerTurn">Welcome!</h2>
 
             <div class="dispaly_char_info">
@@ -241,6 +247,7 @@
 
 
 <script>
+
 
     // "Global variables"
     let g_game_id = null;

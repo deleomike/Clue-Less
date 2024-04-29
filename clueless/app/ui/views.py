@@ -1,16 +1,20 @@
 from fastapi import APIRouter, Request, Depends
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from fastapi.templating import Jinja2Templates
 from uuid import UUID
 
 from clueless.app.db.crud.room import RoomCRUD
 from clueless.app.db.crud.character import CharacterCRUD
-from clueless import TEMLPATES_PATH
+from clueless import TEMLPATES_PATH, IMAGES_PATH
 from clueless.settings import settings
 
 router = APIRouter()
 
 templates = Jinja2Templates(directory=TEMLPATES_PATH)
+
+# Mount the directory where your images are stored
+router.mount(IMAGES_PATH, StaticFiles(directory=IMAGES_PATH), name="images")
 
 
 # class RequiresLogin(Exception):
@@ -69,3 +73,6 @@ def display_gameboard(_id: str, request: Request, crud: RoomCRUD = Depends(RoomC
 def lobby(request: Request, if_win: bool):
   return templates.TemplateResponse("game_over.html", {"request": request, "if_win": if_win, "settings": settings})
 
+@router.get("/images/NameBanner")
+async def read_root():
+    return FileResponse(str(IMAGES_PATH) + '/NameBanner.png')
