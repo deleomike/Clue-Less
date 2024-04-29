@@ -29,7 +29,8 @@
     </div>
     <script>
 
-        check_if_already_started();
+        // continuously check if already started
+        setInterval(check_if_already_started, 1000);
 
         function check_if_already_started()
         {

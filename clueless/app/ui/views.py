@@ -43,6 +43,7 @@ def lobby(request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
   rooms = crud.get_all()
   return templates.TemplateResponse("lobby.html", {"request": request, "rooms": rooms, "settings": settings})
 
+
 @router.get("/delete_room/{room_id}")
 def delete_room(request: Request, room_id: str, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
   to_del_room = crud.get_by_id_or_key(room_id)
@@ -51,16 +52,20 @@ def delete_room(request: Request, room_id: str, crud: RoomCRUD = Depends(RoomCRU
   rooms = crud.get_all()
   return templates.TemplateResponse("lobby.html", {"request": request, "rooms": rooms, "settings": settings})
 
+
 @router.get('/room/{_id}')
 def room(_id: str, request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
   room = crud.get_by_id_or_key(_id=_id)
   return templates.TemplateResponse("room.html", {"request": request, "room": room, "settings": settings})
+
 
 @router.get('/gameboard/{_id}')
 def display_gameboard(_id: str, request: Request, crud: RoomCRUD = Depends(RoomCRUD.as_dependency)):
   room = crud.get_by_id_or_key(_id=_id)
   return templates.TemplateResponse("gameboard.html", {"request": request, "room": room, "settings": settings})
 
+
 @router.get("/game_over/{if_win}")
 def lobby(request: Request, if_win: bool):
   return templates.TemplateResponse("game_over.html", {"request": request, "if_win": if_win, "settings": settings})
+

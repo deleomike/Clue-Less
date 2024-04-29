@@ -70,13 +70,6 @@
             background-color: purple;
         }
 
-        .cell_with_image {
-            background-image: url('path_to_your_image.jpg'); /* Specify the path to your image */
-            background-size: cover; /* Cover the entire cell */
-            background-position: center; /* Center the image */
-            background-repeat: no-repeat; /* Do not repeat the image */
-        }
-
     </style>
 </head>
 
@@ -573,7 +566,7 @@
                 char_color = "red";
                 break;
             case "Mrs. White":
-                char_color = "grey";
+                char_color = "white";
                 break;
         }
         return char_color;
@@ -603,6 +596,14 @@
                     const characterCircle = document.createElement('div');
                     characterCircle.className = 'circle';
                     characterCircle.style.backgroundColor = get_char_color(location_list[i].characters[j].name);
+                    // Adjust position based on circle count
+                    if(j > 3){
+                        characterCircle.style.left = `${((j%3)-1) * 20 + 20}%`; 
+                        characterCircle.style.top = `40%`; 
+                    } else {
+                        characterCircle.style.left = `${j * 20 + 20}%`; 
+                    }
+                    
                     cell.appendChild(characterCircle);
                 }
             }
