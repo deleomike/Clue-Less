@@ -72,9 +72,32 @@
             background-color: purple;
         }
 
-        img {
+        .banner-image {
             width: 100vw;
             height: 200px;
+        }
+
+        .char-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 25%;
+        }
+
+        .char_info_container {
+            white-space: nowrap; /* Prevents line breaks */
+        }
+
+        .box {
+            display: inline-block;
+            width: 50%; /* Adjust as needed */
+            height: 100px; /* Example height */
+            box-sizing: border-box; /* Include padding and border in the width */
+        }
+
+        .box img {
+            display: block;
+            margin: 0 auto; /* Center horizontally */
+            transform: translate(-10%, -50%);
         }
 
     </style>
@@ -82,7 +105,7 @@
 
 
 <body>
-    <img src="/images/NameBanner" alt="ClueLess">
+    <img src="/images/NameBanner" alt="ClueLess" class="banner-image">
 
     <div class="row">
         <div class="column left" style="background-color:#DBD3C9;">
@@ -91,19 +114,19 @@
             <div class="gameboard_grid">
             <table class="gameboard_table">
                 <tr>
-                    <td id="Study" style="background-color:#9D876C;">
+                    <td id="Study" style="background-color:#D19EA7;">
                         <label class="cell_label" for="Study">Study</label><br>
                     </td>
                     <td id="Study-Hall Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Study-Hall Hall">Study-Hall Hall</label><br>
                     </td>
-                    <td id="Hall" style="background-color:#9D876C;">
+                    <td id="Hall" style="background-color:#AAB9C5;">
                         <label class="cell_label" for="Hall">Hall</label><br>
                     </td>
                     <td id="Hall-Lounge Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Hall-Lounge Hall">Hall-Lounge Hall</label><br>
                     </td>
-                    <td id="Lounge" style="background-color:#9D876C;">
+                    <td id="Lounge" style="background-color:#D2EFD8;">
                         <label class="cell_label" for="Lounge">Lounge</label><br>
                     </td>
                 </tr>
@@ -121,19 +144,19 @@
                     </td>
                 </tr>
                 <tr>
-                    <td id="Library" style="background-color:#9D876C;">
+                    <td id="Library" style="background-color:#B0DDFD;">
                         <label class="cell_label" for="Library">Library</label><br>
                     </td>
                     <td id="Library-Billiard Room Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Library-Billiard Room Hall">Library-Billiard Room Hall</label><br>
                     </td>
-                    <td id="Billiard Room" style="background-color:#9D876C;">
+                    <td id="Billiard Room" style="background-color:#FDE587;">
                         <label class="cell_label" for="Billiard Room">Billiard Room</label><br>
                     </td>
                     <td id="Billiard Room-Dining Room Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Billiard Room-Dining Room Hall">Billiard Room-Dining Room Hall</label><br>
                     </td>
-                    <td id="Dining Room" style="background-color:#9D876C;">
+                    <td id="Dining Room" style="background-color:#FDB0E6;">
                         <label class="cell_label" for="Dining Room">Dining Room</label><br>
                     </td>
                 </tr>
@@ -151,19 +174,19 @@
                     </td>
                 </tr>
                 <tr>
-                    <td id="Conservatory" style="background-color:#9D876C;">
+                    <td id="Conservatory" style="background-color:#A8A6C9;">
                         <label class="cell_label" for="Conservatory">Conservatory</label><br>
                     </td>
                     <td id="Conservatory-Ball Room Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Conservatory-Ball Room Hall">Conservatory-Ball Room Hall</label><br>
                     </td>
-                    <td id="Ball Room" style="background-color:#9D876C;">
+                    <td id="Ball Room" style="background-color:#DFE1B7;">
                         <label class="cell_label" for="Ball Room">Ball Room</label><br>
                     </td>
                     <td id="Ball Room-Kitchen Hall" style="background-color:#9D876C;">
                         <label class="cell_label" for="Ball Room-Kitchen Hall">Ball Room-Kitchen Hall</label><br>
                     </td>
-                    <td id="Kitchen" style="background-color:#9D876C;">
+                    <td id="Kitchen" style="background-color:#FFB85C;">
                         <label class="cell_label" for="Kitchen">Kitchen</label><br>
                     </td>
                 </tr>
@@ -175,19 +198,31 @@
         <div class="column right" style="background-color:#FAD4D8;">
             <h2 id="playerTurn">Welcome!</h2>
 
-            <div class="dispaly_char_info">
-                <label>Character Name:</label>
-                <input id="character_name" readonly>
-                <br>
-                <label>Location:</label>
-                <input id="character_location" readonly>
-                <br>
-                <label>Cards:</label>
-                <ul id="character_cards">
-                    <!-- Dynamically show character's cards -->
-                </ul>
-                <br>
+
+            <div class="char_info_container">
+                <div class="box">
+                    <label>Character Name:</label>
+                    <input id="character_name" readonly>
+                    <br>
+                    <label>Location:</label>
+                    <input id="character_location" readonly>
+                    <br>
+                    <label>Cards:</label>
+                    <ul id="character_cards">
+                        <!-- Dynamically show character's cards -->
+                    </ul>
+                    <br>
+                </div>
+
+                <div class="box">
+                    <img id="characterImage" src="" alt="Character Icon" class="char-image">
+                </div>
+                
             </div>
+
+            
+
+
 
             <label id="user_prompt">What would you like to do?</label>
             <div id="display_options" class="display_turn_options"><br>
@@ -282,11 +317,6 @@
     let g_sug_char = null;
     let g_sug_room = null;
 
-    function end_turn()
-    {
-        console.log("end_turn()");
-
-    }
 
     function do_suggest()
     {
@@ -579,6 +609,33 @@
         return char_color;
     }
 
+
+    function display_char_image(character_name)
+    {
+        const charImage = document.getElementById('characterImage');
+        switch(character_name){
+            case "Prof. Plum":
+                charImage.src = "/images/ProfPlum"
+                break;
+            case "Mrs. Peacock":
+                charImage.src = "/images/MrsPeacock"
+                break;
+            case "Mr. Green":
+                charImage.src = "/images/MrGreen"
+                break;
+            case "Col. Mustard":
+                charImage.src = "/images/ColMustard"
+                break;
+            case "Miss Scarlet":
+                charImage.src = "/images/MissScar"
+                break;
+            case "Mrs. White":
+                charImage.src = "/images/MrsWhite"
+                break;
+        }
+        return true;
+    }
+
     function place_all_characters()
     {
         console.log("place_all_characters()");
@@ -645,6 +702,8 @@
             const character_name = response.data["name"];
             const character_location = response.data["location"];
             const character_cards = response.data["hand"];
+
+            display_char_image(character_name);
     
             document.getElementById("character_name").value = character_name;
             document.getElementById("character_location").value = character_location.name;

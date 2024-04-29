@@ -73,6 +73,32 @@ def display_gameboard(_id: str, request: Request, crud: RoomCRUD = Depends(RoomC
 def lobby(request: Request, if_win: bool):
   return templates.TemplateResponse("game_over.html", {"request": request, "if_win": if_win, "settings": settings})
 
+
 @router.get("/images/NameBanner")
-async def read_root():
+async def get_banner():
     return FileResponse(str(IMAGES_PATH) + '/NameBanner.png')
+  
+@router.get("/images/ProfPlum")
+async def get_profplum():
+    return FileResponse(str(IMAGES_PATH) + '/ProfPlum.png')
+  
+@router.get("/images/ColMustard")
+async def get_colMust():
+    return FileResponse(str(IMAGES_PATH) + '/ColMustard.png')
+  
+@router.get("/images/MrGreen")
+async def get_mrgreen():
+    return FileResponse(str(IMAGES_PATH) + '/MrGreen.png')
+  
+@router.get("/images/MrsPeacock")
+async def get_mrspeacock():
+    return FileResponse(str(IMAGES_PATH) + '/MrsPeacock.png')
+  
+@router.get("/images/MrsWhite")
+async def get_mrswhite():
+    return FileResponse(str(IMAGES_PATH) + '/MrsWhite.png')
+  
+@router.get("/images/MissScar")
+async def get_missscar():
+    return FileResponse(str(IMAGES_PATH) + '/MissScar.png')
+  
