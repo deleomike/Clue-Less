@@ -145,11 +145,12 @@ def test_suggestion(test_client, game, current_player_header, character_b):
 
     response = make_suggestion(
         game_id=game.id,
-        character_name="Prof. Plum",
-        weapon_name="candlestick",
+        character_name="Col. Mustard",
+        weapon_name="dagger",
         test_client=test_client,
         headers=current_player_header
     )
+    print("CARD: ", response)
 
 
 def test_accusation(test_client, game, current_player_header, character_b):

@@ -55,7 +55,7 @@ class GameCRUD(BaseCRUD):
         ccrud = CharacterCRUD(session=self.session)
 
         if character_names is None:
-            character_names = self.DEFAULT_NAMES[:len(game.waiting_room.users)]
+            character_names = self.DEFAULT_NAMES
 
         user_ids = ["" for _ in character_names]
         for i, user_id in enumerate(game.waiting_room.users):
@@ -104,7 +104,7 @@ class GameCRUD(BaseCRUD):
         ########
 
 
-        cards = [CardCreate(name=details[0], type=details[1], owner_id=character.id)
+        cards = [CardCreate(name=details[0], type=details[1], owner_id=character.id, owner_name=character.name)
                  for details, character in zip(card_details, characters_)]
 
         solution_cards = [CardCreate(name=name, type=type, game_id=game_id) for name, type in solution]
