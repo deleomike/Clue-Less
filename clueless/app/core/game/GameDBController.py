@@ -249,6 +249,7 @@ class GameDBController:
         # teleport the character
         self.move_player(character_id=chosen_character.id, location_id=current_player.location_id, validate=False)
 
+        card = None
         for player in self.players:
             if player.id == current_character_id:
                 continue
@@ -259,10 +260,10 @@ class GameDBController:
                     character_name=character_name,
                     weapon_name=weapon_name
                 )
-                if card is not None:
-                    return card
 
         self.game_crud.increment_turn(self.id)
+
+        return card
 
 
     def make_suggestion(self, current_player: UUID, accused_id: UUID, character_name: str, weapon_name: str) -> CardRead:
