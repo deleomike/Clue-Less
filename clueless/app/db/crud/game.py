@@ -17,7 +17,6 @@ from clueless.app.db.models.shared import GameReadWithLinks
 
 
 class GameCRUD(BaseCRUD):
-
     DEFAULT_NAMES = ["Prof. Plum", "Mrs. Peacock", "Mr. Green", "Mrs. White", "Col. Mustard", "Miss Scarlet"]
     LOCATION_NAMES = [
         "Study",
@@ -38,6 +37,15 @@ class GameCRUD(BaseCRUD):
         "Rope",
         "Wrench"
     ]
+
+    STARTING_LOCATIONS = [
+                          "Study-Library Hall",
+                          "Library-Conservatory Hall",
+                          "Conservatory-Ball Room Hall",
+                          "Ball Room-Kitchen Hall"
+                          "Hall-Lounge Hall",
+                          "Lounge-Dining Room Hall",
+                          ]
 
     def get(self, _id: UUID) -> GameReadWithLinks:
         game = self.session.get(Game, _id)
@@ -64,15 +72,14 @@ class GameCRUD(BaseCRUD):
         assert (len(user_ids) == len(character_names))
 
         print("USER IDS: ", user_ids)
-
-        starting_locations = [location for location in game.locations if "-" in location.name]
-        for user, name in zip(user_ids, character_names):
+        starting_locations = {location.name : location.id for location in game.locations if "-" in location.name}
+        for user, name, hallway_name in zip(user_ids, character_names, self.STARTING_LOCATIONS):
             create = CharacterCreate(
                 name=name,
                 user_id=user,
-                location_id=starting_locations.pop().id,
+                location_id=starting_locations[hallway_name],
                 game_id=game.id,
-                is_playing=(user!="") # False if user is ""
+                is_playing=(user != "")  # False if user is ""
             )
 
             ccrud.create(character=create)
@@ -80,9 +87,9 @@ class GameCRUD(BaseCRUD):
         return self.get(id)
 
     def _deal_cards(self, game_id: UUID):
-        locations, weapons, characters = deepcopy(self.LOCATION_NAMES), deepcopy(self.WEAPON_NAMES), deepcopy(self.DEFAULT_NAMES)
+        locations, weapons, characters = deepcopy(self.LOCATION_NAMES), deepcopy(self.WEAPON_NAMES), deepcopy(
+            self.DEFAULT_NAMES)
         card_details = []
-#  TODO IF IS_PLAYING == FALSE, DON'T DEAL THEM CARDS!!
         import random
 
         random.shuffle(locations)
@@ -91,9 +98,9 @@ class GameCRUD(BaseCRUD):
 
         solution = ((locations.pop(), "room"), (weapons.pop(), "weapon"), (characters.pop(), "character"))
 
-        card_details.extend([(name, "character") for name in self.DEFAULT_NAMES])
-        card_details.extend([(name, "room") for name in self.LOCATION_NAMES])
-        card_details.extend([(name, "weapon") for name in self.WEAPON_NAMES])
+        card_details.extend([(name, "character") for name in characters])
+        card_details.extend([(name, "room") for name in locations])
+        card_details.extend([(name, "weapon") for name in weapons])
 
         ########
         # Adjust how many characters get how many cards
@@ -102,7 +109,6 @@ class GameCRUD(BaseCRUD):
         characters_ = (game.characters * card_character_multiple)[:len(card_details)]
         random.shuffle(characters_)
         ########
-
 
         cards = [CardCreate(name=details[0], type=details[1], owner_id=character.id, owner_name=character.name)
                  for details, character in zip(card_details, characters_)]
@@ -156,7 +162,6 @@ class GameCRUD(BaseCRUD):
         self.session.refresh(db_game)
         return db_game
 
-
     def add_player(self, _id: UUID, player_id: UUID) -> GameRead:
         game = self.get(_id=_id)
 
@@ -164,7 +169,6 @@ class GameCRUD(BaseCRUD):
         new_game.users.append(str(player_id))
 
         return self.update(_id=_id, game=new_game)
-
 
     def move_player(self, id: UUID, character_id: UUID, location_id: UUID, validate: bool = False):
         ccrud = CharacterCRUD(session=self.session)
