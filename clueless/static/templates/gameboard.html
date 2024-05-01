@@ -340,12 +340,20 @@
             }
         })
         .then(response => {
+            console.log("just made a suggestion");
             console.log(response.data);
+            if(response.data[0]){
+                console.log(response.data[0].name);
     
-            // TODO: Show results
-            const result_txt = document.getElementById('turn_result');
-            result_txt.innerHTML = `A player showed you the ${response.data[0].name} card!`;
-            //window.location.href = `/gameboard/${g_room_key}`;
+                // TODO: Show results
+                const result_txt = document.getElementById('turn_result');
+                result_txt.innerHTML = `A player showed you the ${response.data[0].name} card!`;
+                //window.location.href = `/gameboard/${g_room_key}`;
+            } else {
+                const result_txt = document.getElementById('turn_result');
+                result_txt.innerHTML = `No one was able to show you any cards!`;
+            }
+            
             return true;
         })
         .catch(error => {

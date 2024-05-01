@@ -54,13 +54,17 @@
           console.log("token: ",token);
 
           try{
-              const response = await  axios.post(url, {
-                "name": 'My New Room'
-              }, {
+              const response = await axios({
+                method: 'options',
+                url: `${url}`, 
                 headers: {
                   'accept': 'application/json',
                   'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json'
+                  'Content-Type': 'application/json',
+                  'Access-Control-Request-Method': 'GET'
+                },
+                data: {
+                  "name": 'My New Room'
                 }
               });
               console.log(response.data);
