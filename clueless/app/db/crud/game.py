@@ -42,7 +42,7 @@ class GameCRUD(BaseCRUD):
                           "Study-Library Hall",
                           "Library-Conservatory Hall",
                           "Conservatory-Ball Room Hall",
-                          "Ball Room-Kitchen Hall"
+                          "Ball Room-Kitchen Hall",
                           "Hall-Lounge Hall",
                           "Lounge-Dining Room Hall",
                           ]

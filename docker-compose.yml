@@ -2,7 +2,7 @@
 
 services:
   app:
-    image: michaeldeleo31/clueless:latest
+    image: michaeldeleo31/clueless:target
     platform: linux/amd64
     build:
       context: .

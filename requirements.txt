@@ -1,0 +1,10 @@
+click
+fastapi
+uvicorn[standard]
+rich
+jinja2
+fastapi-sessions
+watchfiles
+sqlmodel
+fastapi-users[sqlalchemy]
+aiosqlite

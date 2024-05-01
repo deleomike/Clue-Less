@@ -5,10 +5,17 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends ntp netbase
 
-COPY clueless/ /app/clueless
+RUN pip install --upgrade pip
+
+COPY requirements.txt /app/
+
+RUN pip install -r requirements.txt
+
 COPY pyproject.toml /app/
 COPY LICENSE /app/
 COPY README.md /app/
+
+COPY clueless/ /app/clueless
 
 RUN chmod +x -R /app/
 
