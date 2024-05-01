@@ -71,7 +71,7 @@ class GameCRUD(BaseCRUD):
 
         assert (len(user_ids) == len(character_names))
 
-        print("USER IDS: ", user_ids)
+        print("USER IDS: ",  user_ids)
         starting_locations = {location.name : location.id for location in game.locations if "-" in location.name}
         for user, name, hallway_name in zip(user_ids, character_names, self.STARTING_LOCATIONS):
             create = CharacterCreate(
@@ -105,10 +105,16 @@ class GameCRUD(BaseCRUD):
         ########
         # Adjust how many characters get how many cards
         game: GameReadWithLinks = self.get(game_id)
-        card_character_multiple = math.ceil(len(card_details) / len(game.characters))
-        characters_ = (game.characters * card_character_multiple)[:len(card_details)]
+        players = [char for char in game.characters if char.is_playing]
+        card_character_multiple = math.ceil(len(card_details) / len(players))
+        characters_ = (players * card_character_multiple)[:len(card_details)]
         random.shuffle(characters_)
         ########
+
+        print(len(card_details))
+        print(len(characters_))
+
+        print([char.name for char in characters_])
 
         cards = [CardCreate(name=details[0], type=details[1], owner_id=character.id, owner_name=character.name)
                  for details, character in zip(card_details, characters_)]
