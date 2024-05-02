@@ -261,10 +261,12 @@ class GameDBController:
                     weapon_name=weapon_name
                 )
 
+                if card is not None:
+                    break
+
         self.game_crud.increment_turn(self.id)
 
         return card
-
 
     def make_suggestion(self, current_player: UUID, accused_id: UUID, character_name: str, weapon_name: str) -> CardRead:
         """
@@ -294,13 +296,15 @@ class GameDBController:
         # TODO Card checking for this player and maybe others
 
         matching_cards = []
-        for name in [weapon_name, character_name, current_player.location.name]:
-            for card in self.character_crud.get_owned_cards(character_id=accused_id):
-                if name == card.name:
-                    matching_cards.append(card)
+        # print(f"Looking for {[weapon_name, character_name, current_player.location.name]}")
+        for card in self.character_crud.get_owned_cards(character_id=accused_id):
+            print(card.name)
+            if card.name in [weapon_name, character_name, current_player.location.name]:
+                matching_cards.append(card)
+                # print(card.name, " matched")
 
         if len(matching_cards) == 0:
-            return None
+            return
 
         #return one matching card
         card = random.choice(matching_cards)
