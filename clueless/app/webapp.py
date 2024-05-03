@@ -28,6 +28,7 @@ origins = ["http://localhost:8080",
            "http://127.0.0.1:5500",
            "http://127.0.0.1:55100",
            "*",
+           "https://container-service-1.vhkkrbli6vaf6.us-east-1.cs.amazonlightsail.com/",
            "http://127.0.0.1:55085"]
 
 app.add_middleware(
