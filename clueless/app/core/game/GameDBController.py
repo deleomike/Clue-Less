@@ -218,7 +218,7 @@ class GameDBController:
         if validate:
             character = self.character_crud.get_with_link(character_id)
 
-            if "-" in character.location:
+            if "-" in character.location.name:
                 # hallway end turn
                 self.game_crud.increment_turn(self.id)
 
