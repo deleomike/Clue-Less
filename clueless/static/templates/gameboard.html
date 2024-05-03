@@ -818,6 +818,11 @@
 
     }
 
+    function refresh_window()
+    {
+        window.location.href = `/gameboard/${g_room_key}`;
+    }
+
 
     // Do everytime we load the page
     load_my_character_info().then(async () => {
@@ -828,6 +833,7 @@
         } else {
             console.log("No it is not my turn!");
             load_not_my_turn();
+            setInterval(refresh_window, 2000);
         }
     });
    
