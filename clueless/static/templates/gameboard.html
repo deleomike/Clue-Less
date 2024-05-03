@@ -1,0 +1,844 @@
+{% include "base_layout.html" %}
+
+
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {
+        box-sizing: border-box;
+        }
+
+        .column {
+            float: left;
+            padding: 10px;
+            height: 800px;
+        }
+
+        .left {
+            width: 60%;
+            text-align: center;
+        }
+
+        .right {
+            width: 40%;
+        }
+
+
+        /* Clear floats after the columns */
+        .row:after {
+        content: "";
+        display: table;
+        clear: both;
+        }
+
+
+        .gameboard_grid {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        td {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border: 1px solid black;
+        }
+
+
+        .cell_label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: 12px;
+            margin: 5px;
+        }
+
+
+        .circle {
+            position: absolute;
+            display:block;
+
+            top: 80%;
+            left: 20%;
+            transform: translate(-50%, -50%);
+            
+            height:20px;
+            width:20px;
+
+            border-radius: 50%;
+            background-color: purple;
+        }
+
+        .banner-image {
+            width: 100vw;
+            height: 200px;
+        }
+
+        .char-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 25%;
+        }
+
+        .char_info_container {
+            white-space: nowrap; /* Prevents line breaks */
+        }
+
+        .box {
+            display: inline-block;
+            width: 50%; /* Adjust as needed */
+            height: 100px; /* Example height */
+            box-sizing: border-box; /* Include padding and border in the width */
+        }
+
+        .box img {
+            display: block;
+            margin: 0 auto; /* Center horizontally */
+            transform: translate(-10%, -50%);
+        }
+
+    </style>
+</head>
+
+
+<body>
+    <img src="/images/NameBanner" alt="ClueLess" class="banner-image">
+
+    <div class="row">
+        <div class="column left" style="background-color:#DBD3C9;">
+            <h2>Game Board</h2>
+
+            <div class="gameboard_grid">
+            <table class="gameboard_table">
+                <tr>
+                    <td id="Study" style="background-color:#D19EA7;">
+                        <label class="cell_label" for="Study">Study</label><br>
+                    </td>
+                    <td id="Study-Hall Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Study-Hall Hall">Study-Hall Hall</label><br>
+                    </td>
+                    <td id="Hall" style="background-color:#AAB9C5;">
+                        <label class="cell_label" for="Hall">Hall</label><br>
+                    </td>
+                    <td id="Hall-Lounge Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Hall-Lounge Hall">Hall-Lounge Hall</label><br>
+                    </td>
+                    <td id="Lounge" style="background-color:#D2EFD8;">
+                        <label class="cell_label" for="Lounge">Lounge</label><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="Study-Library Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Study-Library Hall">Study-Library Hall</label><br>
+                    </td>
+                    <td id="cell11"></td>
+                    <td id="Hall-Billiard Room Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Hall-Billiard Room Hall">Hall-Billiard Room Hall</label><br>
+                    </td>
+                    <td id="cell13"></td>
+                    <td id="Lounge-Dining Room Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Lounge-Dining Room Hall">Lounge-Dining Room Hall</label><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="Library" style="background-color:#B0DDFD;">
+                        <label class="cell_label" for="Library">Library</label><br>
+                    </td>
+                    <td id="Library-Billiard Room Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Library-Billiard Room Hall">Library-Billiard Room Hall</label><br>
+                    </td>
+                    <td id="Billiard Room" style="background-color:#FDE587;">
+                        <label class="cell_label" for="Billiard Room">Billiard Room</label><br>
+                    </td>
+                    <td id="Billiard Room-Dining Room Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Billiard Room-Dining Room Hall">Billiard Room-Dining Room Hall</label><br>
+                    </td>
+                    <td id="Dining Room" style="background-color:#FDB0E6;">
+                        <label class="cell_label" for="Dining Room">Dining Room</label><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="Library-Conservatory Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Library-Conservatory Hall">Library-Conservatory Hall</label><br>
+                    </td>
+                    <td id="cell31"></td>
+                    <td id="Billiard Room-Ball Room Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Billiard Room-Ball Room Hall">Billiard Room-Ball Room Hall</label><br>
+                    </td>
+                    <td id="cell33"></td>
+                    <td id="Dining Room-Kitchen Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Dining Room-Kitchen Hall">Dining Room-Kitchen Hall</label><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="Conservatory" style="background-color:#A8A6C9;">
+                        <label class="cell_label" for="Conservatory">Conservatory</label><br>
+                    </td>
+                    <td id="Conservatory-Ball Room Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Conservatory-Ball Room Hall">Conservatory-Ball Room Hall</label><br>
+                    </td>
+                    <td id="Ball Room" style="background-color:#DFE1B7;">
+                        <label class="cell_label" for="Ball Room">Ball Room</label><br>
+                    </td>
+                    <td id="Ball Room-Kitchen Hall" style="background-color:#9D876C;">
+                        <label class="cell_label" for="Ball Room-Kitchen Hall">Ball Room-Kitchen Hall</label><br>
+                    </td>
+                    <td id="Kitchen" style="background-color:#FFB85C;">
+                        <label class="cell_label" for="Kitchen">Kitchen</label><br>
+                    </td>
+                </tr>
+            </table>
+            </div>
+
+
+        </div>
+        <div class="column right" style="background-color:#FAD4D8;">
+            <h2 id="playerTurn">Welcome!</h2>
+
+
+            <div class="char_info_container">
+                <div class="box">
+                    <label>Character Name:</label>
+                    <input id="character_name" readonly>
+                    <br>
+                    <label>Location:</label>
+                    <input id="character_location" readonly>
+                    <br>
+                    <label>Cards:</label>
+                    <ul id="character_cards">
+                        <!-- Dynamically show character's cards -->
+                    </ul>
+                    <br>
+                </div>
+
+                <div class="box">
+                    <img id="characterImage" src="" alt="Character Icon" class="char-image">
+                </div>
+                
+            </div>
+
+            
+
+
+
+            <label id="user_prompt">What would you like to do?</label>
+            <div id="display_options" class="display_turn_options"><br>
+                <button id="move_button" style="display: none;" onclick='ask_move()'>Move to new location</button><br>
+                <button id="suggest_button" style="display: none;" onclick='ask_suggest()'>Make suggestion</button><br>
+                <button id="accuse_button" style="display: none;" onclick='ask_accusation()'>Make accusation</button>
+            </div>
+            <div id="display_move_options" class="display_move_options"><br>
+                <button id="do_move1" style="display: none;" onclick='do_move(1)'>Move</button><label id="local_1" style="display: none;"></label><br>
+                <button id="do_move2" style="display: none;" onclick='do_move(2)'>Move</button><label id="local_2" style="display: none;"></label><br>
+                <button id="do_move3" style="display: none;" onclick='do_move(3)'>Move</button><label id="local_3" style="display: none;"></label><br>
+            </div>
+            <div id="display_accusation" class="display_accusation" style="display: none;"><br>
+                <label id="acuse_loc_label" style="display: none;">Select Location:</label>
+                <select id="acuse_location" class="dropdown-location" style="display: none;">
+                    <option value="Study" >Study</option>
+                    <option value="Hall">Hall</option>
+                    <option value="Lounge">Lounge</option>
+                    <option value="Library">Library</option>
+                    <option value="Billiard Room">Billiard Room</option>
+                    <option value="Dining Room">Dining Room</option>
+                    <option value="Conservatory">Conservatory</option>
+                    <option value="Ball Room">Ball Room</option>
+                    <option value="Kitchen">Kitchen</option>
+                 </select><br>
+                <label>Select Weapon:</label>
+                <select id="acuse_weapon" class="dropdown-weapon">
+                    <option value="Candlestick" >Candlestick</option>
+                    <option value="Dagger">Dagger</option>
+                    <option value="Lead Pipe">Lead Pipe</option>
+                    <option value="Revolver">Revolver</option>
+                    <option value="Rope">Rope</option>
+                    <option value="Wrench">Wrench</option>
+                 </select><br>
+                 <label>Select Character:</label>
+                 <select id="acuse_char" class="dropdown-character">
+                    <option value="Prof. Plum">Prof. Plum</option>
+                    <option value="Mrs. Peacock">Mrs. Peacock</option>
+                    <option value="Mr. Green">Mr. Green</option>
+                    <option value="Mrs. White">Mrs. White</option>
+                    <option value="Col. Mustard">Col. Mustard</option>
+                    <option value="Miss Scarlet">Miss Scarlet</option>
+                 </select><br>
+                 <button id="submit_accuse" onclick='do_accuse()' style="display: none;">Submit Accusation</button><br>
+                 <button id="submit_suggest" onclick='do_suggest()' style="display: none;">Submit Suggestion</button><br>
+            </div>
+            <br>
+            <label id="turn_result"></label>
+            <br>
+        </div>
+        
+
+        </div>
+    </div>
+
+</body>
+
+
+<script>
+
+
+    // "Global variables"
+    let g_game_id = null;
+    let g_room_id = "{{room.id}}";
+    let g_room_key = "{{room.room_key}}";
+    console.log(g_room_id);
+    console.log(g_room_key);
+    let g_token = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('token='))
+    .split('=')[1];
+    console.log("token");
+    console.log(g_token);
+
+    let is_my_turn = false;
+
+    // Location IDs
+    let g_location_option1 = null; 
+    let g_location_option2 = null;
+    let g_location_option3 = null;
+
+    // Accusatino globals
+    let g_accuse_location = null;
+    let g_accuse_weapon = null;
+    let g_accuse_character = null;
+
+    // curr player information
+    let g_curr_location = null;
+
+    // Suggestion selections
+    let g_sug_weapon = null;
+    let g_sug_char = null;
+    let g_sug_room = null;
+
+
+    function do_suggest()
+    {
+        console.log("do_suggest()");
+        var url = `/api/game/${g_game_id}/character/make_suggestion`;
+
+        // Accusation selections
+        let acuse_weapon = document.getElementById('acuse_weapon').value;
+        let acuse_char = document.getElementById('acuse_char').value;
+        console.log(acuse_weapon);
+        console.log(acuse_char);
+        
+        return axios.post(url, {
+            "weapon_name": `${acuse_weapon}`,
+            "character_name": `${acuse_char}`,
+        }, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            console.log("just made a suggestion");
+            console.log(response.data);
+            if(response.data[0]){
+                console.log(response.data[0].name);
+    
+                // TODO: Show results
+                const result_txt = document.getElementById('turn_result');
+                result_txt.innerHTML = `A player showed you the ${response.data[0].name} card!`;
+                //window.location.href = `/gameboard/${g_room_key}`;
+            } else {
+                const result_txt = document.getElementById('turn_result');
+                result_txt.innerHTML = `No one was able to show you any cards!`;
+            }
+            
+            return true;
+        })
+        .catch(error => {
+            console.log(`do_suggest axios.post got an error: ${error}`);
+            return false;
+        });
+    }
+
+
+    function ask_suggest()
+    {
+        console.log("ask_suggest()");
+
+        // Update prompt question
+        const user_prompt_label = document.getElementById('user_prompt');
+        user_prompt_label.innerHTML = "Make a suggestion:";
+
+        // Hide turn & move option buttons
+        const button1 = document.getElementById('move_button');
+        const button2 = document.getElementById('suggest_button');
+        const button3 = document.getElementById('accuse_button');
+        button1.style.display = 'none';
+        button2.style.display = 'none';
+        button3.style.display = 'none';
+
+        const move1_but = document.getElementById('do_move1');
+        const move2_but = document.getElementById('do_move2');
+        const move3_but = document.getElementById('do_move3');
+        move1_but.style.display = 'none';
+        move2_but.style.display = 'none';
+        move3_but.style.display = 'none';
+
+        const move1_label  = document.getElementById('local_1');
+        const move2_label  = document.getElementById('local_2');
+        const move3_label  = document.getElementById('local_3');
+        move1_label.style.display = 'none';
+        move2_label.style.display = 'none';
+        move3_label.style.display = 'none';
+
+        // Show suggestion prompts 
+        const display_accusation = document.getElementById('display_accusation');
+        const acuse_location = document.getElementById('acuse_location');
+        const submit_button = document.getElementById('submit_suggest');
+        const loc_label = document.getElementById('acuse_loc_label');
+        display_accusation.style.display = 'inline-block';
+        acuse_location.style.display = 'none';
+        submit_button.style.display = 'inline-block';
+        loc_label.style.display = 'none';
+
+        return true;
+    }
+
+    function do_accuse()
+    {
+        console.log("do_accuse()");
+        var url = `/api/game/${g_game_id}/character/make_accusation`;
+
+        // Accusation selections
+        let acuse_weapon = document.getElementById('acuse_weapon').value;
+        let acuse_char = document.getElementById('acuse_char').value;
+        let acuse_room = document.getElementById('acuse_location').value;
+        console.log(acuse_weapon);
+        console.log(acuse_char);
+        console.log(acuse_room);
+
+        return axios.post(url, {
+            "weapon_name": `${acuse_weapon}`,
+            "character_name": `${acuse_char}`,
+            "room_name": `${acuse_room}`
+        }, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            console.log(response.data);
+            // navigate to end of game page
+            window.location.href = `/game_over/${response.data.win}`;
+            return true;
+        })
+        .catch(error => {
+            console.log(`do_accuse axios.post got an error: ${error}`);
+            return false;
+        });
+    }
+
+
+    function ask_accusation()
+    {
+        console.log("ask_accusation()");
+
+        // Update prompt question
+        const user_prompt_label = document.getElementById('user_prompt');
+        user_prompt_label.innerHTML = "Make an accusation:";
+
+        // Hide turn & move option buttons
+        const button1 = document.getElementById('move_button');
+        const button2 = document.getElementById('suggest_button');
+        const button3 = document.getElementById('accuse_button');
+        button1.style.display = 'none';
+        button2.style.display = 'none';
+        button3.style.display = 'none';
+
+        const move1_but = document.getElementById('do_move1');
+        const move2_but = document.getElementById('do_move2');
+        const move3_but = document.getElementById('do_move3');
+        move1_but.style.display = 'none';
+        move2_but.style.display = 'none';
+        move3_but.style.display = 'none';
+
+        const move1_label  = document.getElementById('local_1');
+        const move2_label  = document.getElementById('local_2');
+        const move3_label  = document.getElementById('local_3');
+        move1_label.style.display = 'none';
+        move2_label.style.display = 'none';
+        move3_label.style.display = 'none';
+
+        // Show accusation 
+        const display_accusation = document.getElementById('display_accusation');
+        const submit_button = document.getElementById('submit_accuse');
+        const acuse_location = document.getElementById('acuse_location');
+        const loc_label = document.getElementById('acuse_loc_label');
+        display_accusation.style.display = 'inline-block';
+        submit_button.style.display = 'inline-block';
+        acuse_location.style.display = 'inline-block';
+        loc_label.style.display = 'inline-block';
+
+        return true;
+    }
+
+
+    function do_move(option_num)
+    {
+        console.log("do_move()");
+        var url = '';
+
+        switch(option_num){
+            case 1:
+                url = `/api/game/${g_game_id}/character/move/${g_location_option1}`;
+                break;
+            case 2:
+                url = `/api/game/${g_game_id}/character/move/${g_location_option2}`;
+                break;
+            case 3:
+                url = `/api/game/${g_game_id}/character/move/${g_location_option3}`;
+                break;
+        }
+        
+        return axios.post(url, null, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`
+            }
+        })
+        .then(response => {
+            console.log(response.data);
+            // refresh page and start from the top
+            window.location.href = `/gameboard/${g_room_key}`;
+            return true;
+        })
+        .catch(error => {
+            console.log(`do_move axios.post got an error: ${error}`);
+            return false;
+        });
+    }
+
+    function ask_move()
+    {
+        console.log("ask_move()");
+        var url = `/api/game/${g_room_id}/character/valid_moves/`;
+
+        return axios.post(url, null, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`
+            }
+        })
+        .then(response => {
+            console.log(response.data);
+            const moves_list = response.data;
+    
+    
+            // Update prompt question
+            const user_prompt_label = document.getElementById('user_prompt');
+            user_prompt_label.innerHTML = "Where would you like to move to?";
+    
+            // Hide turn option buttons
+            const button1 = document.getElementById('move_button');
+            const button2 = document.getElementById('suggest_button');
+            const button3 = document.getElementById('accuse_button');
+            button1.style.display = 'none';
+            button2.style.display = 'none';
+            button3.style.display = 'none';
+    
+            const move1_but = document.getElementById('do_move1');
+            const move2_but = document.getElementById('do_move2');
+            const move3_but = document.getElementById('do_move3');
+            move1_but.style.display = 'none';
+            move2_but.style.display = 'none';
+            move3_but.style.display = 'none';
+    
+            const move1_label  = document.getElementById('local_1');
+            const move2_label  = document.getElementById('local_2');
+            const move3_label  = document.getElementById('local_3');
+            move1_label.style.display = 'none';
+            move2_label.style.display = 'none';
+            move3_label.style.display = 'none';
+    
+            // Show move option buttons
+            if(response.data[0]){
+                move1_but.style.display = 'inline-block';
+                move1_label.style.display = 'inline-block';
+                move1_label.innerHTML = response.data[0].name;
+                g_location_option1 = response.data[0].id;
+            }
+            if(response.data[1]){
+                move2_but.style.display = 'inline-block';
+                move2_label.style.display = 'inline-block';
+                move2_label.innerHTML = response.data[1].name;
+                g_location_option2 = response.data[1].id;
+            }
+            if(response.data[2]){
+                move3_but.style.display = 'inline-block';
+                move3_label.style.display = 'inline-block';
+                move3_label.innerHTML = response.data[2].name;
+                g_location_option3 = response.data[2].id;
+            }
+            return true;
+        })
+        .catch(error => {
+            console.log(`ask_move axios.post got an error: ${error}`);
+            return false;
+        });
+    }
+    
+    function get_char_color(character_name)
+    {
+        var char_color = "black";
+        switch(character_name){
+            case "Prof. Plum":
+                char_color = "purple";
+                break;
+            case "Mrs. Peacock":
+                char_color = "blue";
+                break;
+            case "Mr. Green":
+                char_color = "green";
+                break;
+            case "Col. Mustard":
+                char_color = "yellow";
+                break;
+            case "Miss Scarlet":
+                char_color = "red";
+                break;
+            case "Mrs. White":
+                char_color = "white";
+                break;
+        }
+        return char_color;
+    }
+
+
+    function display_char_image(character_name)
+    {
+        const charImage = document.getElementById('characterImage');
+        switch(character_name){
+            case "Prof. Plum":
+                charImage.src = "/images/ProfPlum"
+                break;
+            case "Mrs. Peacock":
+                charImage.src = "/images/MrsPeacock"
+                break;
+            case "Mr. Green":
+                charImage.src = "/images/MrGreen"
+                break;
+            case "Col. Mustard":
+                charImage.src = "/images/ColMustard"
+                break;
+            case "Miss Scarlet":
+                charImage.src = "/images/MissScar"
+                break;
+            case "Mrs. White":
+                charImage.src = "/images/MrsWhite"
+                break;
+        }
+        return true;
+    }
+
+    function place_all_characters()
+    {
+        console.log("place_all_characters()");
+        var url = `/api/game/${g_game_id}/`;
+        
+        return axios.get(url, {
+            headers: {
+                'accept': 'application/json',
+            }
+        })
+        .then(response => {
+            console.log(response.data);
+    
+            // Go through the list of locations and display any chars there
+            const location_list = response.data["locations"];
+            console.log(location_list);
+    
+            for (let i = 0; i < location_list.length; i++) {
+                for (let j = 0; j < location_list[i].characters.length; j++){
+                    // Update the character's circle color and location
+                    const cell = document.getElementById(location_list[i].name);
+                    const characterCircle = document.createElement('div');
+                    characterCircle.className = 'circle';
+                    characterCircle.style.backgroundColor = get_char_color(location_list[i].characters[j].name);
+                    // Adjust position based on circle count
+                    if(j > 3){
+                        characterCircle.style.left = `${((j%3)-1) * 20 + 20}%`; 
+                        characterCircle.style.top = `40%`; 
+                    } else {
+                        characterCircle.style.left = `${j * 20 + 20}%`; 
+                    }
+                    
+                    cell.appendChild(characterCircle);
+                }
+            }
+            return true;
+        })
+        .catch(error => {
+            console.log(`place_all_characters axios.get got an error: ${error}`);
+            alert(error.message);
+            throw error;
+        });
+    }
+
+    function load_my_character_info()
+    {
+        console.log("load_my_character_info()");
+        var url = `/api/game/${g_room_id}/character/`;
+
+        return axios.get(url, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`
+            }
+        })
+        .then(response => {
+            console.log(response.data);
+    
+            // Update character display information
+            const game_id = response.data["game_id"];
+            g_game_id = game_id;
+            place_all_characters();
+    
+            const character_name = response.data["name"];
+            const character_location = response.data["location"];
+            const character_cards = response.data["hand"];
+
+            display_char_image(character_name);
+    
+            document.getElementById("character_name").value = character_name;
+            document.getElementById("character_location").value = character_location.name;
+            g_curr_location = character_location.name;
+    
+            const bulletList = document.getElementById('character_cards');
+            bulletList.innerHTML = ''; // Clear previous content
+            character_cards.forEach(function (card_obj) {
+                const li = document.createElement('li');
+                li.textContent = card_obj.name;
+                bulletList.appendChild(li);
+            });
+            return true;
+        })
+        .catch(error => {
+            console.log(`load_my_character_info axios.get got an error: ${error}`);
+            alert(error.message);
+            throw error;
+        });
+    }
+
+    function check_if_my_turn()
+    {
+        console.log("check_if_my_turn()");
+        var url = `/api/game/${g_game_id}/character/is_my_turn`;
+        
+        return axios.get(url, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`
+            }
+        })
+        .then(response => {
+            console.log(response.data);
+            is_my_turn = response.data.is_turn;
+            console.log(is_my_turn);
+            return true;
+        })
+        .catch(error => {
+            console.log(`check_if_my_turn axios.get got an error: ${error}`);
+            alert(error.message);
+            throw error;
+        });
+    }
+
+    function load_my_turn_options()
+    {
+        console.log("load_my_turn_options()");
+        var url = `/api/game/${g_room_id}/character/valid_moves/`;
+
+        console.log(g_token);
+
+
+        
+        return axios.post(url, null, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${g_token}`
+            }
+        })
+        .then(response => {
+            console.log(response.data);
+
+            const player_turn_label = document.getElementById('playerTurn');
+            player_turn_label.innerHTML = "It is your turn!";
+
+            // Update display and buttons of available moves during turn
+            const user_prompt_label = document.getElementById('user_prompt');
+            user_prompt_label.innerHTML = "What would you like to do?";
+            const button1 = document.getElementById('move_button');
+            const button2 = document.getElementById('suggest_button');
+            const button3 = document.getElementById('accuse_button');
+
+            if (g_curr_location.indexOf("-") == -1) { // currently in room
+                button1.style.display = 'inline-block';
+                button1.innerHTML = "Move to hallway"
+                button2.style.display = 'inline-block';
+                button3.style.display = 'inline-block';
+                
+            } else { // currently in hallway
+                button1.style.display = 'inline-block';
+                button1.innerHTML = "Move to room"
+                button2.style.display = 'none';
+                button3.style.display = 'inline-block';
+            }
+            return true;
+        })
+        .catch(error => {
+            console.log(`load_my_turn_options axios.post got an error: ${error}`);
+            return false;
+        });
+    }
+
+    function load_not_my_turn()
+    {
+        console.log("load_not_my_turn()");
+
+        const player_turn_label = document.getElementById('playerTurn');
+        player_turn_label.innerHTML = "It is not your turn!";
+
+        // Update display and buttons of available moves during turn
+        const user_prompt_label = document.getElementById('user_prompt');
+        user_prompt_label.innerHTML = "Please wait...";
+
+    }
+
+    function refresh_window()
+    {
+        window.location.href = `/gameboard/${g_room_key}`;
+    }
+
+
+    // Do everytime we load the page
+    load_my_character_info().then(async () => {
+        await check_if_my_turn();
+        if(is_my_turn){
+            console.log("Yes it is my turn!");
+            load_my_turn_options();
+        } else {
+            console.log("No it is not my turn!");
+            load_not_my_turn();
+            setInterval(refresh_window, 2000);
+        }
+    });
+   
+
+</script>
+
+
+{% block body %}{% endblock %}

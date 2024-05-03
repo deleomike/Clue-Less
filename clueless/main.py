@@ -1,5 +1,5 @@
 import click
-
+from clueless.settings import settings
 from clueless.app.core.game.GameLoop import GameLoop
 
 
@@ -16,8 +16,8 @@ def clue():
 
 
 @clue.command(help="Play the game in your browser.")
-@click.option("--port", "-p", default=8080, help="Port for webserver")
-@click.option("--host", default="127.0.0.1", help="IP Address for serving")
+@click.option("--port", "-p", default=settings.BACKEND_PORT, help="Port for webserver")
+@click.option("--host", default=settings.BACKEND_HOST, help="IP Address for serving")
 def serve(port, host):
     """
     Play the game in your browser.
@@ -26,10 +26,8 @@ def serve(port, host):
     :param host: Host for the app
     :return:
     """
-    from clueless.app.webapp import app
-    import uvicorn
-
-    uvicorn.run(app=app, host=host, port=port)
+    from clueless.app.webapp import start_app
+    start_app(port=port, host=host, reload=False)
 
 
 @clue.command(help="Play the game locally in a terminal")

@@ -1,0 +1,14 @@
+
+{% include "base_layout.html" %}
+
+    <div style="text-align: center;">
+        <h2>Game Over</h2>
+        {% if if_win %}
+        <h1>Congratulations! You won!</h1>
+        {% else %}
+        <h1>Sorry, you lost.</h1>
+        {% endif %}
+    </div>
+
+
+{% block body %}{% endblock %}

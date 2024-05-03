@@ -1,0 +1,110 @@
+{% include "base_layout.html" %}
+
+    <body>
+        <h1>Clue-Less Lobby</h1>
+        <br>
+        <br>
+
+        <b>Make a new room:</b><br>
+        <button onclick="make_and_join_room()">New Room</button>
+        <br>
+        <br>
+        <br>
+        <b>Join an existing room:</b>
+        <ul>
+          {% for room in rooms %}
+            <li>
+              <a onclick='join_room("{{ room.room_key }}")'>
+                  <button>Join</button>
+              </a>
+              <a href='/delete_room/{{room.room_key}}'>
+                  <button>Delete</button>
+              </a>
+             
+              <em> {{ room.name }}: </em> 0/{{ room.player_limit }}, {{ room.room_key }}
+            </li>
+          {% endfor %}
+        </ul>
+
+        <!-- 
+        <h2>
+          <a href="/new_game/{{name}}-room">Start a New Game</a> 
+        </h2>
+        -->
+
+        <!-- 
+        <h2>
+            <a href="/join_game">Join a Game</a>
+        </h2>
+         -->
+
+    </body>
+    <script>
+
+      async function make_and_join_room()
+      {
+          event.preventDefault();
+          console.log("make_and_join_room()");
+          const url = "/api/room/";
+
+          const token = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('token='))
+          .split('=')[1];
+          console.log("token: ",token);
+
+          try{
+              const response = await  axios.post(url, {
+                "name": 'My New Room'
+              }, {
+                headers: {
+                  'accept': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                }
+              });
+              console.log(response.data);
+              const room_key = response.data["room_key"];
+              console.log('Created a new room: room_key = ',room_key);
+              window.location.href = "/room/" + room_key;
+              return true;
+          } catch (error) {
+              console.log(`make_and_join_room axios.post got an error: ${error}`);
+              return false;
+          }
+      }
+
+
+      async function join_room(room_key)
+      {
+          event.preventDefault();
+          console.log("join_room()");
+          var url = `/api/room/${room_key}/join/`;
+
+          const token = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('token='))
+          .split('=')[1];
+          console.log("token: ",token);
+          
+          try {
+              const response = await axios.post(url, null, {
+                headers: {
+                  'accept': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                }
+              });
+              console.log(response.data);
+              console.log('Joined existing room: room_key = ',response.data["room_key"]);
+              window.location.href = "/room/" + response.data["room_key"];
+              return true;
+          } catch (error){
+              console.log(`join_room axios.post got an error: ${error}`);
+              return false;
+          }
+
+      }
+
+    </script>
+
+{% block body %}{% endblock %}

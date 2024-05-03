@@ -1,17 +1,94 @@
 {% include "base_layout.html" %}
-  <div>
-    <h1> {{ room.name }} - {{room.room_key}} </h1>
+    
+    <div>
+        <h1> Clue-Less </h1>
 
-    <h2>Players</h2>
-    <!-- <ul>
-        {% for room in rooms %}
+        <h2> Room Key: {{room.room_key}} </h2>
+
+        <h2>Current Players</h2>
+        <ul>
+        </ul>
+
+        <!--
+
+        
+        {% for user in room.users %}
           <li>
-            <em>{{ room.name }}:</em> 0/{{ room.player_limit }}, {{ room.room_key }}
+            <em>{{ user }}:</em> 0/{{ room.player_limit }}, {{ room.room_key }}
           </li>
         {% endfor %}
-    </ul> -->
-    <button>Start Game</button>
-    <button>Join Game</button>
-    <button>Leave Lobby</button>
-  </div>
+        -->
+
+        <ul>
+          {% for user in room.users %}
+          <li>{{ user }}</li>
+          {% endfor %}
+        </ul>
+
+        <button onclick='start_game("{{ room.room_key }}")'>Start Game</button>
+    </div>
+    <script>
+
+        // continuously check if already started
+        setInterval(check_if_already_started, 1000);
+
+        function check_if_already_started()
+        {
+            console.log("check_if_already_started()");
+            const room_key = `{{ room.room_key }}`;
+            console.log("room key: ",room_key);
+            var url = `/api/room/${room_key}/`;
+            
+            return axios.get(url, {
+                headers: {
+                    'accept': 'application/json',
+                }
+            })
+            .then(response => {
+                console.log(response.data);
+
+                if(response.data.is_started){
+                  // relocate to gameboard display
+                  window.location.href = `/gameboard/${room_key}`;
+                }
+                return true;
+            })
+            .catch(error => {
+                console.log(`check_if_already_started axios.get got an error: ${error}`);
+                alert(error.message);
+                throw error;
+            });
+        }
+
+        async function start_game(room_key)
+        {
+            event.preventDefault();
+            console.log("start_game()");
+            var url = `/api/room/${room_key}/start/`;
+
+            const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('token='))
+            .split('=')[1];
+            console.log("token: ",token);
+
+            try{
+                const response = await  axios.post(url, null, {
+                  headers: {
+                    'accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                  }
+                });
+                console.log(response.data);
+                window.location.href = `/gameboard/${room_key}`;
+                return true;
+            } catch (error) {
+                console.log(`start_game axios.post got an error: ${error}`);
+                return false;
+            }
+        }
+
+
+    </script>
+
 {% block body %}{% endblock %}

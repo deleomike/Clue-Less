@@ -1,0 +1,77 @@
+{% include "base_layout.html" %}
+
+    <div>
+        <h1>Register:</h1>
+        <form id="registerForm" onsubmit="postCreateUser(); return false;">
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email"><br>
+            <label for="password">Password:</label>
+            <input type="text" id="password" name="password"><br>
+            <button type="submit">Create User</button>
+        </form>
+        <p id="register-error-msg"></p>
+    </div>
+    <script>
+
+        async function loginUser(username, password) {
+            console.log("loginUser()");
+            const url = `/api/auth/jwt/login`;
+        
+            const params = new URLSearchParams();
+            params.append('username', username);
+            params.append('password', password);
+            params.append('grant_type', '');
+            params.append('client_secret', '');
+            params.append('scope', '');
+        
+            try {
+                const response = await axios.post(url, params);
+                console.log(response.data);
+                const token = response.data["access_token"];
+                console.log(`Logged in, setting cookie ${token}`);
+                document.cookie = `token=${token}`;
+                window.location.href = `/lobby`;
+                return true;
+            } catch (error) {
+                console.log(`loginUser axios.post got an error: ${error}`);
+                return false;
+            }
+        }
+
+        async function postCreateUser() {
+            event.preventDefault(); // Prevent the form from submitting normally
+            console.log("postCreateUser()");
+            const url = `/api/auth/register`;
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Create the new user
+            // If already exists, will continue to login
+            try{
+                const response = await axios.post(url, {
+                    email: email,
+                    password: password,
+                    is_active: true,
+                    is_superuser: false,
+                    is_verified: true
+                });
+                console.log(response.data);
+            } catch (error){
+                console.log(`postCreateUser got an error: ${error}`);
+                document.getElementById('register-error-msg').innerText = error.message || 'An error occurred';
+            }
+
+            // Log in the new user
+            try {
+                await loginUser(email, password);
+            } catch (error) {
+                console.log(`loginUser got an error: ${error}`);
+                document.getElementById('register-error-msg').innerText = error.message || 'An error occurred';
+            }
+
+            return true;
+        }
+
+    </script>
+{% block body %}{% endblock %}
